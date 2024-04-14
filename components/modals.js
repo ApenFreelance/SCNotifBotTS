@@ -136,7 +136,7 @@ function createUserVerificationModal() {
 
     const verifyRow = new ActionRowBuilder().addComponents(emailInput)
     verifModal.addComponents(verifyRow)
-    return verifyRow
+    return verifModal
 }
 
 module.exports = {
