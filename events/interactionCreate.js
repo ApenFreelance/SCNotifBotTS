@@ -30,12 +30,12 @@ module.exports = {
             reviewCategoryId
             */
             if (interaction.customId == "verify-user" && interaction.isButton()) {
-                cLog(["User clicked verify-user : ", interaction.user.name],{ guild: interaction.guild, subProcess: "buttonClick" });
+                cLog(["User clicked verify-user : ", interaction.user.username],{ guild: interaction.guild, subProcess: "buttonClick" });
                 await interaction.showModal(createUserVerificationModal())
             }
 
             if (interaction.customId == "verify-user" && interaction.isModalSubmit()) {
-                cLog(["User clicked verify-user : ", interaction.user.name],{ guild: interaction.guild, subProcess: "ModalSub" });
+                cLog(["User clicked verify-user : ", interaction.user.username],{ guild: interaction.guild, subProcess: "ModalSub" });
                 bot.emit("verifyUser", interaction, server)
             }
 
