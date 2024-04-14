@@ -123,8 +123,25 @@ function createRatingModal(submissionNumber, game, mode) {
     return feedbackmodal;
 }
 
+function createUserVerificationModal() {
+    const verifModal = new ModalBuilder()
+        .setCustomId("verify-user")
+        .setTitle("Link your Skill Capped account to Discord!")
+    
+    const emailInput = new TextInputBuilder()
+        .setCustomId("email")
+        .setLabel("What is your email?")
+        .setStyle(TextInputStyle.Short)
+        .setRequired(true)
+
+    const verifyRow = new ActionRowBuilder().addComponents(emailInput)
+    verifModal.addComponents(verifyRow)
+    return verifyRow
+}
+
 module.exports = {
     completeSubmissionEmbed,
     createSubmissionModal,
     createRatingModal,
+    createUserVerificationModal
 };
