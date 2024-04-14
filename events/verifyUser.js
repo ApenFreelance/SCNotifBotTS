@@ -1,7 +1,7 @@
 const { cLog } = require("../components/functions/cLog");
 const VerificationLogs = require("../models/VerificationLogs");
 const VerifiedUsers = require("../models/VerifiedUsers");
-
+const { Op } = require("sequelize")
 const formLink = "https://forms.gle/WrzohsKpa2nqTk1M8"
 
 module.exports = {
@@ -35,7 +35,18 @@ module.exports = {
                 rejectionReason: "User not found"
             })
             return
-        } 
+        }
+
+        if (!await checkIfAccountAlreadyLinked(interaction, email)){
+            cLog(["Account already linked : ", interaction.user.username],{ guild: interaction.guild, subProcess: "VerifyUser" });
+            await interaction.reply({content:`This account is already linked.\n\n# Believe this is a mistake?\nContact staff to resolve this issue`, ephemeral:true})
+            logEntry.update({
+                wasSuccessful: false,
+                rejectionReason: "Account already linked"
+            })
+            return
+        }
+
         cLog(["Attempting to give user premium  : ", interaction.user.username],{ guild: interaction.guild, subProcess: "VerifyUser" });
         await grantUserPremium(interaction)
         logEntry.update({wasSuccessful: true})
@@ -48,6 +59,23 @@ module.exports = {
     },
 };
 
+async function checkIfAccountAlreadyLinked(interaction, email) {
+    const linkedAccounts = await VerifiedUsers.findOne({
+        where: {
+            [Op.and]: [
+                { server:interaction.guild.id },
+                {
+                    [Op.or]: [
+                        {userId: interaction.user.id}, 
+                        {email}
+                    ]
+                }
+            ]
+        }
+    })
+    if(!linkedAccounts) return true
+    return false
+}
 
 
 
