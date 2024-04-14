@@ -31,10 +31,10 @@ module.exports = {
             */
             if (interaction.customId == "verify-user" && interaction.isButton()) {
                 cLog(["User clicked verify-user : ", interaction.user.name],{ guild: interaction.guild, subProcess: "buttonClick" });
-                createUserVerificationModal()
+                await interaction.showModal(createUserVerificationModal())
             }
 
-            if (interaction.customId == "verify-user" && interaction.isModal()) {
+            if (interaction.customId == "verify-user" && interaction.isModalSubmit()) {
                 cLog(["User clicked verify-user : ", interaction.user.name],{ guild: interaction.guild, subProcess: "ModalSub" });
                 bot.emit("verifyUser", interaction, server)
             }
