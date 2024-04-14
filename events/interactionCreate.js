@@ -3,7 +3,7 @@ const {
     createSheetBody,
 } = require("../components/functions/googleApi");
 const { cLog } = require("../components/functions/cLog");
-const { createSubmissionModal } = require("../components/modals");
+const { createSubmissionModal, createUserVerificationModal } = require("../components/modals");
 const { getCorrectTable } = require("../src/db");
 const { selectServer } = require("../components/functions/selectServer");
 
@@ -29,6 +29,16 @@ module.exports = {
             serverId
             reviewCategoryId
             */
+            if (interaction.customId == "verify-user" && interaction.isButton()) {
+                cLog(["User clicked verify-user : ", interaction.user.name],{ guild: interaction.guild, subProcess: "buttonClick" });
+                createUserVerificationModal()
+            }
+
+            if (interaction.customId == "verify-user" && interaction.isModal()) {
+                cLog(["User clicked verify-user : ", interaction.user.name],{ guild: interaction.guild, subProcess: "ModalSub" });
+                bot.emit("verifyUser", interaction, server)
+            }
+
             if (interaction.customId == "deletemessage") {
                 await interaction.message.delete();
                 cLog(["Deleted refund message"], {
