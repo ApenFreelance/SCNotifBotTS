@@ -7,6 +7,6 @@ module.exports = {
     .setDescription("Generates a verification button"),
     
   async execute(interaction) {
-        await interaction.reply({content:"Click button to verify!", components:[verificationButton()]})    
+        await interaction.reply({content:"Click button to verify!", components:[verificationButton(interaction.guildId)]})    
     },
 };
