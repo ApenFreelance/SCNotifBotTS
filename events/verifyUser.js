@@ -62,7 +62,6 @@ module.exports = {
   
         await grantUserPremium(interaction, server, serverPart)
         logEntry.update({wasSuccessful: true})
-        if (thisConnectedAccount) return
         const verifEntry = await VerifiedUsers.create({
             userName:interaction.user.username,
             userId: interaction.user.id,
