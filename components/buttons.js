@@ -34,9 +34,19 @@ function waitingForReviewRow(mode) {
     );
 }
 
+function verificationButton(){
+    return new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+        .setCustomId(`verify-user`)
+        .setLabel("Verify")
+        .setStyle("Success")
+    )
+}
+
 
 module.exports = {
     createReviewButtons,
     submitReviewButton,
     waitingForReviewRow,
+    verificationButton
 };
