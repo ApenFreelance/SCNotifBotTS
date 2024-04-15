@@ -1,4 +1,5 @@
 const { cLog } = require("../components/functions/cLog");
+const { updateGoogleSheet, createVerifSheetBody } = require("../components/functions/googleApi");
 const VerificationLogs = require("../models/VerificationLogs");
 const VerifiedUsers = require("../models/VerifiedUsers");
 const { Op } = require("sequelize")
@@ -59,12 +60,20 @@ module.exports = {
   
         await grantUserPremium(interaction)
         logEntry.update({wasSuccessful: true})
-        await VerifiedUsers.create({
+        const verifEntry = await VerifiedUsers.create({
             userName:interaction.user.username,
             userId: interaction.user.id,
             email,
             server:interaction.guild.id
         })
+        if (server.serverName === "WoW") {
+            try {
+                cLog(["Attempting to update sheet  : ", interaction.user.username],{ guild: interaction.guild, subProcess: "VerifyUserSheet" });
+                await updateGoogleSheet(createVerifSheetBody(verifEntry.id, {userName:verifEntry.userName, userId:verifEntry.userId, email:verifEntry.email, createdAt:verifEntry.createdAt}))
+            } catch (err) {
+                cLog([": ", err],{ guild: interaction.guild, subProcess: "VerifyUserSheet" });
+            }
+        }
     },
 };
 
