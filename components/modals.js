@@ -123,9 +123,9 @@ function createRatingModal(submissionNumber, game, mode) {
     return feedbackmodal;
 }
 
-function createUserVerificationModal() {
+function createUserVerificationModal(serverPart = null) {
     const verifModal = new ModalBuilder()
-        .setCustomId("verify-user")
+        .setCustomId(`${serverPart ? "verify-user-" + serverPart : "verify-user"}`)
         .setTitle("Link your Skill Capped account to Discord!")
     
     const emailInput = new TextInputBuilder()

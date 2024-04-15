@@ -29,12 +29,13 @@ module.exports = {
             serverId
             reviewCategoryId
             */
-            if (interaction.customId == "verify-user" && interaction.isButton()) {
+            if (interaction.customId.startsWith("verify-user") && interaction.isButton()) {
+                const serverPart = interaction.customId.split("-")[2] || null
                 cLog(["User clicked verify-user : ", interaction.user.username],{ guild: interaction.guild, subProcess: "buttonClick" });
-                await interaction.showModal(createUserVerificationModal())
+                await interaction.showModal(createUserVerificationModal(serverPart))
             }
 
-            if (interaction.customId == "verify-user" && interaction.isModalSubmit()) {
+            if (interaction.customId.startsWith("verify-user") && interaction.isModalSubmit()) {
                 cLog(["User clicked verify-user : ", interaction.user.username],{ guild: interaction.guild, subProcess: "ModalSub" });
                 bot.emit("verifyUser", interaction, server)
             }
