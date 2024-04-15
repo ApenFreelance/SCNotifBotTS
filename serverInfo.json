@@ -19,10 +19,13 @@
             "submissionChannelId": "1089997649245126818",
             "transcriptChannelId": "1135330058953822210",
             "ratingChannelId": "1135330174678872146"
-        }
+        },
+        "premiumRoleId": "1084871847549620285",
+        "verifForm":"https://forms.gle/WrzohsKpa2nqTk1M8",
+        "specialPass": true
     },
     "Dev": {
-        "serverId": "102496132178329246",
+        "serverId": "1024961321768329246",
         "reviewCategoryId": "1085409586997108746",
         "submissionChannelId": "1084873371797434438",
         "serverName": "WoW",
