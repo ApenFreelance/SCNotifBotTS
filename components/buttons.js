@@ -34,7 +34,21 @@ function waitingForReviewRow(mode) {
     );
 }
 
-function verificationButton(){
+function verificationButton(guildId){
+    if (guildId == "294958471953252353" || guildId == "1024961321768329246") { // If WoW server return these
+        return new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+            .setCustomId("verify-user-wowpvp")
+            .setLabel("Verify for PVP")
+            .setStyle("Success"),
+            new ButtonBuilder()
+            .setCustomId("verify-user-wowpve")
+            .setLabel("Verify for PVE")
+            .setStyle("Success"),
+            
+        )
+    }
+
     return new ActionRowBuilder().addComponents(
         new ButtonBuilder()
         .setCustomId(`verify-user`)
