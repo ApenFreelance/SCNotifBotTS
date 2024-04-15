@@ -62,11 +62,13 @@ module.exports = {
   
         await grantUserPremium(interaction, server, serverPart)
         logEntry.update({wasSuccessful: true})
-        const verifEntry = await VerifiedUsers.create({
+        const verifEntry = await VerifiedUsers.findOrCreate({where: {
             userName:interaction.user.username,
             userId: interaction.user.id,
             email,
             server:interaction.guild.id
+
+        }
         })
         if (server.serverName === "WoW" || server.specialPass) {
             try {
