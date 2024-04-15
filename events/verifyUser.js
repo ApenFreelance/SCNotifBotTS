@@ -62,7 +62,7 @@ module.exports = {
   
         await grantUserPremium(interaction, server, serverPart)
         logEntry.update({wasSuccessful: true})
-        const verifEntry = await VerifiedUsers.findOrCreate({where: {
+        const [verifEntry, created] = await VerifiedUsers.findOrCreate({where: {
             userName:interaction.user.username,
             userId: interaction.user.id,
             email,
