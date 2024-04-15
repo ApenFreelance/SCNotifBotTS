@@ -129,4 +129,31 @@ function createSheetBody(
 
     return sheetBody;
 }
-module.exports = { updateGoogleSheet, authorize, createSheetBody };
+
+
+function createVerifSheetBody(
+    submissionPos,
+    {
+        userName = null,
+        userId = null,
+        email = null,
+        createdAt = null
+    }
+) {
+    let sheetName = null;
+
+    const properties = [
+        { range: `${sheetName}!A${submissionPos}`, value: createdAt },
+        { range: `${sheetName}!B${submissionPos}`, value: email },
+        { range: `${sheetName}!C${submissionPos}`, value: userId },
+        { range: `${sheetName}!D${submissionPos}`, value: userName },
+    ];
+
+    const sheetBody = properties
+        .filter(({ value }) => value !== null)
+        .map(({ range, value }) => ({ range, values: [[value]] }));
+
+    return sheetBody;
+}
+
+module.exports = { updateGoogleSheet, authorize, createSheetBody, createVerifSheetBody };
