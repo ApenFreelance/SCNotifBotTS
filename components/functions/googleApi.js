@@ -140,7 +140,7 @@ function createVerifSheetBody(
         createdAt = null
     }
 ) {
-    let sheetName = null;
+    let sheetName = "AccountLinks";
 
     const properties = [
         { range: `${sheetName}!A${submissionPos}`, value: createdAt },
