@@ -6,7 +6,8 @@ module.exports = class VerifiedUsers extends Model {
          userName: { type: DataTypes.STRING },
          userId: { type: DataTypes.STRING },
          email: { type: DataTypes.STRING },
-         server: {type: DataTypes.STRING}
+         server: {type: DataTypes.STRING},
+         serverPart: {type: DataTypes.STRING}
         }, {
             tableName: "VerifiedUsers",
             updatedAt:true,

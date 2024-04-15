@@ -8,7 +8,8 @@ module.exports = class VerificationLogs extends Model {
          email: { type: DataTypes.STRING },
          wasSuccessful: {type: DataTypes.BOOLEAN },
          rejectionReason: {type: DataTypes.STRING},
-         server: {type: DataTypes.STRING}
+         server: {type: DataTypes.STRING},
+         serverPart: {type: DataTypes.STRING}
         }, {
             tableName: "VerificationLogs",
             updatedAt:true,
