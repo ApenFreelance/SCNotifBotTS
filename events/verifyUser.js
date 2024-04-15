@@ -130,7 +130,7 @@ async function verifyUserOnWebsite(email) {
     if (!response.data.success == "success") { // This is if website handled request. Returns success even if no user found
         return [null, true]
     }
-    if(response.data.emailExistsFirebase) return [true, null]
+    if(response.data.data.emailExistsFirebase) return [true, null]
     return [false, null]
     
 }
