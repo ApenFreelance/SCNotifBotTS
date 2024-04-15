@@ -66,7 +66,7 @@ module.exports = {
             email,
             server:interaction.guild.id
         })
-        if (server.serverName === "WoW") {
+        if (server.serverName === "WoW" || server.specialPass) {
             try {
                 cLog(["Attempting to update sheet  : ", interaction.user.username],{ guild: interaction.guild, subProcess: "VerifyUserSheet" });
                 await updateGoogleSheet(createVerifSheetBody(verifEntry.id, {userName:verifEntry.userName, userId:verifEntry.userId, email:verifEntry.email, createdAt:verifEntry.createdAt}))
