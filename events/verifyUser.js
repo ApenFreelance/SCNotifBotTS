@@ -1,3 +1,4 @@
+const { default: axios } = require("axios");
 const { cLog } = require("../components/functions/cLog");
 const { updateGoogleSheet, createVerifSheetBody } = require("../components/functions/googleApi");
 const VerificationLogs = require("../models/VerificationLogs");
@@ -20,7 +21,7 @@ module.exports = {
         })
         if(interaction.member.roles.cache.has(server.premiumRoleId || server[serverPart].premiumRoleId)) {
             cLog(["User already has role : ", interaction.user.username],{ guild: interaction.guild, subProcess: "VerifyUser" });
-            await interaction.reply({content:`You already have <@&${server[serverPart].premiumRoleId}>`, ephemeral:true})
+            await interaction.reply({content:`You already have <@&${server.premiumRoleId || server[serverPart].premiumRoleId}>`, ephemeral:true})
         }
 
         cLog(["Attempting to verify  : ", interaction.user.username, email],{ guild: interaction.guild, subProcess: "VerifyUser" });
@@ -119,15 +120,13 @@ function ignoreIfAlreadyReplied(err) {
 } */
 
 async function verifyUserOnWebsite(email) {
-    let response = await fetch("https://www.skill-capped.com/api/user/importaccount", {
-        method:"POST",
+    let response = await axios.post("https://www.skill-capped.com/api/user/importaccount", {
+        email
+    },{
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-            email
-        })
+        
     })
-    response = await response.json()
-    console.log("response : ", response)
+    console.log("response : ", response.data)
     if (!response.success) { // This is if website handled request. Returns success even if no user found
         return [null, true]
     }
