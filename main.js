@@ -8,24 +8,67 @@ const data = require("./devData.json")
 
 
 function buildParser (data) {
+    const gearSlotContent = {
+        name: {},
+        enchantment: {}
+    }
     const uniqueBuilds = {
         race:{},
         TalentsCodes:{},
         pvpTalents: {},
         gear: {
-            head:{},
-            neck:{},
-            shoulders:{},
-            back:{},
-            chest:{},
-            wrist:{},
-            hands:{},
-            waist:{},
-            legs:{},
-            feet:{},
-            rings:{},
-            trinket:{},
-            mainHand:{},
+            head:{
+                name: {},
+                enchantments: {}
+            },
+            neck:{
+                name: {},
+                enchantments: {}
+            },
+            shoulders:{
+                name: {},
+                enchantments: {}
+            },
+            back:{
+                name: {},
+                enchantments: {}
+            },
+            chest:{
+                name: {},
+                enchantments: {}
+            },
+            wrist:{
+                name: {},
+                enchantments: {}
+            },
+            hands:{
+                name: {},
+                enchantments: {}
+            },
+            waist:{
+                name: {},
+                enchantments: {}
+            },
+            feet:{
+                name: {},
+                enchantments: {}
+            },
+            legs:{
+                name: {},
+                enchantments: {}
+            },
+            rings:{
+                name: {},
+                enchantments: {}
+            },
+            trinket:{
+                name: {},
+                enchantments: {}
+            },
+            mainHand:{
+                name: {},
+                enchantments: {}
+            },
         }
     }
     data.Characters.forEach(character => {
@@ -48,10 +91,21 @@ function buildParser (data) {
                         case "main-hand":
                             altSlot = "mainHand"
                             break;
-                        default: uniqueBuilds.gear[item.Slot] = {}
+                        case "undefined":
+                            return;
+                        default: uniqueBuilds.gear[item.Slot] = {
+                            name: {},
+                            enchantments: {}
+                        }
                     }
                 }
-                uniqueBuilds.gear[altSlot || item.Slot][item.Name] = uniqueBuilds.gear[altSlot || item.Slot][item.Name] +1 || 1
+                uniqueBuilds.gear[altSlot || item.Slot].name[item.Name] = uniqueBuilds.gear[altSlot || item.Slot].name[item.Name] +1 || 1
+                if(item.Enchantments){
+                    if(item.Enchantments[0].Name)uniqueBuilds.gear[altSlot || item.Slot].enchantments[item.Enchantments[0].Name] = uniqueBuilds.gear[altSlot || item.Slot].enchantments[item.Enchantments[0].Name] +1 || 1
+                    
+                    else {
+                        uniqueBuilds.gear[altSlot || item.Slot].enchantments[item.Enchantments[0].Description.replace("Enchanted: ", "")] = uniqueBuilds.gear[altSlot || item.Slot].enchantments[item.Enchantments[0].Description.replace("Enchanted: ", "")] +1 || 1
+                }}
         })
 
         character.PvPTalents.forEach(talent => {
@@ -59,7 +113,7 @@ function buildParser (data) {
         })
 
     })
-    console.log(uniqueBuilds)
+    console.log(uniqueBuilds.gear)
     return uniqueBuilds
 }
 
