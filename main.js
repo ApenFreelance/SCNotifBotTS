@@ -8,10 +8,21 @@ const data = require("./devData.json")
 
 
 function buildParser (data) {
-    const uniqueBuilds = {}
+    const uniqueBuilds = {
+        race:{},
+        TalentsCodes:{},
+        pvpTalents: {}
+    }
     data.Characters.forEach(character => {
-        uniqueBuilds[character.TalentsCode] = (uniqueBuilds[character.TalentsCode] + 1) || 1
+        uniqueBuilds.race[character.RaceSlug] = (uniqueBuilds.race[character.RaceSlug]) +1 || 1
+        uniqueBuilds.TalentsCodes[character.TalentsCode] = (uniqueBuilds.TalentsCodes[character.TalentsCode] + 1) || 1
+
+        character.PvPTalents.forEach(talent => {
+            uniqueBuilds.pvpTalents[talent.Slug] = (uniqueBuilds.pvpTalents[talent.Slug]) +1 || 1
+        })
+
     })
+    console.log(uniqueBuilds)
     return uniqueBuilds
 }
 
