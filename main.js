@@ -69,7 +69,9 @@ function buildParser (data) {
                 name: {},
                 enchantments: {}
             },
-        }
+        },
+        gems: {},
+        embelleshment: {}
     }
     data.Characters.forEach(character => {
         uniqueBuilds.race[character.RaceSlug] = (uniqueBuilds.race[character.RaceSlug]) +1 || 1
@@ -106,6 +108,24 @@ function buildParser (data) {
                     else {
                         uniqueBuilds.gear[altSlot || item.Slot].enchantments[item.Enchantments[0].Description.replace("Enchanted: ", "")] = uniqueBuilds.gear[altSlot || item.Slot].enchantments[item.Enchantments[0].Description.replace("Enchanted: ", "")] +1 || 1
                 }}
+                if(item.Gems) {
+                    item.Gems.forEach(gem => {
+                        uniqueBuilds.gems[gem.Name] = uniqueBuilds.gems[gem.Name] +1 || 1
+                    })
+                }
+                if(item.Spells){
+                    item.Spells.forEach(spell => {
+                        switch(item.Slot) {
+                            case "trinket-1":
+                            case "trinket-2":
+                                return;
+                            default: 
+                                uniqueBuilds.embelleshment[spell.Name] = uniqueBuilds.embelleshment[spell.Name] +1 || 1
+                                break;
+                        }
+                        
+                    })
+                }
         })
 
         character.PvPTalents.forEach(talent => {
@@ -113,7 +133,7 @@ function buildParser (data) {
         })
 
     })
-    console.log(uniqueBuilds.gear)
+    console.log(uniqueBuilds)
     return uniqueBuilds
 }
 
