@@ -138,11 +138,34 @@ function buildParser (data) {
 }
 
 function getMaxObject(obj) {
-    return Object.keys(obj).reduce((a, b) => obj[a] > obj[b] ? a : b)
+    return Object.values(obj).reduce((a, b) => obj[a] > obj[b] ? a : b)
 }
 
 async function run() {
     buildParser(await getBuild("paladin", "retribution"))
 }
 
-run()
+//run()
+
+function reduceUniqueBuilds(obj) {
+
+}
+
+function getNLargestPairs(obj, n) {
+    return Object.entries(obj)
+        .sort((a, b) => b[1]- a[1])
+        .slice(0, n)
+}
+
+
+console.log(
+    getNLargestPairs({
+        a:1,
+        b:2,
+        c:3,
+        d:222,
+        e:2.3,
+        f:3
+
+    }, 2)
+)
