@@ -45,11 +45,11 @@ function buildParser (data) {
                 name: {},
                 enchantments: {}
             },
-            feet:{
+            legs:{
                 name: {},
                 enchantments: {}
             },
-            legs:{
+            feet:{
                 name: {},
                 enchantments: {}
             },
@@ -129,7 +129,6 @@ function buildParser (data) {
         })
 
     })
-    console.log(uniqueBuilds)
     return uniqueBuilds
 }
 
@@ -137,11 +136,17 @@ function getMaxObject(obj) {
     return Object.values(obj).reduce((a, b) => obj[a] > obj[b] ? a : b)
 }
 
-async function run() {
-    const raw = await getBuild("paladin", "retribution")
+async function run(className, spec) {
+    let raw
+    try {
+        raw = await getBuild(className.toLowerCase(), spec.toLowerCase())
+    } catch {
+        return null
+    }
     //console.log(raw)
     const obj = buildParser(raw)
-    console.log(JSON.stringify(reduceUniqueBuilds(obj)))
+    //console.log(JSON.stringify(reduceUniqueBuilds(obj)))
+    return reduceUniqueBuilds(obj)
 }
 
 //run()
@@ -191,4 +196,70 @@ function loopGear(obj, n, getNLargestPairs) {
 }
 
 
-run()
+const classes =require("./classes.json")
+
+parseEverySpec()
+
+async function parseEverySpec() {
+    const rows = []
+    for (const [className, specArray] of Object.entries(classes)) {
+        for (const spec of specArray) {
+            console.log(className, spec)
+            const obj = await run(className, spec)
+            console.log(obj)
+            if (!obj) {
+                continue
+            }
+            rows.push(createRow(className, spec, obj))
+        }
+    }
+    console.log(rows)
+}
+
+
+function createRow(className, spec, buildData) {
+    return {
+        values:[
+            { userEnteredValue: {stringValue: className}},
+            { userEnteredValue: {stringValue: spec}},
+            { userEnteredValue: {stringValue: buildData.race}},
+            { userEnteredValue: {stringValue: buildData.TalentsCodes}},
+            { userEnteredValue: {stringValue: buildData.pvpTalents}},
+            { userEnteredValue: {stringValue: buildData.gear.head}},
+            { userEnteredValue: {stringValue: buildData.gear.neck}},
+            { userEnteredValue: {stringValue: buildData.gear.shoulders}},
+            { userEnteredValue: {stringValue: buildData.gear.back}},
+            { userEnteredValue: {stringValue: buildData.gear.chest}},
+            { userEnteredValue: {stringValue: buildData.gear.wrist}},
+            { userEnteredValue: {stringValue: buildData.gear.hands}},
+            { userEnteredValue: {stringValue: buildData.gear.waist}},
+            { userEnteredValue: {stringValue: buildData.gear.legs}},
+            { userEnteredValue: {stringValue: buildData.gear.feet}},
+            { userEnteredValue: {stringValue: buildData.gear.rings}},
+            { userEnteredValue: {stringValue: buildData.gear.trinket}},
+            { userEnteredValue: {stringValue: buildData.gear.mainHand}},            
+            { userEnteredValue: {stringValue: buildData.gems}},
+            { userEnteredValue: {stringValue: buildData.embelleshment}},
+        ]
+    }
+}
+
+
+
+
+
+function createBatchUpdateRequest(){
+    const batchUpdateRequest = {
+        request: [
+            {
+                updateCells: {
+                    range: {
+                        sheetId: "",
+                        startRowIndex: 1
+                    },
+                    rows
+                }
+            }
+        ]
+    }
+}
