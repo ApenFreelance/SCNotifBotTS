@@ -129,6 +129,7 @@ function buildParser (data) {
         })
 
     })
+    console.log(uniqueBuilds)
     return uniqueBuilds
 }
 
@@ -140,10 +141,10 @@ async function run() {
     const raw = await getBuild("paladin", "retribution")
     //console.log(raw)
     const obj = buildParser(raw)
-    console.log(reduceUniqueBuilds(obj).gear)
+    console.log(JSON.stringify(reduceUniqueBuilds(obj)))
 }
 
-run()
+//run()
 
 function getNLargestPairs(obj, n) {
     delete obj.undefined
@@ -152,10 +153,17 @@ function getNLargestPairs(obj, n) {
         .slice(0, n)
 }
 
+function getAnyEqualOrAboveN(obj, n) {
+    delete obj.undefined
+    return Object.entries(obj)
+        .sort((a, b) => b[1]- a[1])
+        .filter(x => x[1] >= n)
+}
+
 function reduceUniqueBuilds(obj) {
     const race = getNLargestPairs(obj.race, 1)
-    const TalentsCodes = getNLargestPairs(obj.TalentsCodes, 1)
-    const pvpTalents= getNLargestPairs(obj.pvpTalents, 3)
+    const TalentsCodes = getAnyEqualOrAboveN(obj.TalentsCodes, 5)
+    const pvpTalents= getAnyEqualOrAboveN(obj.pvpTalents, 10)
     const gear = loopGear(obj.gear, 3, getNLargestPairs)
     const gems = getNLargestPairs(obj.gems, 3)
     const embelleshment = getNLargestPairs(obj.embelleshment, 3)
@@ -183,3 +191,4 @@ function loopGear(obj, n, getNLargestPairs) {
 }
 
 
+run()
