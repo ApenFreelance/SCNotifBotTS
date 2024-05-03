@@ -198,50 +198,53 @@ function loopGear(obj, n, getNLargestPairs) {
 
 const classes =require("./classes.json")
 
-parseEverySpec()
+//parseEverySpec()
 
 async function parseEverySpec() {
+    let count = 3
     const rows = []
     for (const [className, specArray] of Object.entries(classes)) {
         for (const spec of specArray) {
+            count++
             console.log(className, spec)
             const obj = await run(className, spec)
-            console.log(obj)
+            
             if (!obj) {
                 continue
             }
-            rows.push(createRow(className, spec, obj))
+            rows.push(...createRow(className, spec, count, obj))
         }
     }
     console.log(rows)
+    await updateGoogleSheet(
+        rows.filter(({ value }) => value !== null)
+        .map(({ range, value }) => ({ range, values: [[value]] })))
 }
 
-
-function createRow(className, spec, buildData) {
-    return {
-        values:[
-            { userEnteredValue: {stringValue: className}},
-            { userEnteredValue: {stringValue: spec}},
-            { userEnteredValue: {stringValue: buildData.race}},
-            { userEnteredValue: {stringValue: buildData.TalentsCodes}},
-            { userEnteredValue: {stringValue: buildData.pvpTalents}},
-            { userEnteredValue: {stringValue: buildData.gear.head}},
-            { userEnteredValue: {stringValue: buildData.gear.neck}},
-            { userEnteredValue: {stringValue: buildData.gear.shoulders}},
-            { userEnteredValue: {stringValue: buildData.gear.back}},
-            { userEnteredValue: {stringValue: buildData.gear.chest}},
-            { userEnteredValue: {stringValue: buildData.gear.wrist}},
-            { userEnteredValue: {stringValue: buildData.gear.hands}},
-            { userEnteredValue: {stringValue: buildData.gear.waist}},
-            { userEnteredValue: {stringValue: buildData.gear.legs}},
-            { userEnteredValue: {stringValue: buildData.gear.feet}},
-            { userEnteredValue: {stringValue: buildData.gear.rings}},
-            { userEnteredValue: {stringValue: buildData.gear.trinket}},
-            { userEnteredValue: {stringValue: buildData.gear.mainHand}},            
-            { userEnteredValue: {stringValue: buildData.gems}},
-            { userEnteredValue: {stringValue: buildData.embelleshment}},
+const sheetName = "Sheet1"
+function createRow(className, spec, rowNumber, buildData) {
+    return [
+            { range: `${sheetName}!A${rowNumber}`, value: className},
+            { range: `${sheetName}!B${rowNumber}`, value: spec},
+            { range: `${sheetName}!C${rowNumber}`, value: JSON.stringify(buildData.race)},
+            { range: `${sheetName}!D${rowNumber}`, value: JSON.stringify(buildData.TalentsCodes)},
+            { range: `${sheetName}!E${rowNumber}`, value: JSON.stringify(buildData.pvpTalents)},
+            { range: `${sheetName}!F${rowNumber}`, value: JSON.stringify(buildData.gear.head)},
+            { range: `${sheetName}!G${rowNumber}`, value: JSON.stringify(buildData.gear.neck)},
+            { range: `${sheetName}!H${rowNumber}`, value: JSON.stringify(buildData.gear.shoulders)},
+            { range: `${sheetName}!I${rowNumber}`, value: JSON.stringify(buildData.gear.back)},
+            { range: `${sheetName}!J${rowNumber}`, value: JSON.stringify(buildData.gear.chest)},
+            { range: `${sheetName}!K${rowNumber}`, value: JSON.stringify(buildData.gear.wrist)},
+            { range: `${sheetName}!L${rowNumber}`, value: JSON.stringify(buildData.gear.hands)},
+            { range: `${sheetName}!M${rowNumber}`, value: JSON.stringify(buildData.gear.waist)},
+            { range: `${sheetName}!N${rowNumber}`, value: JSON.stringify(buildData.gear.legs)},
+            { range: `${sheetName}!O${rowNumber}`, value: JSON.stringify(buildData.gear.feet)},
+            { range: `${sheetName}!P${rowNumber}`, value: JSON.stringify(buildData.gear.rings)},
+            { range: `${sheetName}!Q${rowNumber}`, value: JSON.stringify(buildData.gear.trinket)},
+            { range: `${sheetName}!R${rowNumber}`, value: JSON.stringify(buildData.gear.mainHand)},            
+            { range: `${sheetName}!S${rowNumber}`, value: JSON.stringify(buildData.gems)},
+            { range: `${sheetName}!T${rowNumber}`, value: JSON.stringify(buildData.embelleshment)},
         ]
-    }
 }
 
 
@@ -263,3 +266,102 @@ function createBatchUpdateRequest(){
         ]
     }
 }
+
+
+const { google } = require("googleapis");
+const { GoogleAuth } = require("google-auth-library");
+
+const DEVspreadsheet = process.env.DEVsheet;
+const prod = process.env.PRODsheet;
+
+const spreadsheetId = "1_4TIqntQgcvLctYErnFg5b6Hr7a9YoLV9cNL_d6ibhA";
+
+async function updateGoogleSheet(data) {
+    const auth = new GoogleAuth({
+        keyFile: "credentials.json", //the key file
+        scopes: "https://www.googleapis.com/auth/spreadsheets",
+    });
+    const service = google.sheets({ version: "v4", auth });
+
+    const request = {
+        spreadsheetId,
+        resource: {
+            valueInputOption: "USER_ENTERED",
+            data: data,
+        },
+        auth: auth,
+    };
+
+    try {
+        const response = (
+            await service.spreadsheets.values.batchUpdate(request)
+        ).data;
+        console.log(response);
+    } catch (err) {
+        console.error(err);
+    }
+}
+async function authorize() {
+    let authClient = new google.auth.GoogleAuth({
+        keyFile: "credentials.json", //the key file
+        //url to spreadsheets API
+        scopes: "https://www.googleapis.com/auth/spreadsheets",
+    });
+    if (authClient == null) {
+        throw Error("authentication failed");
+    }
+    return authClient;
+}
+
+
+
+
+
+
+function statPriority(sheetname, start, data) {
+    return [
+        { range: `${sheetname}!A${start + 1}`, value: data.versatility.text},
+        { range: `${sheetname}!B${start + 1}`, value: data.versatility.number},
+        { range: `${sheetname}!A${start + 2}`, value: data.mastery.text},
+        { range: `${sheetname}!B${start + 2}`, value: data.mastery.number},
+        { range: `${sheetname}!A${start + 3}`, value: data.haste.text},
+        { range: `${sheetname}!B${start + 3}`, value: data.haste.number},
+        { range: `${sheetname}!A${start + 4}`, value: data.criticalStrike.text},
+        { range: `${sheetname}!B${start + 4}`, value: data.criticalStrike.number}
+    ]
+}
+
+function createSheetRows(sheetname, start, data) {
+    const rows = []
+    Object.values(data).forEach(stat => {
+        rows.push(
+            { range: `${sheetname}!A${start + 1}`, value: stat.text}
+        )
+        rows.push(
+            { range: `${sheetname}!B${start + 1}`, value: stat.number}
+        )
+        start++
+    })
+    return rows
+    
+    
+    return [
+        { range: `${sheetname}!A${start + 1}`, value: data.versatility.text},
+        { range: `${sheetname}!B${start + 1}`, value: data.versatility.number},
+        { range: `${sheetname}!A${start + 2}`, value: data.mastery.text},
+        { range: `${sheetname}!B${start + 2}`, value: data.mastery.number},
+        { range: `${sheetname}!A${start + 3}`, value: data.haste.text},
+        { range: `${sheetname}!B${start + 3}`, value: data.haste.number},
+        { range: `${sheetname}!A${start + 4}`, value: data.criticalStrike.text},
+        { range: `${sheetname}!B${start + 4}`, value: data.criticalStrike.number}
+    ]
+}
+
+console.log(race("sheet1", 1, {
+    versatility: {text:"This", number:20},
+    mastery: {text:"That", number:2}
+
+}))
+
+
+
