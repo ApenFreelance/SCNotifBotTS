@@ -159,7 +159,8 @@ async function blockIfLacksRole(interaction, game) {
             !interaction.member.roles.cache.some(
                 (role) =>
                     role.name === "🧨 Infinity Member" ||
-                    role.name === "💙Premium Member"
+                    role.name === "💙Premium Member" ||
+                    role.name === "🧨Mythic Member"
             )
         ) {
             await interaction.reply({
