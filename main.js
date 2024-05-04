@@ -162,7 +162,7 @@ function getNLargestPairs(obj, n) {
     let sortedFiltered = Object.entries(obj)
         .sort((a, b) => b[1]- a[1])
         .slice(0, n)
-    while(sortedFiltered.length < n) sortedFiltered.push([" "," "])
+    while(sortedFiltered.length < n) sortedFiltered.push([" "," "]) // Add empty to clear out old row content
     return sortedFiltered
 }
 
@@ -174,7 +174,7 @@ function getAnyEqualOrAboveN(obj, n, max) {
         .filter(x => x[1] >= n)
         .slice(0, max)
 
-    while(sortedFiltered.length < max) sortedFiltered.push([" ", " "])
+    while(sortedFiltered.length < max) sortedFiltered.push([" ", " "]) // Add empty to clear out old row content
     return sortedFiltered
 }
 
