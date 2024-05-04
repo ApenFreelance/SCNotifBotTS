@@ -274,7 +274,7 @@ const { GoogleAuth } = require("google-auth-library");
 const DEVspreadsheet = process.env.DEVsheet;
 const prod = process.env.PRODsheet;
 
-const spreadsheetId = "1_4TIqntQgcvLctYErnFg5b6Hr7a9YoLV9cNL_d6ibhA";
+const spreadsheetId = DEVspreadsheet;
 
 async function updateGoogleSheet(data) {
     const auth = new GoogleAuth({
@@ -331,36 +331,65 @@ function statPriority(sheetname, start, data) {
     ]
 }
 
-function createSheetRows(sheetname, start, data) {
+function createSheetRows(sheetname, start, data, column1 = "A", column2 = "B") {
     const rows = []
     Object.values(data).forEach(stat => {
         rows.push(
-            { range: `${sheetname}!A${start + 1}`, value: stat.text}
+            { range: `${sheetname}!${column1}${start + 1}`, value: stat.text}
         )
         rows.push(
-            { range: `${sheetname}!B${start + 1}`, value: stat.number}
+            { range: `${sheetname}!${column2}${start + 1}`, value: stat.number}
         )
         start++
     })
     return rows
-    
-    
+}
+
+function collectedRows(sheetname, data) {
     return [
-        { range: `${sheetname}!A${start + 1}`, value: data.versatility.text},
-        { range: `${sheetname}!B${start + 1}`, value: data.versatility.number},
-        { range: `${sheetname}!A${start + 2}`, value: data.mastery.text},
-        { range: `${sheetname}!B${start + 2}`, value: data.mastery.number},
-        { range: `${sheetname}!A${start + 3}`, value: data.haste.text},
-        { range: `${sheetname}!B${start + 3}`, value: data.haste.number},
-        { range: `${sheetname}!A${start + 4}`, value: data.criticalStrike.text},
-        { range: `${sheetname}!B${start + 4}`, value: data.criticalStrike.number}
+        ...createSheetRows(sheetname, 1, data.statPrio),
+        ...createSheetRows(sheetname, 6, data.race),
+        ...createSheetRows(sheetname, 11, data.TalentsCodes),
+        ...createSheetRows(sheetname, 17, data.pvpTalents),
+        ...createSheetRows(sheetname, 24, data.gear.head), // will fail when going through due to dual paths on gear
+        ...createSheetRows(sheetname, 24, data.gear.head), // will fail when going through due to dual paths on gear   
+        ...createSheetRows(sheetname, 28, data.gear.neck),
+        ...createSheetRows(sheetname, 28, data.gear.neck),
+        ...createSheetRows(sheetname, 32, data.gear.shoulders),
+        ...createSheetRows(sheetname, 32, data.gear.shoulders),
+        ...createSheetRows(sheetname, 36, data.gear.back),
+        ...createSheetRows(sheetname, 36, data.gear.back),
+        ...createSheetRows(sheetname, 40, data.gear.chest),
+        ...createSheetRows(sheetname, 40, data.gear.chest),
+        ...createSheetRows(sheetname, 44, data.gear.wrist),
+        ...createSheetRows(sheetname, 44, data.gear.wrist),
+        ...createSheetRows(sheetname, 48, data.gear.hands),
+        ...createSheetRows(sheetname, 48, data.gear.hands),
+        ...createSheetRows(sheetname, 52, data.gear.waist),
+        ...createSheetRows(sheetname, 52, data.gear.waist),
+        ...createSheetRows(sheetname, 56, data.gear.legs),
+        ...createSheetRows(sheetname, 56, data.gear.legs),
+        ...createSheetRows(sheetname, 60, data.gear.feet),
+        ...createSheetRows(sheetname, 60, data.gear.feet),
+        ...createSheetRows(sheetname, 64, data.gear.rings),
+        ...createSheetRows(sheetname, 64, data.gear.rings),
+        ...createSheetRows(sheetname, 68, data.gear.trinkets),
+        ...createSheetRows(sheetname, 68, data.gear.trinkets),
+        ...createSheetRows(sheetname, 72, data.gear.mainHand),
+        ...createSheetRows(sheetname, 72, data.gear.mainHand),
+        ...createSheetRows(sheetname, 76, data.gear.offHand),
+        ...createSheetRows(sheetname, 76, data.gear.offHand),
+        ...createSheetRows(sheetname, 80, data.gems),
+        ...createSheetRows(sheetname, 86, data.embelleshments),
+
     ]
 }
+
+
 
 console.log(race("sheet1", 1, {
     versatility: {text:"This", number:20},
     mastery: {text:"That", number:2}
-
 }))
 
 
