@@ -346,8 +346,8 @@ function collectedRows(sheetname, data) {
         ...createSheetRows(sheetname, 6, data.race),
         ...createSheetRows(sheetname, 11, data.TalentsCodes),
         ...createSheetRows(sheetname, 17, data.pvpTalents),
-        ...createSheetRows(sheetname, 24, data.gear.head.name), // will fail when going through due to dual paths on gear
-        ...createSheetRows(sheetname, 24, data.gear.head.enchantments, "C", "D"), // will fail when going through due to dual paths on gear   
+        ...createSheetRows(sheetname, 24, data.gear.head.name), 
+        ...createSheetRows(sheetname, 24, data.gear.head.enchantments, "C", "D"), 
         ...createSheetRows(sheetname, 28, data.gear.neck.name),
         ...createSheetRows(sheetname, 28, data.gear.neck.enchantments, "C", "D"),
         ...createSheetRows(sheetname, 32, data.gear.shoulders.name),
