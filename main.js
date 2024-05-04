@@ -9,6 +9,13 @@ const data = require("./devData.json")
 
 function buildParser (data) {
     const uniqueBuilds = {
+        buildCount:0,
+        statPrio:{
+            Haste:0,
+            Mastery:0,
+            Versatility:0,
+            Crit:0
+        },
         race:{},
         TalentsCodes:{},
         pvpTalents: {},
@@ -74,6 +81,27 @@ function buildParser (data) {
         embelleshment: {}
     }
     data.Characters.forEach(character => {
+        uniqueBuilds.buildCount++
+        // This does not deal with undefined and is hard to read both in code and outside
+        const statShorthand = "H"+character.Haste+"C"+character.Crit+"M"+character.Mastery+"V"+character.Versatility
+        //uniqueBuilds.statPrio[statShorthand] = (uniqueBuilds.statPrio[statShorthand]) +1 || 1
+
+
+        // Not enough players have the exact stats so average prob needs to be used
+       /*  const stats = {
+            Haste: character.Haste || 0,
+            Mastery: character.Mastery || 0,
+            Versatility: character.Versatility || 0,
+            Crit: character.Crit || 0,
+        }
+        uniqueBuilds.statPrio[JSON.stringify(stats)] = (uniqueBuilds.statPrio[JSON.stringify(stats)]) + 1 || 1 */
+        
+        uniqueBuilds.statPrio.Haste+= character.Haste || 0
+        uniqueBuilds.statPrio.Mastery+= character.Mastery || 0
+        uniqueBuilds.statPrio.Versatility+= character.Versatility ||0 
+        uniqueBuilds.statPrio.Crit+= character.Crit || 0
+        
+        
         uniqueBuilds.race[character.RaceSlug] = (uniqueBuilds.race[character.RaceSlug]) +1 || 1
         uniqueBuilds.TalentsCodes[character.TalentsCode] = (uniqueBuilds.TalentsCodes[character.TalentsCode] + 1) || 1
         
@@ -135,6 +163,7 @@ function buildParser (data) {
         })
 
     })
+    
     return uniqueBuilds
 }
 
@@ -179,6 +208,10 @@ function getAnyEqualOrAboveN(obj, n, max) {
 }
 
 function reduceUniqueBuilds(obj) {
+    
+    const statsPrio = Object.entries(obj.statPrio).map(([key, value]) => {
+        return [key, Math.round(value / obj.buildCount)]
+    })
     const race = getNLargestPairs(obj.race, 4)
     const TalentsCodes = getNLargestPairs(obj.TalentsCodes, 5)
     //const TalentsCodes = getAnyEqualOrAboveN(obj.TalentsCodes, 5, 5)
@@ -189,6 +222,7 @@ function reduceUniqueBuilds(obj) {
     const embelleshment = getNLargestPairs(obj.embelleshment, 5)
 
     const newObj = {
+            statsPrio,
             race,
             TalentsCodes,
             pvpTalents,
@@ -327,13 +361,14 @@ function statPriority(sheetname, start, data) {
 }
 
 function createSheetRows(sheetname, start, data, column1 = "A", column2 = "B") {
+    console.log(data)
     const rows = []
     Object.values(data).forEach(stat => {
         rows.push(
-            { range: `${sheetname}!${column1}${start + 1}`, value: stat[0] || " "}
+            { range: `${sheetname}!${column1}${start + 1}`, value: stat[0] || " "} // Text
         )
         rows.push(
-            { range: `${sheetname}!${column2}${start + 1}`, value: stat[1] || " "}
+            { range: `${sheetname}!${column2}${start + 1}`, value: stat[1] || " "} // Number
         )
         start++
     })
@@ -342,7 +377,7 @@ function createSheetRows(sheetname, start, data, column1 = "A", column2 = "B") {
 
 function collectedRows(sheetname, data) {
     return [
-        //...createSheetRows(sheetname, 1, data.statPrio),
+        ...createSheetRows(sheetname, 1, data.statsPrio),
         ...createSheetRows(sheetname, 6, data.race),
         ...createSheetRows(sheetname, 11, data.TalentsCodes),
         ...createSheetRows(sheetname, 17, data.pvpTalents),
