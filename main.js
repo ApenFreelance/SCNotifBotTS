@@ -65,6 +65,10 @@ function buildParser (data) {
                 name: {},
                 enchantments: {}
             },
+            offHand:{
+                name: {},
+                enchantments: {}
+            }
         },
         gems: {},
         embelleshment: {}
@@ -85,9 +89,11 @@ function buildParser (data) {
                         case "ring-2":
                             altSlot = "rings"
                             break;
-
                         case "main-hand":
                             altSlot = "mainHand"
+                            break;
+                        case "off-hand":
+                            altSlot = "offHand"
                             break;
                         case "undefined":
                             return;
@@ -153,25 +159,34 @@ async function run(className, spec) {
 
 function getNLargestPairs(obj, n) {
     delete obj.undefined
-    return Object.entries(obj)
+    let sortedFiltered = Object.entries(obj)
         .sort((a, b) => b[1]- a[1])
         .slice(0, n)
+    while(sortedFiltered.length < n) sortedFiltered.push([" "," "])
+    return sortedFiltered
 }
 
-function getAnyEqualOrAboveN(obj, n) {
+function getAnyEqualOrAboveN(obj, n, max) {
+    
     delete obj.undefined
-    return Object.entries(obj)
+    let sortedFiltered = Object.entries(obj)
         .sort((a, b) => b[1]- a[1])
         .filter(x => x[1] >= n)
+        .slice(0, max)
+
+    while(sortedFiltered.length < max) sortedFiltered.push([" ", " "])
+    return sortedFiltered
 }
 
 function reduceUniqueBuilds(obj) {
-    const race = getNLargestPairs(obj.race, 1)
-    const TalentsCodes = getAnyEqualOrAboveN(obj.TalentsCodes, 5)
-    const pvpTalents= getAnyEqualOrAboveN(obj.pvpTalents, 10)
+    const race = getNLargestPairs(obj.race, 4)
+    const TalentsCodes = getNLargestPairs(obj.TalentsCodes, 5)
+    //const TalentsCodes = getAnyEqualOrAboveN(obj.TalentsCodes, 5, 5)
+    const pvpTalents= getNLargestPairs(obj.pvpTalents, 6)
+    //const pvpTalents= getAnyEqualOrAboveN(obj.pvpTalents, 10, 6)
     const gear = loopGear(obj.gear, 3, getNLargestPairs)
-    const gems = getNLargestPairs(obj.gems, 3)
-    const embelleshment = getNLargestPairs(obj.embelleshment, 3)
+    const gems = getNLargestPairs(obj.gems, 5)
+    const embelleshment = getNLargestPairs(obj.embelleshment, 5)
 
     const newObj = {
             race,
@@ -215,7 +230,6 @@ async function parseEverySpec() {
             rows.push(...createRow(className, spec, count, obj))
         }
     }
-    console.log(rows)
     await updateGoogleSheet(
         rows.filter(({ value }) => value !== null)
         .map(({ range, value }) => ({ range, values: [[value]] })))
@@ -247,25 +261,6 @@ function createRow(className, spec, rowNumber, buildData) {
         ]
 }
 
-
-
-
-
-function createBatchUpdateRequest(){
-    const batchUpdateRequest = {
-        request: [
-            {
-                updateCells: {
-                    range: {
-                        sheetId: "",
-                        startRowIndex: 1
-                    },
-                    rows
-                }
-            }
-        ]
-    }
-}
 
 
 const { google } = require("googleapis");
@@ -335,10 +330,10 @@ function createSheetRows(sheetname, start, data, column1 = "A", column2 = "B") {
     const rows = []
     Object.values(data).forEach(stat => {
         rows.push(
-            { range: `${sheetname}!${column1}${start + 1}`, value: stat.text}
+            { range: `${sheetname}!${column1}${start + 1}`, value: stat[0] || " "}
         )
         rows.push(
-            { range: `${sheetname}!${column2}${start + 1}`, value: stat.number}
+            { range: `${sheetname}!${column2}${start + 1}`, value: stat[1] || " "}
         )
         start++
     })
@@ -347,50 +342,90 @@ function createSheetRows(sheetname, start, data, column1 = "A", column2 = "B") {
 
 function collectedRows(sheetname, data) {
     return [
-        ...createSheetRows(sheetname, 1, data.statPrio),
+        //...createSheetRows(sheetname, 1, data.statPrio),
         ...createSheetRows(sheetname, 6, data.race),
         ...createSheetRows(sheetname, 11, data.TalentsCodes),
         ...createSheetRows(sheetname, 17, data.pvpTalents),
-        ...createSheetRows(sheetname, 24, data.gear.head), // will fail when going through due to dual paths on gear
-        ...createSheetRows(sheetname, 24, data.gear.head), // will fail when going through due to dual paths on gear   
-        ...createSheetRows(sheetname, 28, data.gear.neck),
-        ...createSheetRows(sheetname, 28, data.gear.neck),
-        ...createSheetRows(sheetname, 32, data.gear.shoulders),
-        ...createSheetRows(sheetname, 32, data.gear.shoulders),
-        ...createSheetRows(sheetname, 36, data.gear.back),
-        ...createSheetRows(sheetname, 36, data.gear.back),
-        ...createSheetRows(sheetname, 40, data.gear.chest),
-        ...createSheetRows(sheetname, 40, data.gear.chest),
-        ...createSheetRows(sheetname, 44, data.gear.wrist),
-        ...createSheetRows(sheetname, 44, data.gear.wrist),
-        ...createSheetRows(sheetname, 48, data.gear.hands),
-        ...createSheetRows(sheetname, 48, data.gear.hands),
-        ...createSheetRows(sheetname, 52, data.gear.waist),
-        ...createSheetRows(sheetname, 52, data.gear.waist),
-        ...createSheetRows(sheetname, 56, data.gear.legs),
-        ...createSheetRows(sheetname, 56, data.gear.legs),
-        ...createSheetRows(sheetname, 60, data.gear.feet),
-        ...createSheetRows(sheetname, 60, data.gear.feet),
-        ...createSheetRows(sheetname, 64, data.gear.rings),
-        ...createSheetRows(sheetname, 64, data.gear.rings),
-        ...createSheetRows(sheetname, 68, data.gear.trinkets),
-        ...createSheetRows(sheetname, 68, data.gear.trinkets),
-        ...createSheetRows(sheetname, 72, data.gear.mainHand),
-        ...createSheetRows(sheetname, 72, data.gear.mainHand),
-        ...createSheetRows(sheetname, 76, data.gear.offHand),
-        ...createSheetRows(sheetname, 76, data.gear.offHand),
+        ...createSheetRows(sheetname, 24, data.gear.head.name), // will fail when going through due to dual paths on gear
+        ...createSheetRows(sheetname, 24, data.gear.head.enchantments, "C", "D"), // will fail when going through due to dual paths on gear   
+        ...createSheetRows(sheetname, 28, data.gear.neck.name),
+        ...createSheetRows(sheetname, 28, data.gear.neck.enchantments, "C", "D"),
+        ...createSheetRows(sheetname, 32, data.gear.shoulders.name),
+        ...createSheetRows(sheetname, 32, data.gear.shoulders.enchantments, "C", "D"),
+        ...createSheetRows(sheetname, 36, data.gear.back.name),
+        ...createSheetRows(sheetname, 36, data.gear.back.enchantments, "C", "D"),
+        ...createSheetRows(sheetname, 40, data.gear.chest.name),
+        ...createSheetRows(sheetname, 40, data.gear.chest.enchantments, "C", "D"),
+        ...createSheetRows(sheetname, 44, data.gear.wrist.name),
+        ...createSheetRows(sheetname, 44, data.gear.wrist.enchantments, "C", "D"),
+        ...createSheetRows(sheetname, 48, data.gear.hands.name),
+        ...createSheetRows(sheetname, 48, data.gear.hands.enchantments, "C", "D"),
+        ...createSheetRows(sheetname, 52, data.gear.waist.name),
+        ...createSheetRows(sheetname, 52, data.gear.waist.enchantments, "C", "D"),
+        ...createSheetRows(sheetname, 56, data.gear.legs.name),
+        ...createSheetRows(sheetname, 56, data.gear.legs.enchantments, "C", "D"),
+        ...createSheetRows(sheetname, 60, data.gear.feet.name),
+        ...createSheetRows(sheetname, 60, data.gear.feet.enchantments, "C", "D"),
+        ...createSheetRows(sheetname, 64, data.gear.rings.name),
+        ...createSheetRows(sheetname, 64, data.gear.rings.enchantments, "C", "D"),
+        ...createSheetRows(sheetname, 68, data.gear.trinket.name),
+        ...createSheetRows(sheetname, 68, data.gear.trinket.enchantments, "C", "D"),
+        ...createSheetRows(sheetname, 72, data.gear.mainHand.name),
+        ...createSheetRows(sheetname, 72, data.gear.mainHand.enchantments, "C", "D"),
+        ...createSheetRows(sheetname, 76, data.gear.offHand.name),
+        ...createSheetRows(sheetname, 76, data.gear.offHand.enchantments, "C", "D"),
         ...createSheetRows(sheetname, 80, data.gems),
-        ...createSheetRows(sheetname, 86, data.embelleshments),
-
+        ...createSheetRows(sheetname, 86, data.embelleshment),
     ]
 }
 
 
 
-console.log(race("sheet1", 1, {
-    versatility: {text:"This", number:20},
-    mastery: {text:"That", number:2}
-}))
+async function main() {
+    const rows = []
+    const failed = []
+    for (const [className, specArray] of Object.entries(classes)) {
+        for (const spec of specArray) {
+            console.log(className, spec)
+            const obj = await run(className, spec)
+            
+            if (!obj) { // Verifies if CLASS and SPEC passed. Not specific row
+                console.log("Failed to find class or spec content")
+                failed.push([className, spec])
+                continue
+            }
+            rows.push(...collectedRows(`${spec} ${className}`, obj))
+        }
+    }
+    try {
 
+        await updateGoogleSheet(
+            rows.filter(({ value }) => value !== null)
+            .map(({ range, value }) => ({ range, values: [[value]] })))   
+    } catch (err) {
+        console.log("Could not update sheet : ", err )
+    }
+    finally {
+        console.log("Failed to find class or spec content for " + failed.length + " classes or specs")
+        console.log(failed)
+    }
 
+}
 
+main()
+
+function createBatchUpdateRequest(){
+    const batchUpdateRequest = {
+        request: [
+            {
+                updateCells: {
+                    range: {
+                        sheetId: "",
+                        startRowIndex: 1
+                    },
+                    rows
+                }
+            }
+        ]
+    }
+}
