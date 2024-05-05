@@ -4,7 +4,10 @@
         "reviewCategoryId": "939791605685190686",
         "submissionChannelId": "1118571029963481088",
         "transcriptChannelId": "943971066177552455",
-        "ratingChannelId": "1125965279491543081"
+        "ratingChannelId": "1125965279491543081",
+        "premiumRoleId": "958512468647346207",
+        "specialPass": true,
+        "verifForm":"https://docs.google.com/forms/d/e/1FAIpQLScFB436Whuah1ho88xbF-1VGVcJhOUfNl4IoFubvFYP3R5Vig/viewform"
     },
     "WoW": {
         "serverId": "294958471953252353",
