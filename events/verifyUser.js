@@ -85,7 +85,7 @@ async function checkIfAccountAlreadyLinked(interaction, email, serverPart) {
     const linkedAccounts = await VerifiedUsers.findOne({
         where: {
             [Op.and]: [
-                { server:interaction.guild.id },
+                //{ server:interaction.guild.id },
                 {
                     [Op.or]: [
                         {userId: interaction.user.id}, 
