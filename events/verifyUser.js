@@ -66,10 +66,9 @@ module.exports = {
             userName:interaction.user.username,
             userId: interaction.user.id,
             email,
-            server:interaction.guild.id
-
-        }
-        })
+        }, defaults: {
+            server: interaction.guild.id,
+        }})
         if (server.serverName === "WoW" || server.specialPass) {
             try {
                 cLog(["Attempting to update sheet  : ", interaction.user.username],{ guild: interaction.guild, subProcess: "VerifyUserSheet" });
