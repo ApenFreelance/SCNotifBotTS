@@ -1,7 +1,7 @@
 const axios = require("axios")
 
 async function getBuild(className, specialization, mode="3v3") {
-    return await axios.get(`https://murlok.io/api/guides/${className}/${specialization}/${mode}`).then(e=> e.data)
+    return await axios.get(`https://murlok.io/api/guides/${className.replace(" ", "-")}/${specialization.replace(" ", "-")}/${mode}`).then(e=> e.data)
 }
 
 const data = require("./devData.json")
@@ -361,7 +361,6 @@ function statPriority(sheetname, start, data) {
 }
 
 function createSheetRows(sheetname, start, data, column1 = "A", column2 = "B") {
-    console.log(data)
     const rows = []
     Object.values(data).forEach(stat => {
         rows.push(
