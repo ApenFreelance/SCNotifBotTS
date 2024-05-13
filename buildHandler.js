@@ -299,9 +299,9 @@ function createRow(className, spec, rowNumber, buildData) {
 
 
 
-const DEVspreadsheet = process.env.DEVsheet;
+const buildSheet = process.env.buildSheet;
 
-const spreadsheetId = DEVspreadsheet;
+const spreadsheetId = buildSheet;
 
 async function updateGoogleSheet(data) {
     const auth = new GoogleAuth({
@@ -323,7 +323,6 @@ async function updateGoogleSheet(data) {
         const response = (
             await service.spreadsheets.values.batchUpdate(request)
         ).data;
-        console.log(response);
     } catch (err) {
         console.error(err);
     }
