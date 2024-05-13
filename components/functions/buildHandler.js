@@ -1,5 +1,5 @@
 const axios = require("axios")
-const classes =require("./classes.json")
+const classes =require("../../classes.json")
 const { google } = require("googleapis");
 const { GoogleAuth } = require("google-auth-library");
 

@@ -1,6 +1,6 @@
 require("dotenv").config();
 const fs = require("fs");
-const { buildHandler } = require("./components/functions/buildHandler");
+const { mainBuildHandler } = require("../components/functions/buildHandler");
 const { Collection, Client, GatewayIntentBits } = require("discord.js");
 const { db } = require("./db");
 const { cLog } = require("../components/functions/cLog");
@@ -73,7 +73,8 @@ bot.on("ready", async () => {
 
     cLog(["Starting up buildHandler"], { subProcess: "Start-up" });
     try {
-        setInterval(buildHandler, 24 * 60 * 60 * 1000);
+        mainBuildHandler();
+        setInterval(mainBuildHandler, 24 * 60 * 60 * 1000);
     } catch (err) {
         cLog(["Error in buildHandler : ", err], { subProcess: "Interval" });
     }
