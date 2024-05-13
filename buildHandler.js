@@ -316,6 +316,7 @@ async function mainBuildHandler() {
             .map(({ range, value }) => ({ range, values: [[value]] })))   
     } catch (err) {
         console.log("Could not update sheet : ", err )
+        throw err
     }
     finally {
         console.log("Failed to find class or spec content for " + failed.length + " classes or specs")
