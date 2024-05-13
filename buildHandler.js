@@ -3,7 +3,7 @@ const classes =require("./classes.json")
 const { google } = require("googleapis");
 const { GoogleAuth } = require("google-auth-library");
 
-async function getBuild(className, specialization, mode="3v3") {
+async function getBuild(className, specialization, mode="solo") {
     return await axios.get(`https://murlok.io/api/guides/${className.replace(" ", "-")}/${specialization.replace(" ", "-")}/${mode}`).then(e=> e.data)
 }
 
@@ -270,7 +270,6 @@ async function parseEverySpec() {
         .map(({ range, value }) => ({ range, values: [[value]] })))
 }
 
-const sheetName = "Sheet1"
 function createRow(className, spec, rowNumber, buildData) {
     return [
             { range: `${sheetName}!A${rowNumber}`, value: className},
@@ -352,7 +351,7 @@ function createSheetRows(sheetname, start, data, column1 = "A", column2 = "B") {
     const rows = []
     Object.values(data).forEach(stat => {
         rows.push(
-            { range: `${sheetname}!${column1}${start + 1}`, value: stat[0] || " "} // Text
+            { range: `${sheetname}!${column1}${start + 1}`, value: stat[0].replace("+", "") || " "} // Text
         )
         rows.push(
             { range: `${sheetname}!${column2}${start + 1}`, value: stat[1] || " "} // Number
