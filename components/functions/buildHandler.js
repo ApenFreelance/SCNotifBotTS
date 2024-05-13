@@ -152,7 +152,6 @@ function buildParser (data) {
         })
 
     })
-    console.log(uniqueBuilds)
     return uniqueBuilds
 }
 
