@@ -83,19 +83,7 @@ function buildParser (data) {
     }
     data.Characters.forEach(character => {
         uniqueBuilds.buildCount++
-        // This does not deal with undefined and is hard to read both in code and outside
-        const statShorthand = "H"+character.Haste+"C"+character.Crit+"M"+character.Mastery+"V"+character.Versatility
-        //uniqueBuilds.statPrio[statShorthand] = (uniqueBuilds.statPrio[statShorthand]) +1 || 1
 
-
-        // Not enough players have the exact stats so average prob needs to be used
-       /*  const stats = {
-            Haste: character.Haste || 0,
-            Mastery: character.Mastery || 0,
-            Versatility: character.Versatility || 0,
-            Crit: character.Crit || 0,
-        }
-        uniqueBuilds.statPrio[JSON.stringify(stats)] = (uniqueBuilds.statPrio[JSON.stringify(stats)]) + 1 || 1 */
         
         uniqueBuilds.statPrio.Haste+= character.Haste || 0
         uniqueBuilds.statPrio.Mastery+= character.Mastery || 0
@@ -179,13 +167,10 @@ async function run(className, spec) {
     } catch {
         return null
     }
-    //console.log(raw)
     const obj = buildParser(raw)
-    //console.log(JSON.stringify(reduceUniqueBuilds(obj)))
     return reduceUniqueBuilds(obj)
 }
 
-//run()
 
 function getNLargestPairs(obj, n) {
     delete obj.undefined
@@ -215,9 +200,7 @@ function reduceUniqueBuilds(obj) {
     })
     const race = getNLargestPairs(obj.race, 4)
     const TalentsCodes = getNLargestPairs(obj.TalentsCodes, 5)
-    //const TalentsCodes = getAnyEqualOrAboveN(obj.TalentsCodes, 5, 5)
     const pvpTalents= getNLargestPairs(obj.pvpTalents, 6)
-    //const pvpTalents= getAnyEqualOrAboveN(obj.pvpTalents, 10, 6)
     const gear = loopGear(obj.gear, 3, getNLargestPairs)
     const gems = getNLargestPairs(obj.gems, 5)
     const embelleshment = getNLargestPairs(obj.embelleshment, 5)
@@ -248,7 +231,6 @@ function loopGear(obj, n, getNLargestPairs) {
 
 
 
-//parseEverySpec()
 
 async function parseEverySpec() {
     let count = 3
@@ -256,7 +238,6 @@ async function parseEverySpec() {
     for (const [className, specArray] of Object.entries(classes)) {
         for (const spec of specArray) {
             count++
-            console.log(className, spec)
             const obj = await run(className, spec)
             
             if (!obj) {
@@ -406,7 +387,6 @@ async function mainBuildHandler() {
     const failed = []
     for (const [className, specArray] of Object.entries(classes)) {
         for (const spec of specArray) {
-            console.log(className, spec)
             const obj = await run(className, spec)
             
             if (!obj) { // Verifies if CLASS and SPEC passed. Not specific row
@@ -435,23 +415,6 @@ async function mainBuildHandler() {
 mainBuildHandler()
 
 
-
-
-function createBatchUpdateRequest(){
-    const batchUpdateRequest = {
-        request: [
-            {
-                updateCells: {
-                    range: {
-                        sheetId: "",
-                        startRowIndex: 1
-                    },
-                    rows
-                }
-            }
-        ]
-    }
-}
 
 
 
