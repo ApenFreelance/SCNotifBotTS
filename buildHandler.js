@@ -156,7 +156,6 @@ function buildParser (data) {
 }
 
 
-
 async function run(className, spec) {
     let raw
     try {
@@ -175,18 +174,6 @@ function getNLargestPairs(obj, n) {
         .sort((a, b) => b[1]- a[1])
         .slice(0, n)
     while(sortedFiltered.length < n) sortedFiltered.push([" "," "]) // Add empty to clear out old row content
-    return sortedFiltered
-}
-
-function getAnyEqualOrAboveN(obj, n, max) {
-    
-    delete obj.undefined
-    let sortedFiltered = Object.entries(obj)
-        .sort((a, b) => b[1]- a[1])
-        .filter(x => x[1] >= n)
-        .slice(0, max)
-
-    while(sortedFiltered.length < max) sortedFiltered.push([" ", " "]) // Add empty to clear out old row content
     return sortedFiltered
 }
 
@@ -225,8 +212,6 @@ function loopGear(obj, n, getNLargestPairs) {
     return newObj
 }
 
-
-
 const buildSheet = process.env.buildSheet;
 const spreadsheetId = buildSheet;
 
@@ -255,23 +240,6 @@ async function updateGoogleSheet(data) {
     }
 }
 
-
-
-
-
-
-function statPriority(sheetname, start, data) {
-    return [
-        { range: `${sheetname}!A${start + 1}`, value: data.versatility.text},
-        { range: `${sheetname}!B${start + 1}`, value: data.versatility.number},
-        { range: `${sheetname}!A${start + 2}`, value: data.mastery.text},
-        { range: `${sheetname}!B${start + 2}`, value: data.mastery.number},
-        { range: `${sheetname}!A${start + 3}`, value: data.haste.text},
-        { range: `${sheetname}!B${start + 3}`, value: data.haste.number},
-        { range: `${sheetname}!A${start + 4}`, value: data.criticalStrike.text},
-        { range: `${sheetname}!B${start + 4}`, value: data.criticalStrike.number}
-    ]
-}
 
 function createSheetRows(sheetname, start, data, column1 = "A", column2 = "B") {
     const rows = []
@@ -326,8 +294,6 @@ function collectedRows(sheetname, data) {
     ]
 }
 
-
-
 async function mainBuildHandler() {
     const rows = []
     const failed = []
@@ -357,8 +323,6 @@ async function mainBuildHandler() {
     }
 
 }
-
-mainBuildHandler()
 
 
 
