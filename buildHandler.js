@@ -403,7 +403,7 @@ function collectedRows(sheetname, data) {
 
 
 
-async function main() {
+async function mainBuildHandler() {
     const rows = []
     const failed = []
     for (const [className, specArray] of Object.entries(classes)) {
@@ -434,7 +434,7 @@ async function main() {
 
 }
 
-main()
+mainBuildHandler()
 
 
 
@@ -457,4 +457,4 @@ function createBatchUpdateRequest(){
 
 
 
-module.exports = { main };
+module.exports = { mainBuildHandler };
