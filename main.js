@@ -1,10 +1,11 @@
 const axios = require("axios")
+const classes =require("./classes.json")
+const { google } = require("googleapis");
+const { GoogleAuth } = require("google-auth-library");
 
 async function getBuild(className, specialization, mode="3v3") {
     return await axios.get(`https://murlok.io/api/guides/${className.replace(" ", "-")}/${specialization.replace(" ", "-")}/${mode}`).then(e=> e.data)
 }
-
-const data = require("./devData.json")
 
 
 function buildParser (data) {
@@ -245,7 +246,7 @@ function loopGear(obj, n, getNLargestPairs) {
 }
 
 
-const classes =require("./classes.json")
+
 
 //parseEverySpec()
 
@@ -297,11 +298,9 @@ function createRow(className, spec, rowNumber, buildData) {
 
 
 
-const { google } = require("googleapis");
-const { GoogleAuth } = require("google-auth-library");
+
 
 const DEVspreadsheet = process.env.DEVsheet;
-const prod = process.env.PRODsheet;
 
 const spreadsheetId = DEVspreadsheet;
 
@@ -329,17 +328,6 @@ async function updateGoogleSheet(data) {
     } catch (err) {
         console.error(err);
     }
-}
-async function authorize() {
-    let authClient = new google.auth.GoogleAuth({
-        keyFile: "credentials.json", //the key file
-        //url to spreadsheets API
-        scopes: "https://www.googleapis.com/auth/spreadsheets",
-    });
-    if (authClient == null) {
-        throw Error("authentication failed");
-    }
-    return authClient;
 }
 
 
@@ -448,6 +436,9 @@ async function main() {
 
 main()
 
+
+
+
 function createBatchUpdateRequest(){
     const batchUpdateRequest = {
         request: [
@@ -463,3 +454,7 @@ function createBatchUpdateRequest(){
         ]
     }
 }
+
+
+
+module.exports = { main };
