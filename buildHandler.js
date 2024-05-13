@@ -7,7 +7,6 @@ async function getBuild(className, specialization, mode="solo") {
     return await axios.get(`https://murlok.io/api/guides/${className.replace(" ", "-")}/${specialization.replace(" ", "-")}/${mode}`).then(e=> e.data)
 }
 
-
 function buildParser (data) {
     const uniqueBuilds = {
         buildCount:0,
@@ -156,9 +155,7 @@ function buildParser (data) {
     return uniqueBuilds
 }
 
-function getMaxObject(obj) {
-    return Object.values(obj).reduce((a, b) => obj[a] > obj[b] ? a : b)
-}
+
 
 async function run(className, spec) {
     let raw
@@ -230,58 +227,7 @@ function loopGear(obj, n, getNLargestPairs) {
 
 
 
-
-
-async function parseEverySpec() {
-    let count = 3
-    const rows = []
-    for (const [className, specArray] of Object.entries(classes)) {
-        for (const spec of specArray) {
-            count++
-            const obj = await run(className, spec)
-            
-            if (!obj) {
-                continue
-            }
-            rows.push(...createRow(className, spec, count, obj))
-        }
-    }
-    await updateGoogleSheet(
-        rows.filter(({ value }) => value !== null)
-        .map(({ range, value }) => ({ range, values: [[value]] })))
-}
-
-function createRow(className, spec, rowNumber, buildData) {
-    return [
-            { range: `${sheetName}!A${rowNumber}`, value: className},
-            { range: `${sheetName}!B${rowNumber}`, value: spec},
-            { range: `${sheetName}!C${rowNumber}`, value: JSON.stringify(buildData.race)},
-            { range: `${sheetName}!D${rowNumber}`, value: JSON.stringify(buildData.TalentsCodes)},
-            { range: `${sheetName}!E${rowNumber}`, value: JSON.stringify(buildData.pvpTalents)},
-            { range: `${sheetName}!F${rowNumber}`, value: JSON.stringify(buildData.gear.head)},
-            { range: `${sheetName}!G${rowNumber}`, value: JSON.stringify(buildData.gear.neck)},
-            { range: `${sheetName}!H${rowNumber}`, value: JSON.stringify(buildData.gear.shoulders)},
-            { range: `${sheetName}!I${rowNumber}`, value: JSON.stringify(buildData.gear.back)},
-            { range: `${sheetName}!J${rowNumber}`, value: JSON.stringify(buildData.gear.chest)},
-            { range: `${sheetName}!K${rowNumber}`, value: JSON.stringify(buildData.gear.wrist)},
-            { range: `${sheetName}!L${rowNumber}`, value: JSON.stringify(buildData.gear.hands)},
-            { range: `${sheetName}!M${rowNumber}`, value: JSON.stringify(buildData.gear.waist)},
-            { range: `${sheetName}!N${rowNumber}`, value: JSON.stringify(buildData.gear.legs)},
-            { range: `${sheetName}!O${rowNumber}`, value: JSON.stringify(buildData.gear.feet)},
-            { range: `${sheetName}!P${rowNumber}`, value: JSON.stringify(buildData.gear.rings)},
-            { range: `${sheetName}!Q${rowNumber}`, value: JSON.stringify(buildData.gear.trinket)},
-            { range: `${sheetName}!R${rowNumber}`, value: JSON.stringify(buildData.gear.mainHand)},            
-            { range: `${sheetName}!S${rowNumber}`, value: JSON.stringify(buildData.gems)},
-            { range: `${sheetName}!T${rowNumber}`, value: JSON.stringify(buildData.embelleshment)},
-        ]
-}
-
-
-
-
-
 const buildSheet = process.env.buildSheet;
-
 const spreadsheetId = buildSheet;
 
 async function updateGoogleSheet(data) {
