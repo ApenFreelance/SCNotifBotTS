@@ -81,6 +81,7 @@ function buildParser (data) {
         embelleshment: {}
     }
     data.Characters.forEach(character => {
+        if(uniqueBuilds.buildCount >= 25) return 
         uniqueBuilds.buildCount++
 
         
@@ -151,7 +152,7 @@ function buildParser (data) {
         })
 
     })
-    
+    console.log(uniqueBuilds)
     return uniqueBuilds
 }
 
