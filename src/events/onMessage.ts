@@ -1,5 +1,5 @@
 import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from 'discord.js';
-import { cLog } from '../components/functions/cLog';
+import { cLog } from './components/functions/cLog';
 const row = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
         .setCustomId("submitreview")
@@ -39,7 +39,7 @@ const uiEmbed = new EmbedBuilder()
         "UI errors are common with the rework to the Blizzard UI in Dragonflight. The most common triggers for UI errors are:\n\n1) Changing talents\n2) Interacting with the spellbook\n\nTo minimize the risk of a UI error mid game, be sure to /reload UI in the starting room, especially after changing talents."
     );
 
-module.exports = {
+export default {
     name: "messageCreate",
     once: false,
     async execute(message) {

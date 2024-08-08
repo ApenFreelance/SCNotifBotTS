@@ -1,8 +1,8 @@
-import { updateGoogleSheet, createSheetBody } from '../components/functions/googleApi';
+import { updateGoogleSheet, createSheetBody } from './components/functions/googleApi';
 const { getCorrectTable } = require("../src/db")
-import { cLog } from '../components/functions/cLog';
+import { cLog } from './components/functions/cLog';
 
-module.exports = {
+export default {
     name: 'rejectReview',
     once: false,
     async execute(interaction, server, mode = null) {    

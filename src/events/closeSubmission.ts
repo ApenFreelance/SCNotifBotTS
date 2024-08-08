@@ -1,9 +1,9 @@
 import { ButtonBuilder, ActionRowBuilder } from 'discord.js';
-import { createReviewButtons } from '../components/buttons.js';
-import { cLog } from '../components/functions/cLog';
-import { getCorrectTable } from '../src/db.js';
+import { createReviewButtons } from './components/buttons.js';
+import { cLog } from './components/functions/cLog';
+import { getCorrectTable } from './src/db.js';
 
-module.exports = {
+export default {
   name: "closeSubmission",
   once: false,
   async execute(interaction, server, mode) {

@@ -2,14 +2,14 @@ const {
     updateGoogleSheet,
     createSheetBody,
 } = require("../components/functions/googleApi");
-import { cLog } from '../components/functions/cLog';
-import { createSubmissionModal, createUserVerificationModal } from '../components/modals';
-import { getCorrectTable } from '../src/db';
-import { selectServer } from '../components/functions/selectServer';
+import { cLog } from './components/functions/cLog';
+import { createSubmissionModal, createUserVerificationModal } from './components/modals';
+import { getCorrectTable } from './src/db';
+import { selectServer } from './components/functions/selectServer';
 
 const regexWoWLink = /(https):\/\/((worldofwarcraft\.blizzard\.com||worldofwarcraft\.com)\/[\w_-]+\/character\/(us|eu|kr|tw|cn|)\/[\w_-]+\/.+)/;
 const regexValLink = /(https):\/\/(tracker\.gg\/valorant\/profile\/riot)\/.+/;
-module.exports = {
+export default {
     name: "interactionCreate",
     once: false,
     async execute(interaction) {

@@ -1,11 +1,11 @@
 import { default: axios } from 'axios';
-import { cLog } from '../components/functions/cLog';
-import { updateGoogleSheet, createVerifSheetBody } from '../components/functions/googleApi';
-import VerificationLogs from '../models/VerificationLogs';
-import VerifiedUsers from '../models/VerifiedUsers';
+import { cLog } from './components/functions/cLog';
+import { updateGoogleSheet, createVerifSheetBody } from './components/functions/googleApi';
+import VerificationLogs from './models/VerificationLogs';
+import VerifiedUsers from './models/VerifiedUsers';
 const { Op } = require("sequelize")
 
-module.exports = {
+export default {
     name: "verifyUser",
     once: false,
     async execute(interaction, server) {

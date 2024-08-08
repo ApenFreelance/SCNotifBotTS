@@ -2,7 +2,7 @@
 
 
 
-module.exports = {
+export default {
   name: 'mediaCollection',
   once: false,
   async execute(interaction) {    

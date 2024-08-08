@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { verificationButton } from '../components/buttons';
+import { verificationButton } from './components/buttons';
 
-module.exports = {
+export default {
   data: new SlashCommandBuilder()
     .setName("verify-button")
     .setDescription("Generates a verification button"),

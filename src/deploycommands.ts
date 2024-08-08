@@ -32,4 +32,4 @@ async function deployCommands() {
     }
 };
 
-module.exports = { deployCommands }
+export default { deployCommands }

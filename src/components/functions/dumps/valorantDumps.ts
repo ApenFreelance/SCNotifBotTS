@@ -190,4 +190,4 @@ async function createEmbed(uploads, game, interaction, bot) {
   });
   //await interaction.editReply({contents:`Dump upload completed`, ephemeral:true}).catch(err => console.log(err))
 }
-module.exports = { parseDump };
+export default { parseDump };

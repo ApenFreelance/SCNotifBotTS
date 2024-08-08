@@ -1,14 +1,14 @@
 import { ButtonBuilder, PermissionsBitField, ActionRowBuilder } from 'discord.js';
-import { updateGoogleSheet, createSheetBody } from '../components/functions/googleApi';
-import { getCorrectTable } from '../src/db';
-import { cLog } from '../components/functions/cLog';
+import { updateGoogleSheet, createSheetBody } from './components/functions/googleApi';
+import { getCorrectTable } from './src/db';
+import { cLog } from './components/functions/cLog';
 
 
 
 
 
 
-module.exports = {
+export default {
     name: 'claimReview',
     once: false,
     async execute(interaction, server, mode = null) {    

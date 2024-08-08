@@ -1,12 +1,12 @@
 import axios from 'axios';
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import fs from 'fs';
-import { parseDump } from '../components/functions/dumps/valorantDumps';
-import { cLog } from '../components/functions/cLog';
+import { parseDump } from './components/functions/dumps/valorantDumps';
+import { cLog } from './components/functions/cLog';
 
 const jsonLocation = "./gameData.json";
 
-module.exports = {
+export default {
   data: new SlashCommandBuilder()
     .setName("dumps")
     .setDescription("close the review")

@@ -58,7 +58,7 @@ function verificationButton(guildId){
 }
 
 
-module.exports = {
+export default {
     createReviewButtons,
     submitReviewButton,
     waitingForReviewRow,

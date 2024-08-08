@@ -329,4 +329,4 @@ async function mainBuildHandler() {
 
 
 
-module.exports = { mainBuildHandler };
+export default { mainBuildHandler };

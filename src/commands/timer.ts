@@ -1,8 +1,8 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { getOrCreateTimeBetweenEntry } from '../components/functions/timerOverwrite';
-import { selectServer } from '../components/functions/selectServer';
+import { getOrCreateTimeBetweenEntry } from './components/functions/timerOverwrite';
+import { selectServer } from './components/functions/selectServer';
 
-module.exports = {
+export default {
   data: new SlashCommandBuilder()
     .setName("timer")
     .setDescription("Review timer controls")

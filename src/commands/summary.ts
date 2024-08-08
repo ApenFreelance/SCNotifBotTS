@@ -1,10 +1,10 @@
 import { SlashCommandBuilder } from 'discord.js';
 
 import { Op } from 'sequelize';
-import { getCorrectTable } from '../db';
-import { createOverviewEmbed } from '../components/embeds';
+import { getCorrectTable } from './db';
+import { createOverviewEmbed } from './components/embeds';
 
-module.exports = {
+export default {
   data: new SlashCommandBuilder()
     .setName("summary")
     .setDescription("Summary of all completed reviews")

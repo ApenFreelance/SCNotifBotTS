@@ -156,4 +156,4 @@ function createVerifSheetBody(
     return sheetBody;
 }
 
-module.exports = { updateGoogleSheet, authorize, createSheetBody, createVerifSheetBody };
+export default { updateGoogleSheet, authorize, createSheetBody, createVerifSheetBody };

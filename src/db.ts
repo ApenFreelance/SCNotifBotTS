@@ -1,6 +1,6 @@
 
 import { Sequelize } from 'sequelize';
-import serverInfoJSON from '../serverInfo.json';
+import serverInfoJSON from '../config/serverInfo.json';
 import DevValReviewHistory from './models/DevValReviewHistory';
 import DevWoWReviewHistory from './models/DevWoWReviewHistory';
 import DevPVEWoWReviewHistory from './models/DevPVEWoWReviewHistory';
@@ -50,4 +50,4 @@ async function getCorrectTable(guildId, tableGroup, mode = null) {
     }
 }
 
-module.exports = { db, getCorrectTable };
+export default { db, getCorrectTable };

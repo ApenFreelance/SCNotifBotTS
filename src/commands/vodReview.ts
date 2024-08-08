@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { submitReviewButton } from '../components/buttons';
+import { submitReviewButton } from './components/buttons';
 
-module.exports = {
+export default {
     data: new SlashCommandBuilder()
         .setName("vodreview")
         .setDescription("Creates button to submit a vod review")

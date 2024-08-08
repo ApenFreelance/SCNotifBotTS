@@ -1,11 +1,11 @@
-import { cLog } from '../components/functions/cLog';
-import { updateGoogleSheet, createSheetBody } from '../components/functions/googleApi';
-import { createRatingModal } from '../components/modals';
-import { getCorrectTable } from '../src/db';
-import serverInfo from '../serverInfo.json';
-import { createRatingEmbed } from '../components/embeds';
+import { cLog } from './components/functions/cLog';
+import { updateGoogleSheet, createSheetBody } from './components/functions/googleApi';
+import { createRatingModal } from './components/modals';
+import { getCorrectTable } from '../db';
+import serverInfo from './serverInfo.json';
+import { createRatingEmbed } from './components/embeds';
 
-module.exports = {
+export default {
     name: 'rateReview',
     once: false,
     async execute(interaction) {

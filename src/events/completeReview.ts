@@ -1,15 +1,15 @@
 
-import { cLog } from '../components/functions/cLog';
-import { updateGoogleSheet, createSheetBody } from '../components/functions/googleApi';
-import { createTranscript, createHTMLfile, sendTranscript, addTranscriptToDB } from '../components/functions/transcript';
+import { cLog } from './components/functions/cLog';
+import { updateGoogleSheet, createSheetBody } from './components/functions/googleApi';
+import { createTranscript, createHTMLfile, sendTranscript, addTranscriptToDB } from './components/functions/transcript';
 const fs = require("fs")
-import { completeSubmissionEmbed } from '../components/modals.js';
-import { getCorrectTable } from '../src/db';
+import { completeSubmissionEmbed } from './components/modals.js';
+import { getCorrectTable } from './src/db';
 
 
 
 
-module.exports = {
+export default {
     name: 'completeReview',
     once: false,
     async execute(interaction, server, mode= null) { 

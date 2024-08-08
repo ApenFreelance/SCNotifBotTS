@@ -1,9 +1,9 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { updateGoogleSheet, createSheetBody } from '../components/functions/googleApi';
-import { getCorrectTable } from '../src/db';
-import serverInfo from '../serverInfo.json';
+import { updateGoogleSheet, createSheetBody } from './components/functions/googleApi';
+import { getCorrectTable } from './src/db';
+import serverInfo from './serverInfo.json';
 
-module.exports = {
+export default {
   data: new SlashCommandBuilder()
     .setName("setreviewlink")
     .setDescription("Set the reviewLink")
