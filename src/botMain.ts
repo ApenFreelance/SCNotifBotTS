@@ -1,20 +1,21 @@
-require("dotenv").config();
-const fs = require("fs");
-const { mainBuildHandler } = require("../components/functions/buildHandler");
-const { Collection, Client, GatewayIntentBits } = require("discord.js");
-const { db } = require("./db");
-const { cLog } = require("../components/functions/cLog");
-const WoWCharacters = require("../models/WoWCharacters");
-const ValReviewHistory = require("../models/ValReviewHistory");
-const DevValReviewHistory = require("../models/DevValReviewHistory");
-const DevWoWReviewHistory = require("../models/DevWoWReviewHistory");
-const WoWReviewHistory = require("../models/WoWReviewHistory");
-const ReviewTimerOverwrite = require("../models/ReviewTimerOverwrite");
-const DevPVEWoWReviewHistory = require("../models/DevPVEWoWReviewHistory");
-const PVEWoWReviewHistory = require("../models/PVEWoWReviewHistory");
-const VerificationLogs = require("../models/VerificationLogs");
-const VerifiedUsers = require("../models/VerifiedUsers");
+import dotenv from 'dotenv'
+import fs from 'fs';
+import { mainBuildHandler } from './components/functions/buildHandler';
+import { Collection, Client, GatewayIntentBits } from 'discord.js';
+import { db } from "./db";
+import { cLog } from './components/functions/cLog';
+import WoWCharacters from './models/WoWCharacters';
+import ValReviewHistory from './models/ValReviewHistory';
+import DevValReviewHistory from './models/DevValReviewHistory';
+import DevWoWReviewHistory from './models/DevWoWReviewHistory';
+import WoWReviewHistory from './models/WoWReviewHistory';
+import ReviewTimerOverwrite from './models/ReviewTimerOverwrite';
+import DevPVEWoWReviewHistory from './models/DevPVEWoWReviewHistory';
+import PVEWoWReviewHistory from './models/PVEWoWReviewHistory';
+import VerificationLogs from './models/VerificationLogs';
+import VerifiedUsers from './models/VerifiedUsers';
 
+dotenv.config();
 const bot = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -54,7 +55,6 @@ for (const file of eventFiles) {
         bot.on(event.name, (...args) => event.execute(...args));
     }
 }
-// Lukas var her! @lukasolsen
 
 //bot.rest.on("restDebug", console.log)
 
@@ -80,6 +80,11 @@ bot.on("ready", async () => {
     }
 
 });
+
+async function start(): Promise<void> {
+
+}
+
 
 bot.login(process.env.BOT_TOKEN);
 
