@@ -1,5 +1,5 @@
-const fs = require("fs");
-const classes = require("../../classes.json");
+import fs from 'fs';
+import classes from '../../classes.json';
 const regex = /\*\*(https:\/\/.*?)\*\*/g;
 async function createTranscript(channel, ticket, charInfo = null) {
   let ticketMessages = await fetchTicketMessages(channel);

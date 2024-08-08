@@ -1,14 +1,14 @@
 
-const { Sequelize } = require("sequelize");
-const serverInfoJSON = require("../serverInfo.json");
-const DevValReviewHistory = require("./models/DevValReviewHistory");
-const DevWoWReviewHistory = require("./models/DevWoWReviewHistory");
-const DevPVEWoWReviewHistory = require("./models/DevPVEWoWReviewHistory");
+import { Sequelize } from 'sequelize';
+import serverInfoJSON from '../serverInfo.json';
+import DevValReviewHistory from './models/DevValReviewHistory';
+import DevWoWReviewHistory from './models/DevWoWReviewHistory';
+import DevPVEWoWReviewHistory from './models/DevPVEWoWReviewHistory';
 
-const ValReviewHistory = require("./models/ValReviewHistory");
-const WoWReviewHistory = require("./models/WoWReviewHistory");
-const WoWCharacters = require("./models/WoWCharacters");
-const PVEWoWReviewHistory = require("./models/PVEWoWReviewHistory");
+import ValReviewHistory from './models/ValReviewHistory';
+import WoWReviewHistory from './models/WoWReviewHistory';
+import WoWCharacters from './models/WoWCharacters';
+import PVEWoWReviewHistory from './models/PVEWoWReviewHistory';
 
 const db = new Sequelize(
     process.env.dbName,

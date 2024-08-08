@@ -1,4 +1,4 @@
-const { ActionRowBuilder, ButtonBuilder } = require("discord.js");
+import { ActionRowBuilder, ButtonBuilder } from 'discord.js';
 
 function createReviewButtons(submissionNumber, game, mode = null) {
     const reviewRow = new ActionRowBuilder();

@@ -1,8 +1,8 @@
-const { SlashCommandBuilder } = require("discord.js");
+import { SlashCommandBuilder } from 'discord.js';
 
-const { Op } = require("sequelize");
-const { getCorrectTable } = require("../db");
-const { createOverviewEmbed } = require("../components/embeds");
+import { Op } from 'sequelize';
+import { getCorrectTable } from '../db';
+import { createOverviewEmbed } from '../components/embeds';
 
 module.exports = {
   data: new SlashCommandBuilder()

@@ -1,7 +1,7 @@
-const { ButtonBuilder, PermissionsBitField, ActionRowBuilder } = require("discord.js");
-const { updateGoogleSheet, createSheetBody } = require("../components/functions/googleApi");
-const { getCorrectTable } = require("../src/db");
-const { cLog } = require("../components/functions/cLog");
+import { ButtonBuilder, PermissionsBitField, ActionRowBuilder } from 'discord.js';
+import { updateGoogleSheet, createSheetBody } from '../components/functions/googleApi';
+import { getCorrectTable } from '../src/db';
+import { cLog } from '../components/functions/cLog';
 
 
 

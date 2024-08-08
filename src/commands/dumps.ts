@@ -1,8 +1,8 @@
-const axios = require("axios");
-const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
-const fs = require("fs");
-const { parseDump } = require("../components/functions/dumps/valorantDumps");
-const { cLog } = require("../components/functions/cLog");
+import axios from 'axios';
+import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
+import fs from 'fs';
+import { parseDump } from '../components/functions/dumps/valorantDumps';
+import { cLog } from '../components/functions/cLog';
 
 const jsonLocation = "./gameData.json";
 

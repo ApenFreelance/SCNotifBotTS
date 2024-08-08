@@ -1,7 +1,7 @@
-const { SlashCommandBuilder } = require("discord.js");
-const { updateGoogleSheet, createSheetBody } = require("../components/functions/googleApi");
-const { getCorrectTable } = require("../src/db");
-const serverInfo = require("../serverInfo.json");
+import { SlashCommandBuilder } from 'discord.js';
+import { updateGoogleSheet, createSheetBody } from '../components/functions/googleApi';
+import { getCorrectTable } from '../src/db';
+import serverInfo from '../serverInfo.json';
 
 module.exports = {
   data: new SlashCommandBuilder()

@@ -1,5 +1,5 @@
-const ReviewTimerOverwrite = require("../../models/ReviewTimerOverwrite");
-const { cLog } = require("./cLog");
+import ReviewTimerOverwrite from '../../models/ReviewTimerOverwrite';
+import { cLog } from './cLog';
 
 async function getTimeBetweenRoles(server) {
     const roles = await ReviewTimerOverwrite.findAll({

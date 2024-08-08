@@ -1,6 +1,6 @@
-const { SlashCommandBuilder } = require("discord.js");
-const { getOrCreateTimeBetweenEntry } = require("../components/functions/timerOverwrite");
-const { selectServer } = require("../components/functions/selectServer");
+import { SlashCommandBuilder } from 'discord.js';
+import { getOrCreateTimeBetweenEntry } from '../components/functions/timerOverwrite';
+import { selectServer } from '../components/functions/selectServer';
 
 module.exports = {
   data: new SlashCommandBuilder()

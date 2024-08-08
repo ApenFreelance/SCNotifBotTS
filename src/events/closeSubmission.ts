@@ -1,7 +1,7 @@
-const { ButtonBuilder, ActionRowBuilder } = require("discord.js");
-const { createReviewButtons } = require("../components/buttons.js");
-const { cLog } = require("../components/functions/cLog");
-const { getCorrectTable } = require("../src/db.js");
+import { ButtonBuilder, ActionRowBuilder } from 'discord.js';
+import { createReviewButtons } from '../components/buttons.js';
+import { cLog } from '../components/functions/cLog';
+import { getCorrectTable } from '../src/db.js';
 
 module.exports = {
   name: "closeSubmission",

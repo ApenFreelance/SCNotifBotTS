@@ -1,5 +1,5 @@
-const { SlashCommandBuilder } = require("discord.js");
-const { submitReviewButton } = require("../components/buttons");
+import { SlashCommandBuilder } from 'discord.js';
+import { submitReviewButton } from '../components/buttons';
 
 module.exports = {
     data: new SlashCommandBuilder()

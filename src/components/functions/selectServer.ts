@@ -1,4 +1,4 @@
-const serverInfoJSON = require("../../serverInfo.json");
+import serverInfoJSON from '../../serverInfo.json';
 
 function selectServer(serverId) {
     for (let key in serverInfoJSON) {

@@ -1,4 +1,4 @@
-const { EmbedBuilder } = require("discord.js");
+import { EmbedBuilder } from 'discord.js';
 
 async function createWaitingForReviewEmbed(interaction, reviewHistory, member, description) {
     const waitingForReviewEmbed = new EmbedBuilder()

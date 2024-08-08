@@ -1,10 +1,10 @@
 
-const { cLog } = require("../components/functions/cLog");
-const { updateGoogleSheet, createSheetBody } = require("../components/functions/googleApi");
-const { createTranscript, createHTMLfile, sendTranscript, addTranscriptToDB } = require("../components/functions/transcript");
+import { cLog } from '../components/functions/cLog';
+import { updateGoogleSheet, createSheetBody } from '../components/functions/googleApi';
+import { createTranscript, createHTMLfile, sendTranscript, addTranscriptToDB } from '../components/functions/transcript';
 const fs = require("fs")
-const { completeSubmissionEmbed } = require("../components/modals.js");
-const { getCorrectTable } = require("../src/db");
+import { completeSubmissionEmbed } from '../components/modals.js';
+import { getCorrectTable } from '../src/db';
 
 
 

@@ -1,5 +1,5 @@
-const { ActionRowBuilder, ButtonBuilder, EmbedBuilder } = require("discord.js");
-const { cLog } = require("../components/functions/cLog");
+import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from 'discord.js';
+import { cLog } from '../components/functions/cLog';
 const row = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
         .setCustomId("submitreview")

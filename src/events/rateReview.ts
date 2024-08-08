@@ -1,9 +1,9 @@
-const { cLog } = require("../components/functions/cLog");
-const { updateGoogleSheet, createSheetBody } = require("../components/functions/googleApi");
-const { createRatingModal } = require("../components/modals");
-const { getCorrectTable } = require("../src/db");
-const serverInfo = require("../serverInfo.json");
-const { createRatingEmbed } = require("../components/embeds");
+import { cLog } from '../components/functions/cLog';
+import { updateGoogleSheet, createSheetBody } from '../components/functions/googleApi';
+import { createRatingModal } from '../components/modals';
+import { getCorrectTable } from '../src/db';
+import serverInfo from '../serverInfo.json';
+import { createRatingEmbed } from '../components/embeds';
 
 module.exports = {
     name: 'rateReview',

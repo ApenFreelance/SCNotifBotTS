@@ -1,7 +1,7 @@
 const axios = require("axios")
 const classes =require("../../classes.json")
-const { google } = require("googleapis");
-const { GoogleAuth } = require("google-auth-library");
+import { google } from 'googleapis';
+import { GoogleAuth } from 'google-auth-library';
 
 async function getBuild(className, specialization, mode="solo") {
     return await axios.get(`https://murlok.io/api/guides/${className.replace(" ", "-")}/${specialization.replace(" ", "-")}/${mode}`).then(e=> e.data)

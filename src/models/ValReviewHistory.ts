@@ -1,4 +1,4 @@
-const { DataTypes, Model } = require("sequelize");
+import { DataTypes, Model } from 'sequelize';
 
 module.exports = class ValReviewHistory extends Model {
     static init(sequelize) {

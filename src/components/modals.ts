@@ -4,7 +4,7 @@ const {
     ActionRowBuilder,
     TextInputStyle,
 } = require("discord.js");
-const { cLog } = require("./functions/cLog");
+import { cLog } from './functions/cLog';
 
 async function completeSubmissionEmbed(interaction, submissionModal, mode = null) {
     const modal = new ModalBuilder()

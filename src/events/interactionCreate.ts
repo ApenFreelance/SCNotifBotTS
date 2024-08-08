@@ -2,10 +2,10 @@ const {
     updateGoogleSheet,
     createSheetBody,
 } = require("../components/functions/googleApi");
-const { cLog } = require("../components/functions/cLog");
-const { createSubmissionModal, createUserVerificationModal } = require("../components/modals");
-const { getCorrectTable } = require("../src/db");
-const { selectServer } = require("../components/functions/selectServer");
+import { cLog } from '../components/functions/cLog';
+import { createSubmissionModal, createUserVerificationModal } from '../components/modals';
+import { getCorrectTable } from '../src/db';
+import { selectServer } from '../components/functions/selectServer';
 
 const regexWoWLink = /(https):\/\/((worldofwarcraft\.blizzard\.com||worldofwarcraft\.com)\/[\w_-]+\/character\/(us|eu|kr|tw|cn|)\/[\w_-]+\/.+)/;
 const regexValLink = /(https):\/\/(tracker\.gg\/valorant\/profile\/riot)\/.+/;

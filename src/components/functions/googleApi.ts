@@ -1,5 +1,5 @@
-const { google } = require("googleapis");
-const { GoogleAuth } = require("google-auth-library");
+import { google } from 'googleapis';
+import { GoogleAuth } from 'google-auth-library';
 
 const DEVspreadsheet = process.env.DEVsheet;
 const prod = process.env.PRODsheet;

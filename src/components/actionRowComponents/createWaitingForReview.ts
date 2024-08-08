@@ -1,7 +1,7 @@
-const classes = require("../../classes.json");
-const { cLog } = require("../functions/cLog");
-const { waitingForReviewRow } = require("../buttons");
-const { createWaitingForReviewEmbed } = require("../embeds");
+import classes from '../../classes.json';
+import { cLog } from '../functions/cLog';
+import { waitingForReviewRow } from '../buttons';
+import { createWaitingForReviewEmbed } from '../embeds';
 const noBreakSpace = "\u00A0";
 
 async function createWaitingForReviewMessage(interaction,charInfo,

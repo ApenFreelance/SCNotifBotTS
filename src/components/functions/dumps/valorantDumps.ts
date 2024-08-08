@@ -1,6 +1,6 @@
-const { default: axios } = require("axios");
-const { EmbedBuilder } = require("discord.js");
-const fs = require("fs");
+import { default: axios } from 'axios';
+import { EmbedBuilder } from 'discord.js';
+import fs from 'fs';
 
 async function parseDump(newDumpString, oldDumpString, game, bot) {
   let newDump = await axios.get(newDumpString);

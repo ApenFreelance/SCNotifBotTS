@@ -1,11 +1,11 @@
-const { updateGoogleSheet, createSheetBody } = require("../components/functions/googleApi.js");
-const blizzard = require("blizzard.js");
-const classes = require("../classes.json");
-const { createWaitingForReviewMessage } = require("../components/actionRowComponents/createWaitingForReview.js");
-const { cLog } = require("../components/functions/cLog.js");
-const { getCorrectTable } = require("../src/db.js");
-const axios = require("axios");
-const { reduceTimeBetweenUses, getOverwrites, getShortestOverwrite } = require("../components/functions/timerOverwrite.js");
+import { updateGoogleSheet, createSheetBody } from '../components/functions/googleApi.js';
+import blizzard from 'blizzard.js';
+import classes from '../classes.json';
+import { createWaitingForReviewMessage } from '../components/actionRowComponents/createWaitingForReview.js';
+import { cLog } from '../components/functions/cLog.js';
+import { getCorrectTable } from '../src/db.js';
+import axios from 'axios';
+import { reduceTimeBetweenUses, getOverwrites, getShortestOverwrite } from '../components/functions/timerOverwrite.js';
 
 module.exports = {
     name: "submitReview",
