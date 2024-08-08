@@ -1,6 +1,6 @@
 import { DataTypes, Model } from 'sequelize';
 
-module.exports = class DevWoWReviewHistory extends Model {
+export default class DevWoWReviewHistory extends Model {
     static init(sequelize) {
         return super.init({
          status: {type: DataTypes.STRING },

@@ -1,6 +1,6 @@
 import { DataTypes, Model } from 'sequelize';
 
-module.exports = class ValReviewHistory extends Model {
+export default class ValReviewHistory extends Model {
     static init(sequelize) {
         return super.init({
          status: {type: DataTypes.STRING },

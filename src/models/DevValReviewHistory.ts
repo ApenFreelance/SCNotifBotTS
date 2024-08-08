@@ -1,6 +1,6 @@
 import { DataTypes, Model } from 'sequelize';
 
-module.exports = class DevValReviewHistory extends Model {
+export default class DevValReviewHistory extends Model {
     static init(sequelize) {
         return super.init({
          status: {type: DataTypes.STRING },
@@ -31,3 +31,4 @@ module.exports = class DevValReviewHistory extends Model {
         });
     }
 }
+

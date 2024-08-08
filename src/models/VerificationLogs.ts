@@ -1,6 +1,6 @@
 import { DataTypes, Model } from 'sequelize';
 
-module.exports = class VerificationLogs extends Model {
+export default class VerificationLogs extends Model {
     static init(sequelize) {
         return super.init({
          userName: { type: DataTypes.STRING },

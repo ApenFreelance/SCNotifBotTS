@@ -1,6 +1,6 @@
 import { DataTypes, Model } from 'sequelize';
 
-module.exports = class WoWCharacters extends Model {
+export default class WoWCharacters extends Model {
   static init(sequelize) {
     return super.init(
       {
