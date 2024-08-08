@@ -1,6 +1,6 @@
-import { updateGoogleSheet, createSheetBody } from './components/functions/googleApi';
+import { updateGoogleSheet, createSheetBody } from '../components/functions/googleApi';
 const { getCorrectTable } = require("../src/db")
-import { cLog } from './components/functions/cLog';
+import { cLog } from '../components/functions/cLog';
 
 export default {
     name: 'rejectReview',

@@ -1,5 +1,5 @@
-const axios = require("axios")
-const classes =require("../../classes.json")
+import axios from 'axios';
+import classes from '../../../config/classes.json';
 import { google } from 'googleapis';
 import { GoogleAuth } from 'google-auth-library';
 
@@ -329,4 +329,4 @@ async function mainBuildHandler() {
 
 
 
-export default { mainBuildHandler };
+export { mainBuildHandler };

@@ -1,4 +1,4 @@
-import ReviewTimerOverwrite from './../models/ReviewTimerOverwrite';
+import ReviewTimerOverwrite from '../../models/ReviewTimerOverwrite';
 import { cLog } from './cLog';
 
 async function getTimeBetweenRoles(server) {
@@ -127,4 +127,4 @@ async function reduceTimeBetweenUses(userId, guildId) {
     }
     cLog([`Uses left for ${object.userName}: ` + object.uses], {guild:guildId, subProcess:"TimeBetween"})
 }
-export default { getTimeBetweenByUserId, getTimeBetweenRoles, createNewTimerOverwrite, getTimeBetweenUserApplicableRoles, getOverwrites, getShortestOverwrite, reduceTimeBetweenUses, getOrCreateTimeBetweenEntry };
+export { getTimeBetweenByUserId, getTimeBetweenRoles, createNewTimerOverwrite, getTimeBetweenUserApplicableRoles, getOverwrites, getShortestOverwrite, reduceTimeBetweenUses, getOrCreateTimeBetweenEntry };

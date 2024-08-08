@@ -1,11 +1,11 @@
-import { updateGoogleSheet, createSheetBody } from './components/functions/googleApi.js';
+import { updateGoogleSheet, createSheetBody } from '../components/functions/googleApi.js';
 import blizzard from 'blizzard.js';
-import classes from './classes.json';
-import { createWaitingForReviewMessage } from './components/actionRowComponents/createWaitingForReview.js';
-import { cLog } from './components/functions/cLog.js';
-import { getCorrectTable } from './src/db.js';
+import classes from '../../config/classes.json';
+import { createWaitingForReviewMessage } from '../components/actionRowComponents/createWaitingForReview.js';
+import { cLog } from '../components/functions/cLog.js';
+import { getCorrectTable } from '../db.js';
 import axios from 'axios';
-import { reduceTimeBetweenUses, getOverwrites, getShortestOverwrite } from './components/functions/timerOverwrite.js';
+import { reduceTimeBetweenUses, getOverwrites, getShortestOverwrite } from '../components/functions/timerOverwrite.js';
 
 export default {
     name: "submitReview",

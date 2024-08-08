@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { submitReviewButton } from './components/buttons';
+import { submitReviewButton } from '../components/buttons';
 
 export default {
     data: new SlashCommandBuilder()

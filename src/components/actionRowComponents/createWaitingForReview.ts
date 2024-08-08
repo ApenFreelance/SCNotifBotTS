@@ -1,7 +1,7 @@
-import classes from './../classes.json';
-import { cLog } from './functions/cLog';
-import { waitingForReviewRow } from './buttons';
-import { createWaitingForReviewEmbed } from './embeds';
+import classes from '../../../config/classes.json';
+import { cLog } from '../functions/cLog';
+import { waitingForReviewRow } from '../buttons';
+import { createWaitingForReviewEmbed } from '../embeds';
 const noBreakSpace = "\u00A0";
 
 async function createWaitingForReviewMessage(interaction,charInfo,
@@ -71,4 +71,4 @@ function addWoWPVPRoleStats(charInfo, description) {
   return description;
 }
 
-export default {createWaitingForReviewMessage};
+export {createWaitingForReviewMessage};

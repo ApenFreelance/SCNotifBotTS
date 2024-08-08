@@ -1,7 +1,7 @@
 import { ButtonBuilder, ActionRowBuilder } from 'discord.js';
-import { createReviewButtons } from './components/buttons.js';
-import { cLog } from './components/functions/cLog';
-import { getCorrectTable } from './src/db.js';
+import { createReviewButtons } from '../components/buttons.js';
+import { cLog } from '../components/functions/cLog';
+import { getCorrectTable } from '../db.js';
 
 export default {
   name: "closeSubmission",

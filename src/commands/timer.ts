@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { getOrCreateTimeBetweenEntry } from './components/functions/timerOverwrite';
-import { selectServer } from './components/functions/selectServer';
+import { getOrCreateTimeBetweenEntry } from '../components/functions/timerOverwrite';
+import { selectServer } from '../components/functions/selectServer';
 
 export default {
   data: new SlashCommandBuilder()

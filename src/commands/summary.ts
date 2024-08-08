@@ -1,8 +1,8 @@
 import { SlashCommandBuilder } from 'discord.js';
 
 import { Op } from 'sequelize';
-import { getCorrectTable } from './db';
-import { createOverviewEmbed } from './components/embeds';
+import { getCorrectTable } from '../db';
+import { createOverviewEmbed } from '../components/embeds';
 
 export default {
   data: new SlashCommandBuilder()

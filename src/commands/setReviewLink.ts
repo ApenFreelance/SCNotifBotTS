@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { updateGoogleSheet, createSheetBody } from './components/functions/googleApi';
-import { getCorrectTable } from './src/db';
-import serverInfo from './serverInfo.json';
+import { updateGoogleSheet, createSheetBody } from '../components/functions/googleApi';
+import { getCorrectTable } from '../db';
+import serverInfo from '../../config/serverInfo.json';
 
 export default {
   data: new SlashCommandBuilder()

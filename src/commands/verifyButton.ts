@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { verificationButton } from './components/buttons';
+import { verificationButton } from '../components/buttons';
 
 export default {
   data: new SlashCommandBuilder()

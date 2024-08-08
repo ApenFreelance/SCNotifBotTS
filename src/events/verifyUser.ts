@@ -1,8 +1,8 @@
-import { default: axios } from 'axios';
-import { cLog } from './components/functions/cLog';
-import { updateGoogleSheet, createVerifSheetBody } from './components/functions/googleApi';
-import VerificationLogs from './models/VerificationLogs';
-import VerifiedUsers from './models/VerifiedUsers';
+import axios from 'axios';
+import { cLog } from '../components/functions/cLog';
+import { updateGoogleSheet, createVerifSheetBody } from '../components/functions/googleApi';
+import VerificationLogs from '../models/VerificationLogs';
+import VerifiedUsers from '../models/VerifiedUsers';
 const { Op } = require("sequelize")
 
 export default {

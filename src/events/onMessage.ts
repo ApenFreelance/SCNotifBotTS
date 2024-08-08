@@ -1,5 +1,5 @@
 import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from 'discord.js';
-import { cLog } from './components/functions/cLog';
+import { cLog } from '../components/functions/cLog';
 const row = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
         .setCustomId("submitreview")

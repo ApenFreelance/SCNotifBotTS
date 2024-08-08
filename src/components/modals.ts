@@ -139,7 +139,7 @@ function createUserVerificationModal(serverPart = null) {
     return verifModal
 }
 
-export default {
+export {
     completeSubmissionEmbed,
     createSubmissionModal,
     createRatingModal,

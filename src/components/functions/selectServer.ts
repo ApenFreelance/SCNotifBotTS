@@ -1,4 +1,4 @@
-import serverInfoJSON from './../serverInfo.json';
+import serverInfoJSON from '../../../config/serverInfo.json';
 
 function selectServer(serverId) {
     for (let key in serverInfoJSON) {
@@ -14,4 +14,4 @@ function selectServer(serverId) {
     return null;
 }
 
-export default { selectServer };
+export { selectServer };

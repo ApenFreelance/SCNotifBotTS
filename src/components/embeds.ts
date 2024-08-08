@@ -56,4 +56,4 @@ function createOverviewEmbed(counted, time, selectedReviews) {
 
 
 
-export default { createWaitingForReviewEmbed, createRatingEmbed, createOverviewEmbed };
+export { createWaitingForReviewEmbed, createRatingEmbed, createOverviewEmbed };

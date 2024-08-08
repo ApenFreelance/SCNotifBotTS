@@ -40,4 +40,4 @@ function colorSubProcess(subProcess, color) {
   return "";
 }
 
-export default { cLog };
+export { cLog };

@@ -50,4 +50,4 @@ async function getCorrectTable(guildId, tableGroup, mode = null) {
     }
 }
 
-export default { db, getCorrectTable };
+export { db, getCorrectTable };

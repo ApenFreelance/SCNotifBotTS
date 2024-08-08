@@ -1,4 +1,4 @@
-import { default: axios } from 'axios';
+import axios from 'axios';
 import { EmbedBuilder } from 'discord.js';
 import fs from 'fs';
 
@@ -190,4 +190,4 @@ async function createEmbed(uploads, game, interaction, bot) {
   });
   //await interaction.editReply({contents:`Dump upload completed`, ephemeral:true}).catch(err => console.log(err))
 }
-export default { parseDump };
+export { parseDump };

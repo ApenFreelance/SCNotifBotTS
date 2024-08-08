@@ -1,9 +1,9 @@
-import { cLog } from './components/functions/cLog';
-import { updateGoogleSheet, createSheetBody } from './components/functions/googleApi';
-import { createRatingModal } from './components/modals';
+import { cLog } from '../components/functions/cLog';
+import { updateGoogleSheet, createSheetBody } from '../components/functions/googleApi';
+import { createRatingModal } from '../components/modals';
 import { getCorrectTable } from '../db';
-import serverInfo from './serverInfo.json';
-import { createRatingEmbed } from './components/embeds';
+import serverInfo from '../../config/serverInfo.json';
+import { createRatingEmbed } from '../components/embeds';
 
 export default {
     name: 'rateReview',

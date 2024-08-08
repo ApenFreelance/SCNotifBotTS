@@ -1,7 +1,7 @@
 import { ButtonBuilder, PermissionsBitField, ActionRowBuilder } from 'discord.js';
-import { updateGoogleSheet, createSheetBody } from './components/functions/googleApi';
-import { getCorrectTable } from './src/db';
-import { cLog } from './components/functions/cLog';
+import { updateGoogleSheet, createSheetBody } from '../components/functions/googleApi';
+import { getCorrectTable } from '../db';
+import { cLog } from '../components/functions/cLog';
 
 
 
