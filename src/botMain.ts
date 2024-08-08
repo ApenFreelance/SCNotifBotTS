@@ -16,72 +16,73 @@ import VerificationLogs from './models/VerificationLogs';
 import VerifiedUsers from './models/VerifiedUsers';
 
 dotenv.config();
-const bot = new Client({
-    intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent,
-        GatewayIntentBits.GuildMembers,
-    ],
-});
-bot.commands = new Collection();
-process.on("unhandledRejection", (error) => {
-    console.error("Unhandled promise rejection:", error);
-    //logChannelServer.send()
-});
-process.on("uncaughtException", (error) => {
-    console.error("Uncaught Exception : ", error);
-});
+async function start(): Promise<void> {
 
-const commandFiles = fs
-    .readdirSync("./commands")
-    .filter((file) => file.endsWith(".js"));
-const eventFiles = fs
-    .readdirSync("./events")
-    .filter((file) => file.endsWith(".js"));
-for (const file of commandFiles) {
-    const command = require(`../commands/${file}`);
-    // Set a new item in the Collection
-    // With the key as the command name and the value as the exported module
-
-    bot.commands.set(command.data.name, command);
-}
-
-for (const file of eventFiles) {
-    const event = require(`../events/${file}`);
-    if (event.once) {
-        bot.once(event.name, (...args) => event.execute(...args));
-    } else {
-        bot.on(event.name, (...args) => event.execute(...args));
-    }
-}
-
-//bot.rest.on("restDebug", console.log)
-
-bot.rest.on("rateLimited", (data) => {
-    console.log(`[ RATE LIMIT ]`);
-});
-
-const models = [WoWReviewHistory, ReviewTimerOverwrite, PVEWoWReviewHistory, WoWCharacters, VerificationLogs, VerifiedUsers];
-
-bot.on("ready", async () => {
-    cLog([`${bot.user.username} has logged in`], { subProcess: "Start-up" });
-    models.forEach((model) => {
-        model.init(db);
-        model.sync();
+    const bot = new Client({
+        intents: [
+            GatewayIntentBits.Guilds,
+            GatewayIntentBits.GuildMessages,
+            GatewayIntentBits.MessageContent,
+            GatewayIntentBits.GuildMembers,
+        ],
+    });
+    bot.commands = new Collection();
+    process.on("unhandledRejection", (error) => {
+        console.error("Unhandled promise rejection:", error);
+        //logChannelServer.send()
+    });
+    process.on("uncaughtException", (error) => {
+        console.error("Uncaught Exception : ", error);
     });
 
-    cLog(["Starting up buildHandler"], { subProcess: "Start-up" });
-    try {
-        mainBuildHandler();
-        setInterval(mainBuildHandler, 24 * 60 * 60 * 1000);
-    } catch (err) {
-        cLog(["Error in buildHandler : ", err], { subProcess: "Interval" });
+    const commandFiles = fs
+        .readdirSync("./commands")
+        .filter((file) => file.endsWith(".js"));
+    const eventFiles = fs
+        .readdirSync("./events")
+        .filter((file) => file.endsWith(".js"));
+    for (const file of commandFiles) {
+        const command = require(`../commands/${file}`);
+        // Set a new item in the Collection
+        // With the key as the command name and the value as the exported module
+
+        bot.commands.set(command.data.name, command);
     }
 
-});
+    for (const file of eventFiles) {
+        const event = require(`../events/${file}`);
+        if (event.once) {
+            bot.once(event.name, (...args) => event.execute(...args));
+        } else {
+            bot.on(event.name, (...args) => event.execute(...args));
+        }
+    }
 
-async function start(): Promise<void> {
+    //bot.rest.on("restDebug", console.log)
+
+    bot.rest.on("rateLimited", (data) => {
+        console.log(`[ RATE LIMIT ]`);
+    });
+
+    const models = [WoWReviewHistory, ReviewTimerOverwrite, PVEWoWReviewHistory, WoWCharacters, VerificationLogs, VerifiedUsers];
+
+    bot.on("ready", async () => {
+        cLog([`${bot.user.username} has logged in`], { subProcess: "Start-up" });
+        models.forEach((model) => {
+            model.init(db);
+            model.sync();
+        });
+
+        cLog(["Starting up buildHandler"], { subProcess: "Start-up" });
+        try {
+            mainBuildHandler();
+            setInterval(mainBuildHandler, 24 * 60 * 60 * 1000);
+        } catch (err) {
+            cLog(["Error in buildHandler : ", err], { subProcess: "Interval" });
+        }
+
+    });
+
 
 }
 
