@@ -1,7 +1,7 @@
 const { SlashCommandBuilder } = require("discord.js");
 
 const { Op } = require("sequelize");
-const { getCorrectTable } = require("../src/db");
+const { getCorrectTable } = require("../db");
 const { createOverviewEmbed } = require("../components/embeds");
 
 module.exports = {
