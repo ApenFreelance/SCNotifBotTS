@@ -1,19 +1,32 @@
-import { DataTypes, Model } from 'sequelize';
+import { ModelStatic, Sequelize } from 'sequelize'
+import { DataTypes, Model } from 'sequelize'
 
-export default class VerifiedUsers extends Model {
-    static init(sequelize) {
+type VerifiedUsersAttributes = {
+    userName: string;
+    userId: string;
+    email: string;
+    server: string;
+    serverPart: string;
+}
+export default class VerifiedUsers extends Model<VerifiedUsersAttributes> {
+    declare userName: string
+    declare userId: string
+    declare email: string
+    declare server: string
+    declare serverPart: string
+    static initModel(sequelize: Sequelize): ModelStatic<VerifiedUsers> {
         return super.init({
-         userName: { type: DataTypes.STRING },
-         userId: { type: DataTypes.STRING },
-         email: { type: DataTypes.STRING },
-         server: {type: DataTypes.STRING},
-         serverPart: {type: DataTypes.STRING}
+            userName: { type: DataTypes.STRING },
+            userId: { type: DataTypes.STRING },
+            email: { type: DataTypes.STRING },
+            server: { type: DataTypes.STRING },
+            serverPart: { type: DataTypes.STRING }
         }, {
-            tableName: "VerifiedUsers",
+            tableName: 'VerifiedUsers',
             updatedAt:true,
             createdAt:true,
-            raw:true,
+            //raw:true,
             sequelize
-        });
+        }) as ModelStatic<VerifiedUsers>
     }
 }
