@@ -1,5 +1,6 @@
 import { SlashCommandBuilder } from 'discord.js'
 import { submitReviewButton } from '../components/buttons'
+import { GuildIds } from '../types'
 
 export default {
     data: new SlashCommandBuilder()
@@ -24,4 +25,5 @@ export default {
             ],
         })
     },
+    validForServer: [GuildIds.SKILLCAPPED_WOW],
 }
