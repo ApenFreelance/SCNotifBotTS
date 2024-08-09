@@ -1,0 +1,8 @@
+{
+    "envvariables": {
+        "required": [
+            "BOT_TOKEN",
+            "CLIENT_ID"
+        ]
+    }
+}

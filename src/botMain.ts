@@ -1,77 +1,62 @@
 import dotenv from 'dotenv'
-import fs from 'fs'
+import { readdirSync } from 'fs'
 import { mainBuildHandler } from './components/functions/buildHandler'
 import { Collection, Client, GatewayIntentBits } from 'discord.js'
 import { db } from './db'
 import { cLog } from './components/functions/cLog'
 import WoWCharacters from './models/WoWCharacters'
-import ValReviewHistory from './models/ValReviewHistory'
-import DevValReviewHistory from './models/DevValReviewHistory'
-import DevWoWReviewHistory from './models/DevWoWReviewHistory'
 import WoWReviewHistory from './models/WoWReviewHistory'
 import ReviewTimerOverwrite from './models/ReviewTimerOverwrite'
-import DevPVEWoWReviewHistory from './models/DevPVEWoWReviewHistory'
 import PVEWoWReviewHistory from './models/PVEWoWReviewHistory'
 import VerificationLogs from './models/VerificationLogs'
 import VerifiedUsers from './models/VerifiedUsers'
-
+import { join } from 'path'
+import BotConfig from '../config/Bot.config.json'
 dotenv.config()
-async function start(): Promise<void> {
 
-    const bot = new Client({
+function validateEnvVariables() {
+    const missingVariables = []
+    for (const variable in BotConfig.envvariables.required) {
+        if (!process.env[variable]) 
+            missingVariables.push(variable)
+    }
+    if (missingVariables.length > 0) 
+        throw new Error(`${missingVariables} is not set in environment variables`)
+}
+
+function initializeBotClient(): Client {
+    return new Client({
         intents: [
             GatewayIntentBits.Guilds,
             GatewayIntentBits.GuildMessages,
             GatewayIntentBits.MessageContent,
             GatewayIntentBits.GuildMembers,
         ],
+        presence: { activities: [{ name: 'Ranking up' }], status: 'online' },
     })
-    bot.commands = new Collection()
-    process.on('unhandledRejection', (error) => {
-        console.error('Unhandled promise rejection:', error)
-        //logChannelServer.send()
-    })
-    process.on('uncaughtException', (error) => {
-        console.error('Uncaught Exception : ', error)
-    })
+}
 
-    const commandFiles = fs
-        .readdirSync('./commands')
-        .filter((file) => file.endsWith('.js'))
-    const eventFiles = fs
-        .readdirSync('./events')
-        .filter((file) => file.endsWith('.js'))
-    for (const file of commandFiles) {
-        const command = require(`../commands/${file}`)
-        // Set a new item in the Collection
-        // With the key as the command name and the value as the exported module
-
-        bot.commands.set(command.data.name, command)
+async function loadHandlers(bot: Client): Promise<void> {
+    const handlersDir = join(__dirname, './handlers')
+    const handlerFiles = readdirSync(handlersDir).filter(file => file.endsWith('.js'))
+    for (const file of handlerFiles) {
+        const { default: handler } = await import(`${handlersDir}/${file}`)
+        handler.default(bot)
     }
+}
 
-    for (const file of eventFiles) {
-        const event = require(`../events/${file}`)
-        if (event.once) 
-            bot.once(event.name, (...args) => event.execute(...args))
-        else 
-            bot.on(event.name, (...args) => event.execute(...args))
-        
-    }
-
-    //bot.rest.on("restDebug", console.log)
-
-    bot.rest.on('rateLimited', (data) => {
-        console.log('[ RATE LIMIT ]')
-    })
-
+function initializeModels(): void {
     const models = [WoWReviewHistory, ReviewTimerOverwrite, PVEWoWReviewHistory, WoWCharacters, VerificationLogs, VerifiedUsers]
+    models.forEach((model) => {
+        model.initModel(db)
+        model.sync()
+    })
+}
 
+function setupEventListeners(bot: Client): void {
     bot.on('ready', async () => {
         cLog([`${bot.user.username} has logged in`], { subProcess: 'Start-up' })
-        models.forEach((model) => {
-            model.init(db)
-            model.sync()
-        })
+        initializeModels()
 
         cLog(['Starting up buildHandler'], { subProcess: 'Start-up' })
         try {
@@ -80,12 +65,37 @@ async function start(): Promise<void> {
         } catch (err) {
             cLog(['Error in buildHandler : ', err], { subProcess: 'Interval' })
         }
-
     })
 
+    bot.rest.on('rateLimited', () => {
+        console.log('[ RATE LIMIT ]')
+    })
 
+    process.on('unhandledRejection', (error) => {
+        console.error('Unhandled promise rejection:', error)
+    })
+    process.on('uncaughtException', (error) => {
+        console.error('Uncaught Exception : ', error)
+    })
 }
 
+async function start(): Promise<void> {
+    validateEnvVariables()
 
-bot.login(process.env.BOT_TOKEN)
+    const bot = initializeBotClient()
+    bot.slashCommands = new Collection()
 
+    await loadHandlers(bot)
+    setupEventListeners(bot)
+
+    try {
+        await bot.login(process.env.BOT_TOKEN)
+        console.log('Bot started')
+    } catch (err) {
+        console.error('Error starting bot : ', err)
+    }
+}
+
+start().catch((err) => {
+    console.error('Error in start function : ', err)
+})
