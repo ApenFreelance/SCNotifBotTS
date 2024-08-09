@@ -1,19 +1,24 @@
-import dotenv from 'dotenv'
-import { readdirSync } from 'fs'
-import { mainBuildHandler } from './components/functions/buildHandler'
 import { Collection, Client, GatewayIntentBits } from 'discord.js'
-import { db } from './db'
+import { mainBuildHandler } from './components/functions/buildHandler'
+import { readdirSync } from 'fs'
 import { cLog } from './components/functions/cLog'
-import WoWCharacters from './models/WoWCharacters'
-import WoWReviewHistory from './models/WoWReviewHistory'
+import { join } from 'path'
+import { db } from './db'
 import ReviewTimerOverwrite from './models/ReviewTimerOverwrite'
 import PVEWoWReviewHistory from './models/PVEWoWReviewHistory'
+import WoWReviewHistory from './models/WoWReviewHistory'
 import VerificationLogs from './models/VerificationLogs'
+import WoWCharacters from './models/WoWCharacters'
 import VerifiedUsers from './models/VerifiedUsers'
-import { join } from 'path'
 import BotConfig from '../config/Bot.config.json'
+import dotenv from 'dotenv'
+
 dotenv.config()
 
+/**
+ * Validates that all required environment variables are set.
+ * @throws {Error} If any required environment variables are missing.
+ */
 function validateEnvVariables() {
     const missingVariables = []
     for (const variable in BotConfig.envvariables.required) {
@@ -24,6 +29,10 @@ function validateEnvVariables() {
         throw new Error(`${missingVariables} is not set in environment variables`)
 }
 
+/**
+ * Initializes and returns a new Discord bot client.
+ * @returns {Client} The initialized Discord bot client.
+ */
 function initializeBotClient(): Client {
     return new Client({
         intents: [
@@ -36,6 +45,11 @@ function initializeBotClient(): Client {
     })
 }
 
+/**
+ * Loads and initializes all handler files for the bot.
+ * @param {Client} bot - The Discord bot client.
+ * @returns {Promise<void>} A promise that resolves when all handlers are loaded.
+ */
 async function loadHandlers(bot: Client): Promise<void> {
     const handlersDir = join(__dirname, './handlers')
     const handlerFiles = readdirSync(handlersDir).filter(file => file.endsWith('.js'))
@@ -45,6 +59,9 @@ async function loadHandlers(bot: Client): Promise<void> {
     }
 }
 
+/**
+ * Initializes and synchronizes all database models.
+ */
 function initializeModels(): void {
     const models = [WoWReviewHistory, ReviewTimerOverwrite, PVEWoWReviewHistory, WoWCharacters, VerificationLogs, VerifiedUsers]
     models.forEach((model) => {
@@ -53,6 +70,10 @@ function initializeModels(): void {
     })
 }
 
+/**
+ * Sets up event listeners for the bot client.
+ * @param {Client} bot - The Discord bot client.
+ */
 function setupEventListeners(bot: Client): void {
     bot.on('ready', async () => {
         cLog([`${bot.user.username} has logged in`], { subProcess: 'Start-up' })
@@ -79,6 +100,11 @@ function setupEventListeners(bot: Client): void {
     })
 }
 
+/**
+ * Starts the bot by validating environment variables, initializing the bot client,
+ * loading handlers, setting up event listeners, and logging in to Discord.
+ * @returns {Promise<void>} A promise that resolves when the bot has started.
+ */
 async function start(): Promise<void> {
     validateEnvVariables()
 
