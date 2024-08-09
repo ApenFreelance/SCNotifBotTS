@@ -1,210 +1,210 @@
 const {
     updateGoogleSheet,
     createSheetBody,
-} = require("../components/functions/googleApi");
-import { cLog } from '../components/functions/cLog';
-import { createSubmissionModal, createUserVerificationModal } from '../components/modals';
-import { getCorrectTable } from '../db';
-import { selectServer } from '../components/functions/selectServer';
+} = require('../components/functions/googleApi')
+import { cLog } from '../components/functions/cLog'
+import { createSubmissionModal, createUserVerificationModal } from '../components/modals'
+import { getCorrectTable } from '../db'
+import { selectServer } from '../components/functions/selectServer'
 
-const regexWoWLink = /(https):\/\/((worldofwarcraft\.blizzard\.com||worldofwarcraft\.com)\/[\w_-]+\/character\/(us|eu|kr|tw|cn|)\/[\w_-]+\/.+)/;
-const regexValLink = /(https):\/\/(tracker\.gg\/valorant\/profile\/riot)\/.+/;
+const regexWoWLink = /(https):\/\/((worldofwarcraft\.blizzard\.com||worldofwarcraft\.com)\/[\w_-]+\/character\/(us|eu|kr|tw|cn|)\/[\w_-]+\/.+)/
+const regexValLink = /(https):\/\/(tracker\.gg\/valorant\/profile\/riot)\/.+/
 export default {
-    name: "interactionCreate",
+    name: 'interactionCreate',
     once: false,
     async execute(interaction) {
-        let bot = interaction.client;
+        const bot = interaction.client
         try {
             if (interaction.isCommand()) {
-                await slashCommandHandler(interaction);
-                return;
+                await slashCommandHandler(interaction)
+                return
             }
             // End of slash command handler
             //await interaction.reply({content:"Processing...", ephemeral:true}) // This is to show something is happening and to prevent timeout. EDIT IT ALONG THE WAY
             // Line above causes issues with modals
-            const server = selectServer(interaction.guildId); //
+            const server = selectServer(interaction.guildId) //
             /*
             Contains:
             serverName
             serverId
             reviewCategoryId
             */
-            if (interaction.customId.startsWith("verify-user") && interaction.isButton()) {
-                const serverPart = interaction.customId.split("-")[2] || null
-                cLog(["User clicked verify-user : ", interaction.user.username],{ guild: interaction.guild, subProcess: "buttonClick" });
+            if (interaction.customId.startsWith('verify-user') && interaction.isButton()) {
+                const serverPart = interaction.customId.split('-')[2] || null
+                cLog(['User clicked verify-user : ', interaction.user.username], { guild: interaction.guild, subProcess: 'buttonClick' })
                 await interaction.showModal(createUserVerificationModal(serverPart))
             }
 
-            if (interaction.customId.startsWith("verify-user") && interaction.isModalSubmit()) {
-                cLog(["User clicked verify-user : ", interaction.user.username],{ guild: interaction.guild, subProcess: "ModalSub" });
-                bot.emit("verifyUser", interaction, server)
+            if (interaction.customId.startsWith('verify-user') && interaction.isModalSubmit()) {
+                cLog(['User clicked verify-user : ', interaction.user.username], { guild: interaction.guild, subProcess: 'ModalSub' })
+                bot.emit('verifyUser', interaction, server)
             }
 
-            if (interaction.customId == "deletemessage") {
-                await interaction.message.delete();
-                cLog(["Deleted refund message"], {
+            if (interaction.customId == 'deletemessage') {
+                await interaction.message.delete()
+                cLog(['Deleted refund message'], {
                     guild: server.serverId,
-                    subProcess: "Refund Message",
-                });
+                    subProcess: 'Refund Message',
+                })
             }
 
-            if (interaction.customId.split("-")[0] == "submitreview") {
-                if (await blockIfLacksRole(interaction, server.serverName)) {
-                    return;
-                }
+            if (interaction.customId.split('-')[0] == 'submitreview') {
+                if (await blockIfLacksRole(interaction, server.serverName)) 
+                    return
+                
                 await createSubmissionModal(
                     interaction,
                     server,
-                    interaction.customId.split("-")[1]
-                );
+                    interaction.customId.split('-')[1]
+                )
             }
-            if (interaction.customId.split("-")[0] == "submissionmodal") {
+            if (interaction.customId.split('-')[0] == 'submissionmodal') {
                 // Handles response from the submitted submission through modal
                 if (validLink(interaction, server.serverName)) {
                     // Begin submission creation handling
-                    bot.emit("submitReview",interaction,server,interaction.customId.split("-")[1]);
-                } else {
-                    await interaction.reply({content:"This link is not valid.\n\nThink this is a mistake? Let us know",ephemeral: true});
-                }
+                    bot.emit('submitReview', interaction, server, interaction.customId.split('-')[1])
+                } else 
+                    await interaction.reply({ content:'This link is not valid.\n\nThink this is a mistake? Let us know', ephemeral: true })
+                
             }
-            if (interaction.customId.split("-")[0] == "claimsubmission") {
+            if (interaction.customId.split('-')[0] == 'claimsubmission') {
                 // Begin claim handling
-                cLog(["Claiming review nr: ",interaction.customId.split("-")[1],],{ guild: interaction.guild, subProcess: "buttonClick" });
-                bot.emit("claimReview", interaction, server, interaction.customId.split("-")[1]);
+                cLog(['Claiming review nr: ', interaction.customId.split('-')[1],], { guild: interaction.guild, subProcess: 'buttonClick' })
+                bot.emit('claimReview', interaction, server, interaction.customId.split('-')[1])
             }
-            if (interaction.customId.split("-")[0] == "rejectsubmission") {
+            if (interaction.customId.split('-')[0] == 'rejectsubmission') {
                 // Begin rejection handling
-                bot.emit("rejectReview", interaction, server, interaction.customId.split("-")[1]);
+                bot.emit('rejectReview', interaction, server, interaction.customId.split('-')[1])
             }
-            if (interaction.customId.split("-")[0] == "closesubmission") {
+            if (interaction.customId.split('-')[0] == 'closesubmission') {
                 // Close. NOT FINAL STEP. THIS IS WHEN REVIEW STATUS IS SET TO CLOSED. COMPLETE IS LAST
-                bot.emit("closeSubmission", interaction, server, interaction.customId.split("-")[2] || null);
+                bot.emit('closeSubmission', interaction, server, interaction.customId.split('-')[2] || null)
             }
-            if (interaction.customId.split("-")[0] == "delete") {
+            if (interaction.customId.split('-')[0] == 'delete') {
                 // THIS IS WHAT DELETES CHANNEL AND SO ON
-                bot.emit("completeReview", interaction, server, interaction.customId.split("-")[2] || null);
+                bot.emit('completeReview', interaction, server, interaction.customId.split('-')[2] || null)
             }
-            if (interaction.customId.split("-")[0] == "completesubmission") {
+            if (interaction.customId.split('-')[0] == 'completesubmission') {
                 // Triggers BEFORE deleting channel if missing reviewLink
-                let reviewlink = interaction.fields.getTextInputValue("reviewlink");
-                cLog(["Review nr: ",interaction.customId.split("-")[1],],{ guild: interaction.guild, subProcess: "reviewLinkEmpty" });
+                const reviewlink = interaction.fields.getTextInputValue('reviewlink')
+                cLog(['Review nr: ', interaction.customId.split('-')[1],], { guild: interaction.guild, subProcess: 'reviewLinkEmpty' })
 
                 const reviewHistory = await getCorrectTable(
                     server.serverId,
-                    "reviewHistory",
-                    interaction.customId.split("-")[2] || null
+                    'reviewHistory',
+                    interaction.customId.split('-')[2] || null
                 ).then((table) => {
                     return table.findOne({
                         // Gets the correct table for server
                         where: {
-                            id: interaction.customId.split("-")[1]
+                            id: interaction.customId.split('-')[1]
                         },
-                    });
-                });
+                    })
+                })
                 await reviewHistory.update({
                     reviewLink: reviewlink,
-                });
+                })
                 // WoW logs to sheet as well
-                if (server.serverName == "WoW") {
+                if (server.serverName == 'WoW') {
                     await updateGoogleSheet(
                         createSheetBody(
-                            interaction.customId.split("-")[2],
-                            interaction.customId.split("-")[1], { reviewLink: reviewlink })
-                    );
+                            interaction.customId.split('-')[2],
+                            interaction.customId.split('-')[1], { reviewLink: reviewlink })
+                    )
                 }
                 await interaction.reply({
-                    content: "Updated the review link to " + reviewlink,
+                    content: 'Updated the review link to ' + reviewlink,
                     ephemeral: true,
-                });
+                })
             }
-            if (interaction.customId.split("-")[1] == "reviewrating" || interaction.customId.split("-")[2] == "reviewrating") {
+            if (interaction.customId.split('-')[1] == 'reviewrating' || interaction.customId.split('-')[2] == 'reviewrating') {
                 // Handle user submitted reviews to their review
-                bot.emit("rateReview", interaction);
+                bot.emit('rateReview', interaction)
             }
-            if (interaction.customId.startsWith("clip-")) {
+            if (interaction.customId.startsWith('clip-')) {
                 // THIS MIGHT BE DEPRECATED
-                bot.emit("mediaCollection", interaction, server);
+                bot.emit('mediaCollection', interaction, server)
             }
         } catch (err) {
             console.log(
-                "Failed somewhere during interaction : ",
+                'Failed somewhere during interaction : ',
                 err,
                 interaction.user.username
-            );
+            )
             await interaction.reply({
-                content: "Something went wrong, please contact staff",
+                content: 'Something went wrong, please contact staff',
                 ephemeral: true,
-            });
+            })
         }
     },
-};
+}
 
 async function slashCommandHandler(interaction) {
-    const command = interaction.client.commands.get(interaction.commandName);
+    const command = interaction.client.commands.get(interaction.commandName)
     if (command) {
         try {
-            await command.execute(interaction);
-            return;
+            await command.execute(interaction)
+            return
         } catch (error) {
-            console.error(error);
-            await interaction.reply({ content: `${error}`, ephemeral: true });
-            return;
+            console.error(error)
+            await interaction.reply({ content: `${error}`, ephemeral: true })
+            return
         }
     }
 }
 
 async function blockIfLacksRole(interaction, game) {
-    if (game == "WoW") {
+    if (game == 'WoW') {
         if (
             !interaction.member.roles.cache.some(
                 (role) =>
-                    role.name === "🧨 Infinity Member" ||
-                    role.name === "💙Premium Member" ||
-                    role.name === "🧨Mythic Member"
+                    role.name === '🧨 Infinity Member' ||
+                    role.name === '💙Premium Member' ||
+                    role.name === '🧨Mythic Member'
             )
         ) {
             await interaction.reply({
                 content:
-                    "You need to be 🧨 Infinity Member or 💙Premium Member",
+                    'You need to be 🧨 Infinity Member or 💙Premium Member',
                 ephemeral: true,
-            });
-            return true;
+            })
+            return true
         }
     }
-    if (game == "Valorant") {
+    if (game == 'Valorant') {
         if (
             !interaction.member.roles.cache.some(
                 (role) =>
-                    role.name === "💎・Infinity+" ||
-                    role.name === "🌸・Server Booster"
+                    role.name === '💎・Infinity+' ||
+                    role.name === '🌸・Server Booster'
             )
         ) {
             await interaction.reply({
-                content: "You need to be 💎・Infinity+ or 🌸・Server Booster",
+                content: 'You need to be 💎・Infinity+ or 🌸・Server Booster',
                 ephemeral: true,
-            });
-            return true;
+            })
+            return true
         }
-        if (game == "Dev") {
-            return false;
-        }
+        if (game == 'Dev') 
+            return false
+        
     }
 }
 
 function validLink(interaction, game) {
-    if (game == "WoW") {
+    if (game == 'WoW') {
         return regexWoWLink.test(
-            interaction.fields.getTextInputValue("armory")
-        );
-    } else if (game == "Valorant") {
+            interaction.fields.getTextInputValue('armory')
+        )
+    } else if (game == 'Valorant') {
         return regexValLink.test(
-            interaction.fields.getTextInputValue("tracker")
-        );
+            interaction.fields.getTextInputValue('tracker')
+        )
     } else {
-        cLog(["Unknown server for regexCheck"], {
+        cLog(['Unknown server for regexCheck'], {
             guild: interaction.guildId,
-            subProcess: "RegexCheck",
-        });
-        return true;
+            subProcess: 'RegexCheck',
+        })
+        return true
     }
 }

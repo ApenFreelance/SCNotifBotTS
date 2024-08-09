@@ -25,13 +25,13 @@ export default [...compat.extends(
     languageOptions: {
         parser: tsParser,
     },
-
+    ignores: ['node_modules/'],
     rules: {
         'comma-spacing': ['error', {
             before: false,
             after: true,
         }],
-
+        '@typescript-eslint/no-explicit-any': 'error',
         'object-curly-spacing': ['error', 'always'],
         'block-spacing': 'error',
 
@@ -75,5 +75,6 @@ export default [...compat.extends(
         'space-before-blocks': 'error',
         curly: ['error', 'multi-or-nest'],
         'brace-style': 2,
+
     },
 }]

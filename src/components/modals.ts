@@ -3,85 +3,85 @@ const {
     TextInputBuilder,
     ActionRowBuilder,
     TextInputStyle,
-} = require("discord.js");
-import { cLog } from './functions/cLog';
+} = require('discord.js')
+import { cLog } from './functions/cLog'
 
 async function completeSubmissionEmbed(interaction, submissionModal, mode = null) {
     const modal = new ModalBuilder()
-        .setCustomId(`completesubmission-${submissionModal}${mode == null ? "" : "-" + mode}`)
-        .setTitle("Close submission");
+        .setCustomId(`completesubmission-${submissionModal}${mode == null ? '' : '-' + mode}`)
+        .setTitle('Close submission')
     const closeInput = new TextInputBuilder()
-        .setCustomId("reviewlink")
-        .setLabel("REVIEW LINK:")
-        .setStyle(TextInputStyle.Short);
-    const closeRow = new ActionRowBuilder().addComponents(closeInput);
+        .setCustomId('reviewlink')
+        .setLabel('REVIEW LINK:')
+        .setStyle(TextInputStyle.Short)
+    const closeRow = new ActionRowBuilder().addComponents(closeInput)
 
-    modal.addComponents(closeRow);
-    await interaction.showModal(modal);
+    modal.addComponents(closeRow)
+    await interaction.showModal(modal)
 }
 
-async function createSubmissionModal(interaction, game, mode = "") {
+async function createSubmissionModal(interaction, game, mode = '') {
     if (game == null) {
-        cLog(["This server was NULL!"], {
+        cLog(['This server was NULL!'], {
             guild: interaction.guildId,
-            subProcess: "CreateSubmissionModal",
-        });
-        return;
+            subProcess: 'CreateSubmissionModal',
+        })
+        return
     }
     // The modal
     const modal = new ModalBuilder()
-        .setCustomId(`submissionmodal${mode == "" ? "" : "-" + mode}`)
-        .setTitle("Submission Modal");
+        .setCustomId(`submissionmodal${mode == '' ? '' : '-' + mode}`)
+        .setTitle('Submission Modal')
 
     // The common fields in modal
     const ytInput = new TextInputBuilder()
-        .setCustomId("ytlink")
-        .setLabel("UNLISTED YOUTUBE LINK:")
-        .setStyle(TextInputStyle.Short);
+        .setCustomId('ytlink')
+        .setLabel('UNLISTED YOUTUBE LINK:')
+        .setStyle(TextInputStyle.Short)
     const emailInput = new TextInputBuilder()
-        .setCustomId("email")
-        .setLabel("SKILL-CAPPED EMAIL:")
-        .setStyle(TextInputStyle.Short);
+        .setCustomId('email')
+        .setLabel('SKILL-CAPPED EMAIL:')
+        .setStyle(TextInputStyle.Short)
     const improvementInput = new TextInputBuilder()
-        .setCustomId("improvementinput")
-        .setLabel("What is your goal with this review")
-        .setStyle(TextInputStyle.Paragraph);
+        .setCustomId('improvementinput')
+        .setLabel('What is your goal with this review')
+        .setStyle(TextInputStyle.Paragraph)
     const consentInput = new TextInputBuilder()
-        .setCustomId("consentinput")
-        .setLabel("Can Skill-Capped use your review for content?")
-        .setStyle(TextInputStyle.Short);
+        .setCustomId('consentinput')
+        .setLabel('Can Skill-Capped use your review for content?')
+        .setStyle(TextInputStyle.Short)
     // WoW fields
     const armoryInput = new TextInputBuilder()
-        .setCustomId("armory")
-        .setLabel("ARMORY LINK:")
+        .setCustomId('armory')
+        .setLabel('ARMORY LINK:')
         .setPlaceholder(
-            "https://worldofwarcraft.blizzard.com/en-gb/character/eu/ravencrest/mýstíc"
+            'https://worldofwarcraft.blizzard.com/en-gb/character/eu/ravencrest/mýstíc'
         )
-        .setStyle(TextInputStyle.Short);
+        .setStyle(TextInputStyle.Short)
 
     // Val fields
     const trackerInput = new TextInputBuilder()
-        .setCustomId("tracker")
-        .setLabel("TRACKER.GG LINK:")
+        .setCustomId('tracker')
+        .setLabel('TRACKER.GG LINK:')
         .setPlaceholder(
-            "https://tracker.gg/valorant/profile/riot/ApenJulius1%23EUW/overview"
+            'https://tracker.gg/valorant/profile/riot/ApenJulius1%23EUW/overview'
         )
-        .setStyle(TextInputStyle.Short);
+        .setStyle(TextInputStyle.Short)
 
     // The rows
-    const ytRow = new ActionRowBuilder().addComponents(ytInput);
-    const emailRow = new ActionRowBuilder().addComponents(emailInput);
+    const ytRow = new ActionRowBuilder().addComponents(ytInput)
+    const emailRow = new ActionRowBuilder().addComponents(emailInput)
     const improvementRow = new ActionRowBuilder().addComponents(
         improvementInput
-    );
-    const consentRow = new ActionRowBuilder().addComponents(consentInput);
+    )
+    const consentRow = new ActionRowBuilder().addComponents(consentInput)
     // WoW rows
-    const armoryRow = new ActionRowBuilder().addComponents(armoryInput);
+    const armoryRow = new ActionRowBuilder().addComponents(armoryInput)
 
     // Val rows
-    const trackerRow = new ActionRowBuilder().addComponents(trackerInput);
+    const trackerRow = new ActionRowBuilder().addComponents(trackerInput)
 
-    if (game.serverName == "WoW") {
+    if (game.serverName == 'WoW') {
         modal.addComponents(
             ytRow,
             armoryRow,
@@ -89,48 +89,48 @@ async function createSubmissionModal(interaction, game, mode = "") {
             improvementRow,
             consentRow
         )
-    } else if (game.serverName == "Valorant") {
+    } else if (game.serverName == 'Valorant') {
         modal.addComponents(
             ytRow,
             trackerRow,
             emailRow,
             improvementRow,
             consentRow
-        );
+        )
     } else {
         cLog(
-            ["This server was NOT NULL but unknown!", interaction.guild.name],
-            { guild: interaction.guildId, subProcess: "CreateSubmissionModal" }
-        );
-        return null;
+            ['This server was NOT NULL but unknown!', interaction.guild.name],
+            { guild: interaction.guildId, subProcess: 'CreateSubmissionModal' }
+        )
+        return null
     }
-    await interaction.showModal(modal);
-    return true;
+    await interaction.showModal(modal)
+    return true
 }
 function createRatingModal(submissionNumber, game, mode) {
     const feedbackmodal = new ModalBuilder()
-        .setCustomId(`${game}-modal-reviewrating-${submissionNumber}${mode == null ? "" : "-" + mode}`)
-        .setTitle(`Feedback Modal`);
+        .setCustomId(`${game}-modal-reviewrating-${submissionNumber}${mode == null ? '' : '-' + mode}`)
+        .setTitle('Feedback Modal')
 
     const commentInput = new TextInputBuilder()
-        .setCustomId("feedback")
-        .setLabel("Tell us what you think?")
+        .setCustomId('feedback')
+        .setLabel('Tell us what you think?')
         .setStyle(TextInputStyle.Paragraph)
-        .setRequired(false);
+        .setRequired(false)
 
-    const ratingRow = new ActionRowBuilder().addComponents(commentInput);
-    feedbackmodal.addComponents(ratingRow);
-    return feedbackmodal;
+    const ratingRow = new ActionRowBuilder().addComponents(commentInput)
+    feedbackmodal.addComponents(ratingRow)
+    return feedbackmodal
 }
 
 function createUserVerificationModal(serverPart = null) {
     const verifModal = new ModalBuilder()
-        .setCustomId(`${serverPart ? "verify-user-" + serverPart : "verify-user"}`)
-        .setTitle("Link your Skill Capped account to Discord!")
+        .setCustomId(`${serverPart ? 'verify-user-' + serverPart : 'verify-user'}`)
+        .setTitle('Link your Skill Capped account to Discord!')
     
     const emailInput = new TextInputBuilder()
-        .setCustomId("email")
-        .setLabel("What is your email?")
+        .setCustomId('email')
+        .setLabel('What is your email?')
         .setStyle(TextInputStyle.Short)
         .setRequired(true)
 
@@ -144,4 +144,4 @@ export {
     createSubmissionModal,
     createRatingModal,
     createUserVerificationModal
-};
+}

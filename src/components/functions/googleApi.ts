@@ -1,45 +1,45 @@
-import { google } from 'googleapis';
-import { GoogleAuth } from 'google-auth-library';
+import { google } from 'googleapis'
+import { GoogleAuth } from 'google-auth-library'
 
-const DEVspreadsheet = process.env.DEVsheet;
-const prod = process.env.PRODsheet;
+const DEVspreadsheet = process.env.DEVsheet
+const prod = process.env.PRODsheet
 
-const spreadsheetId = prod || DEVspreadsheet;
+const spreadsheetId = prod || DEVspreadsheet
 
 async function updateGoogleSheet(data) {
     const auth = new GoogleAuth({
-        keyFile: "credentials.json", //the key file
-        scopes: "https://www.googleapis.com/auth/spreadsheets",
-    });
-    const service = google.sheets({ version: "v4", auth });
+        keyFile: 'credentials.json', //the key file
+        scopes: 'https://www.googleapis.com/auth/spreadsheets',
+    })
+    const service = google.sheets({ version: 'v4', auth })
 
     const request = {
         spreadsheetId,
         resource: {
-            valueInputOption: "USER_ENTERED",
-            data: data,
+            valueInputOption: 'USER_ENTERED',
+            data,
         },
-        auth: auth,
-    };
+        auth,
+    }
 
     try {
         const response = (
             await service.spreadsheets.values.batchUpdate(request)
-        ).data;
+        ).data
     } catch (err) {
-        console.error(err);
+        console.error(err)
     }
 }
 async function authorize() {
-    let authClient = new google.auth.GoogleAuth({
-        keyFile: "credentials.json", //the key file
+    const authClient = new google.auth.GoogleAuth({
+        keyFile: 'credentials.json', //the key file
         //url to spreadsheets API
-        scopes: "https://www.googleapis.com/auth/spreadsheets",
-    });
-    if (authClient == null) {
-        throw Error("authentication failed");
-    }
-    return authClient;
+        scopes: 'https://www.googleapis.com/auth/spreadsheets',
+    })
+    if (authClient == null) 
+        throw Error('authentication failed')
+    
+    return authClient
 }
 
 function createSheetBody(
@@ -72,12 +72,12 @@ function createSheetBody(
         specialization = null
     }
 ) {
-    let sheetName = null;
-    if (mode == "wowpvp") {
-        sheetName = "PVP";
-    } else if (mode == "wowpve") {
-        sheetName = "PVE";
-    }
+    let sheetName = null
+    if (mode == 'wowpvp') 
+        sheetName = 'PVP'
+    else if (mode == 'wowpve') 
+        sheetName = 'PVE'
+    
     const pvpproperties = [
         { range: `${sheetName}!A${submissionPos}`, value: createdAt },
         { range: `${sheetName}!B${submissionPos}`, value: id },
@@ -101,7 +101,7 @@ function createSheetBody(
         { range: `${sheetName}!T${submissionPos}`, value: reviewLink },
         { range: `${sheetName}!U${submissionPos}`, value: reviewRating },
         { range: `${sheetName}!V${submissionPos}`, value: reviewComment },
-    ];
+    ]
     const pveproperties = [
         { range: `${sheetName}!A${submissionPos}`, value: createdAt },
         { range: `${sheetName}!B${submissionPos}`, value: id },
@@ -121,13 +121,13 @@ function createSheetBody(
         { range: `${sheetName}!P${submissionPos}`, value: reviewLink },
         { range: `${sheetName}!Q${submissionPos}`, value: reviewRating },
         { range: `${sheetName}!S${submissionPos}`, value: reviewComment },
-    ];
-    const properties = mode == "wowpvp" ? pvpproperties : pveproperties;
+    ]
+    const properties = mode == 'wowpvp' ? pvpproperties : pveproperties
     const sheetBody = properties
         .filter(({ value }) => value !== null)
-        .map(({ range, value }) => ({ range, values: [[value]] }));
+        .map(({ range, value }) => ({ range, values: [[value]] }))
 
-    return sheetBody;
+    return sheetBody
 }
 
 
@@ -140,20 +140,20 @@ function createVerifSheetBody(
         createdAt = null
     }
 ) {
-    let sheetName = "AccountLinks";
+    const sheetName = 'AccountLinks'
 
     const properties = [
         { range: `${sheetName}!A${submissionPos}`, value: createdAt },
         { range: `${sheetName}!B${submissionPos}`, value: email },
         { range: `${sheetName}!C${submissionPos}`, value: userId },
         { range: `${sheetName}!D${submissionPos}`, value: userName },
-    ];
+    ]
 
     const sheetBody = properties
         .filter(({ value }) => value !== null)
-        .map(({ range, value }) => ({ range, values: [[value]] }));
+        .map(({ range, value }) => ({ range, values: [[value]] }))
 
-    return sheetBody;
+    return sheetBody
 }
 
-export { updateGoogleSheet, authorize, createSheetBody, createVerifSheetBody };
+export { updateGoogleSheet, authorize, createSheetBody, createVerifSheetBody }
