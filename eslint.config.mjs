@@ -56,7 +56,7 @@ export default [...compat.extends(
         'max-classes-per-file': 'error',
 
         'no-console': ['error', {
-            allow: ['warn', 'error'],
+            allow: ['warn', 'error', 'log'],
         }],
 
         'object-shorthand': 'error',
