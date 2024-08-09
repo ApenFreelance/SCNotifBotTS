@@ -3,14 +3,7 @@ import { mainBuildHandler } from './components/functions/buildHandler'
 import { readdirSync } from 'fs'
 import { cLog } from './components/functions/cLog'
 import { join } from 'path'
-import { db } from './db'
-import ReviewTimerOverwrite from './models/ReviewTimerOverwrite'
-import PVEWoWReviewHistory from './models/PVEWoWReviewHistory'
-import WoWReviewHistory from './models/WoWReviewHistory'
-import VerificationLogs from './models/VerificationLogs'
-import WoWCharacters from './models/WoWCharacters'
-import VerifiedUsers from './models/VerifiedUsers'
-import BotConfig from '../config/Bot.config.json'
+import BotConfig from '../config/bot.config.json'
 import dotenv from 'dotenv'
 
 dotenv.config()
@@ -59,16 +52,6 @@ async function loadHandlers(bot: Client): Promise<void> {
     }
 }
 
-/**
- * Initializes and synchronizes all database models.
- */
-function initializeModels(): void {
-    const models = [WoWReviewHistory, ReviewTimerOverwrite, PVEWoWReviewHistory, WoWCharacters, VerificationLogs, VerifiedUsers]
-    models.forEach((model) => {
-        model.initModel(db)
-        model.sync()
-    })
-}
 
 /**
  * Sets up event listeners for the bot client.
@@ -77,7 +60,6 @@ function initializeModels(): void {
 function setupEventListeners(bot: Client): void {
     bot.on('ready', async () => {
         cLog([`${bot.user.username} has logged in`], { subProcess: 'Start-up' })
-        initializeModels()
 
         cLog(['Starting up buildHandler'], { subProcess: 'Start-up' })
         try {

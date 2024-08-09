@@ -40,7 +40,7 @@ export default class WoWReviewHistory extends Model<WoWReviewHistoryAttributes> 
     declare reviewRatingComment: string
     declare transcript: string
 
-    static initModel(sequelize: Sequelize): ModelStatic<WoWReviewHistory> {
+    static initModel(sequelize: Sequelize, tableName: string): ModelStatic<WoWReviewHistory> {
         return super.init({
             status: { type: DataTypes.STRING },
             userEmail: { type: DataTypes.STRING },
@@ -60,10 +60,9 @@ export default class WoWReviewHistory extends Model<WoWReviewHistoryAttributes> 
             reviewRatingComment: { type: DataTypes.TEXT },
             transcript: { type: DataTypes.TEXT },
         }, {
-            tableName: 'WoWReviewHistory',
+            tableName,
             updatedAt:false,
             createdAt:true,
-            //raw:true,
             sequelize
         }) as ModelStatic<WoWReviewHistory>
     }

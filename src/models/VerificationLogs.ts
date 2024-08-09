@@ -20,7 +20,7 @@ export default class VerificationLogs extends Model<VerificationLogsAttributes> 
     declare server: string
     declare serverPart: string
 
-    static initModel(sequelize: Sequelize): ModelStatic<VerificationLogs> {
+    static initModel(sequelize: Sequelize, tableName: string): ModelStatic<VerificationLogs> {
         return super.init({
             userName: { type: DataTypes.STRING },
             userId: { type: DataTypes.STRING },
@@ -30,10 +30,9 @@ export default class VerificationLogs extends Model<VerificationLogsAttributes> 
             server: { type: DataTypes.STRING },
             serverPart: { type: DataTypes.STRING }
         }, {
-            tableName: 'VerificationLogs',
+            tableName,
             updatedAt:true,
             createdAt:true,
-            //raw:true,
             sequelize
         }) as ModelStatic<VerificationLogs>
     }

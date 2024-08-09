@@ -14,7 +14,7 @@ export default class VerifiedUsers extends Model<VerifiedUsersAttributes> {
     declare email: string
     declare server: string
     declare serverPart: string
-    static initModel(sequelize: Sequelize): ModelStatic<VerifiedUsers> {
+    static initModel(sequelize: Sequelize, tableName: string): ModelStatic<VerifiedUsers> {
         return super.init({
             userName: { type: DataTypes.STRING },
             userId: { type: DataTypes.STRING },
@@ -22,10 +22,9 @@ export default class VerifiedUsers extends Model<VerifiedUsersAttributes> {
             server: { type: DataTypes.STRING },
             serverPart: { type: DataTypes.STRING }
         }, {
-            tableName: 'VerifiedUsers',
+            tableName,
             updatedAt:true,
             createdAt:true,
-            //raw:true,
             sequelize
         }) as ModelStatic<VerifiedUsers>
     }

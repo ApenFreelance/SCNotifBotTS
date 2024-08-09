@@ -44,7 +44,7 @@ export default class ValReviewHistory extends Model<ReviewHistoryAttributes> {
     declare reviewRatingComment: string
     declare transcript: string
 
-    static initModel(sequelize: Sequelize): ModelStatic<ValReviewHistory> {
+    static initModel(sequelize: Sequelize, tableName: string): ModelStatic<ValReviewHistory> {
         return super.init({
             status: { type: DataTypes.STRING },
             userEmail: { type: DataTypes.STRING },
@@ -66,10 +66,9 @@ export default class ValReviewHistory extends Model<ReviewHistoryAttributes> {
             transcript: { type: DataTypes.TEXT },
          
         }, {
-            tableName: 'ValReviewHistory',
+            tableName,
             updatedAt:false,
             createdAt:true,
-            //raw:true,
             sequelize
         }) as ModelStatic<ValReviewHistory>
     }

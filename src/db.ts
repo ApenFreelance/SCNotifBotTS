@@ -1,53 +1,159 @@
-
-import { Sequelize } from 'sequelize'
-import serverInfoJSON from '../config/serverInfo.json'
-import DevValReviewHistory from './models/DevValReviewHistory'
-import DevWoWReviewHistory from './models/DevWoWReviewHistory'
-import DevPVEWoWReviewHistory from './models/DevPVEWoWReviewHistory'
-
+import { Sequelize, Model as SequelizeModel } from 'sequelize'
 import ValReviewHistory from './models/ValReviewHistory'
 import WoWReviewHistory from './models/WoWReviewHistory'
+import VerificationLogs from './models/VerificationLogs'
 import WoWCharacters from './models/WoWCharacters'
-import PVEWoWReviewHistory from './models/PVEWoWReviewHistory'
+import VerifiedUsers from './models/VerifiedUsers'
+import config from '../config/bot.config.json'
 
-const db = new Sequelize(
-    process.env.dbName,
-    process.env.dbName,
-    process.env.dbPass,
-    {
-        host: process.env.dbHost,
-        dialect: 'mariadb',
-        logging: false,
-    }
-)
+const { serverInfo } = config
 
-const tableMapping = {
+/**
+ * Interface representing a model.
+ */
+interface Model {
+    /**
+     * Initialize the model with the given Sequelize instance and table name.
+     * @param sequelize - The Sequelize instance.
+     * @param tableName - The name of the table.
+     */
+    initModel(sequelize: Sequelize, tableName: string): void
+
+    /**
+     * Synchronize the model with the database.
+     * @returns A promise that resolves when the synchronization is complete.
+     */
+    sync(): Promise<SequelizeModel>
+}
+
+/**
+ * Interface representing a mapping of model names to models.
+ */
+interface ModelMapping {
+    [key: string]: Model
+}
+
+/**
+ * Interface representing the table mapping structure.
+ */
+interface TableMapping {
     reviewHistory: {
-        [serverInfoJSON['Valorant'].serverId]: ValReviewHistory,
-        [serverInfoJSON['WoW'].serverId]: {
-            wowpve: PVEWoWReviewHistory,
-            wowpvp: WoWReviewHistory,
-        },
-        [serverInfoJSON['Dev'].serverId]: {
-            Valorant: DevValReviewHistory,
-            WoW: DevWoWReviewHistory,
-        },
-    },
+        [key: string]: {
+            wowpve?: Model
+            wowpvp?: Model
+            Valorant?: Model
+            WoW?: Model
+        }
+    }
     WoWCharacter: {
-        [serverInfoJSON['WoW'].serverId]: WoWCharacters,
+        [key: string]: Model
     }
+    VerificationLogs: Model
+    VerifiedUsers: Model
 }
 
-async function getCorrectTable(guildId, tableGroup, mode = null) {
-    try {
-        const table = tableMapping[tableGroup][guildId]
-        if (typeof table === 'object') 
-            return mode ? table[mode] : null
+/**
+ * Class representing the database. Contains methods for initializing models and getting models.
+ */
+class Database {
+    private static instance: Database
+    private sequelize: Sequelize
+    private modelMapping: ModelMapping = {}
+    private tableMapping: TableMapping
+
+    /**
+     * Create a new Database instance.
+     */
+    private constructor() {
+        this.sequelize = new Sequelize(
+            process.env.dbName!,
+            process.env.dbUser!,
+            process.env.dbPass!,
+            {
+                host: process.env.dbHost!,
+                dialect: 'mariadb',
+                logging: false,
+            }
+        )
+        this.initializeModels()
+        this.initializeTableMapping()
+    }
+
+    /**
+     * Get the instance of the Database class. If an instance does not exist, create one.
+     * @returns The instance of the Database class
+     */
+    public static getInstance(): Database {
+        if (!Database.instance) 
+            Database.instance = new Database()
         
-        return table
-    } catch (err) {
-        cLog(['ERROR ', err], { guild: guildId, subProcess: 'getCorrectTable' })
+        return Database.instance
+    }
+
+    /**
+     * Initialize the models and store them in the model mapping.
+     */
+    private initializeModels(): void {
+        const models = [
+            { model: ValReviewHistory, tableName: 'ValReviewHistory' },
+            { model: WoWReviewHistory, tableName: 'WoWReviewHistory_PVP' },
+            { model: WoWReviewHistory, tableName: 'WoWReviewHistory_PVE' },
+            { model: VerificationLogs, tableName: 'VerificationLogs' },
+            { model: WoWCharacters, tableName: 'WoWCharacters' },
+            { model: VerifiedUsers, tableName: 'VerifiedUsers' }
+        ]
+        models.forEach(({ model, tableName }) => {
+            model.initModel(this.sequelize, tableName)
+            model.sync()
+            this.modelMapping[tableName] = model
+        })
+    }
+
+    /**
+     * Initialize the table mapping.
+     */
+    private initializeTableMapping(): void {
+        this.tableMapping = {
+            reviewHistory: {
+                [serverInfo.Valorant.serverId]: {
+                    Valorant: this.modelMapping['ValReviewHistory']
+                },
+                [serverInfo.WoW.serverId]: {
+                    wowpve: this.modelMapping['WoWReviewHistory_PVE'],
+                    wowpvp: this.modelMapping['WoWReviewHistory_PVP'],
+                },
+                [serverInfo.Dev.serverId]: {
+                    Valorant: this.modelMapping['ValReviewHistory'],
+                    WoW: this.modelMapping['WoWReviewHistory_PVP'],
+                },
+            },
+            WoWCharacter: {
+                [serverInfo.WoW.serverId]: this.modelMapping['WoWCharacters'],
+            },
+            VerificationLogs: this.modelMapping['VerificationLogs'],
+            VerifiedUsers: this.modelMapping['VerifiedUsers'],
+        }
+    }
+
+    /**
+     * Get the model for the given server ID and model name.
+     * @param serverId - The server ID.
+     * @param modelName - The name of the model.
+     * @returns The model corresponding to the server ID and model name.
+     * @throws Will throw an error if the model or server ID is not found.
+     */
+    public getModel(serverId: string, modelName: keyof TableMapping): Model {
+        const modelMapping = this.tableMapping[modelName]
+        if (!modelMapping) 
+            throw new Error(`Model ${modelName} not found in table mapping`)
+        
+        const tableName = modelMapping[serverId]
+        if (!tableName) 
+            throw new Error(`Model ${modelName} not found for serverId ${serverId}`)
+        
+        return tableName
     }
 }
 
-export { db, getCorrectTable }
+// Export an instance of the Database class
+export default Database.getInstance()

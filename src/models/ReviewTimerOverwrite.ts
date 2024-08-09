@@ -19,7 +19,7 @@ export default class ReviewTimerOverwrite extends Model<ReviewTimerOverwriteAttr
     declare isRole: boolean
     declare server: string
     
-    static initModel(sequelize: Sequelize): ModelStatic<ReviewTimerOverwrite> {
+    static initModel(sequelize: Sequelize, tableName: string): ModelStatic<ReviewTimerOverwrite> {
         return super.init({
             userName: { type: DataTypes.STRING },
             userId: { type: DataTypes.STRING },
@@ -28,7 +28,7 @@ export default class ReviewTimerOverwrite extends Model<ReviewTimerOverwriteAttr
             isRole: { type: DataTypes.BOOLEAN },
             server: { type: DataTypes.STRING }
         }, {
-            tableName: 'ReviewTimerOverwrite',
+            tableName,
             updatedAt:true,
             createdAt:true,
             // raw:true,

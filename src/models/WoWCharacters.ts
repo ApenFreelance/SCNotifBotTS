@@ -42,7 +42,7 @@ export default class WoWCharacters extends Model<WoWCharactersAttributes> {
     declare specialization: string
     declare mythicPlusScore: number
 
-    static initModel(sequelize:Sequelize): ModelStatic<WoWCharacters> {
+    static initModel(sequelize:Sequelize, tableName: string): ModelStatic<WoWCharacters> {
         return super.init(
             {
                 userEmail: { type: DataTypes.STRING },
@@ -65,9 +65,8 @@ export default class WoWCharacters extends Model<WoWCharactersAttributes> {
                 mythicPlusScore: { type: DataTypes.SMALLINT, allowNull: true },
             },
             {
-                tableName: 'WoWCharacters',
+                tableName,
                 timestamps: true,
-                //raw:true,
                 sequelize,
             }
         ) as ModelStatic<WoWCharacters>
