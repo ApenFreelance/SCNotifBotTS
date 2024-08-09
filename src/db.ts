@@ -123,7 +123,6 @@ class Database {
                     wowpvp: this.modelMapping['WoWReviewHistory_PVP'],
                 },
                 [serverInfo.Dev.serverId]: {
-                    Valorant: this.modelMapping['ValReviewHistory'],
                     WoW: this.modelMapping['WoWReviewHistory_PVP'],
                 },
             },
@@ -139,10 +138,11 @@ class Database {
      * Get the model for the given server ID and model name.
      * @param serverId - The server ID.
      * @param modelName - The name of the model.
+     * @param mode - The mode of the model.
      * @returns The model corresponding to the server ID and model name.
      * @throws Will throw an error if the model or server ID is not found.
      */
-    public getModel(serverId: string, modelName: keyof TableMapping): Model {
+    public getTable(serverId: string, modelName: keyof TableMapping, mode?: string) {
         const modelMapping = this.tableMapping[modelName]
         if (!modelMapping) 
             throw new Error(`Model ${modelName} not found in table mapping`)
@@ -151,6 +151,12 @@ class Database {
         if (!tableName) 
             throw new Error(`Model ${modelName} not found for serverId ${serverId}`)
         
+        if (modelName === 'reviewHistory' && mode) {
+            const model = tableName[mode]
+            if (!model) 
+                throw new Error(`Model ${modelName} not found for serverId ${serverId} and mode ${mode}`)
+            return model
+        }
         return tableName
     }
 }
