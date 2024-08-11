@@ -4,7 +4,6 @@ import classes from '../../config/classes.json'
 import { createWaitingForReviewMessage } from '../components/actionRowComponents/createWaitingForReview.js'
 import { cLog } from '../components/functions/cLog'
 import dbInstance from '../db'
-import axios from 'axios'
 import { reduceTimeBetweenUses, getOverwrites, getShortestOverwrite } from '../components/functions/timerOverwrite'
 import { BotEvent, EventType, SheetBodyData } from '../types'
 
@@ -29,12 +28,13 @@ const event: BotEvent = {
 
             if (server.serverName === 'WoW') {
                 linkToUserPage = interaction.fields.getTextInputValue('armory');
-                [_, accountRegion, accountSlug, accountName] = decodeURI(linkToUserPage)
+                [accountRegion, accountSlug, accountName] = decodeURI(linkToUserPage)
                     .toLowerCase()
                     .replace('https://worldofwarcraft.com/', '')
                     .replace('https://worldofwarcraft.blizzard.com/', '')
                     .replace('/character/', '/')
                     .split('/')
+                    .slice(1)
                 // Create a WoW Client connection
                 wowClient = await connectToWoW(interaction, accountRegion)
                 try {
@@ -51,15 +51,6 @@ const event: BotEvent = {
                     characterData = null
                     console.log('Failed to get char, because char doesnt exist or couldnt be found')
                 }
-            } else if (server.serverName === 'Valorant') {
-                linkToUserPage = interaction.fields.getTextInputValue('tracker');
-                [accountName, accountRegion] = decodeURI(linkToUserPage)
-                    .replace('https://tracker.gg/valorant/profile/riot/', '')
-                    .replace('%23', '#')
-                    .replace('/overview/', '/')
-                    .split('/')[0]
-                    .split('#')
-                characterData = await getValorantStats(interaction, accountName, accountRegion)
             } else {
                 await interaction.editReply({ content: 'This server is unknown', ephemeral: true })
                 return
@@ -194,46 +185,6 @@ async function connectToWoW(interaction, accountRegion) {
     return con
 }
 
-async function getValorantStats(interaction, accountName, accountRegion) {
-    const accountData = await axios
-        .get(
-            `https://api.henrikdev.xyz/valorant/v1/account/${accountName}/${accountRegion}`
-        )
-        .catch((err) => {
-            cLog([err], {
-                guild: interaction.guild,
-                subProcess: 'AccountData',
-            })
-        })
-    cLog([accountData.data.status], { guild: interaction.guild, subProcess: 'AccountData' })
-    if (accountData.data.status !== 200) {
-        cLog([accountData.data.errors[0].message], {
-            guild: interaction.guild,
-            subProcess: 'AccountData',
-        })
-        return null
-    }
-
-    const MMRdata = await axios
-        .get(`https://api.henrikdev.xyz/valorant/v2/by-puuid/mmr/${accountData.data.data.region}/${accountData.data.data.puuid}`)
-        .catch((err) => {
-            cLog([err], { guild: interaction.guild, subProcess: 'MMRdata' })
-        })
-
-    cLog([MMRdata.data.status], {
-        guild: interaction.guild,
-        subProcess: 'MMRdata',
-    })
-    if (MMRdata.data.status != 200) {
-        cLog([MMRdata.data.errors[0].message], {
-            guild: interaction.guild,
-            subProcess: 'MMRdata',
-        })
-        return null
-    }
-
-    return { accountData, MMRdata }
-}
 
 async function getCharacterInfo(region, slug, characterName, wowClient, armoryLink, guildId) {
     const Cprofile = await getCharacterProfile(slug, characterName, wowClient, guildId)
