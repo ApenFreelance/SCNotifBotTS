@@ -47,7 +47,7 @@ const event: BotEvent = {
             })
             return
         }
-        const [otherConnectedAccount, thisConnectedAccount] = await checkIfAccountAlreadyLinked(interaction, email, serverPart)
+        const [otherConnectedAccount] = await checkIfAccountAlreadyLinked(interaction, email)
         if (otherConnectedAccount) {
             cLog(['Account already linked : ', interaction.user.username], { guild: interaction.guild, subProcess: 'VerifyUser' })
             await interaction.reply({ content:'This account is already linked.\n\n# Believe this is a mistake?\nContact staff to resolve this issue', ephemeral:true })
@@ -63,7 +63,7 @@ const event: BotEvent = {
   
         await grantUserPremium(interaction, server, serverPart)
         logEntry.update({ wasSuccessful: true })
-        const [verifEntry, created] = await VerifiedUsers.findOrCreate({ where: {
+        const [verifEntry, _] = await VerifiedUsers.findOrCreate({ where: {
             userName:interaction.user.username,
             userId: interaction.user.id,
             email,
@@ -82,7 +82,7 @@ const event: BotEvent = {
 }
 export default event
 
-async function checkIfAccountAlreadyLinked(interaction, email, serverPart) {
+async function checkIfAccountAlreadyLinked(interaction, email: string) {
     const linkedAccounts = await VerifiedUsers.findOne({
         where: {
             [Op.and]: [
