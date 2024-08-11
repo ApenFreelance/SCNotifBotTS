@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } from 'discord.js'
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, Events } from 'discord.js'
 import { cLog } from '../components/functions/cLog'
 import { BotEvent, EventType } from '../types'
 
@@ -36,7 +36,7 @@ const uiEmbed = new EmbedBuilder()
     )
 
 const event: BotEvent = {
-    name: 'messageCreate',
+    name: Events.MessageCreate,
     type: EventType.ON,
     async execute(message) {
         if (message.author.bot) return

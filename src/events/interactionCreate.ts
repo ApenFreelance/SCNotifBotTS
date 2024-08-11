@@ -5,11 +5,12 @@ import dbInstance from '../db'
 import { selectServer } from '../components/functions/selectServer'
 import { BotEvent, EventType } from '../types'
 import { createSheetBody, updateGoogleSheet } from '../components/functions/googleApi'
+import { Events } from 'discord.js'
 
 const regexWoWLink = /(https):\/\/((worldofwarcraft\.blizzard\.com||worldofwarcraft\.com)\/[\w_-]+\/character\/(us|eu|kr|tw|cn|)\/[\w_-]+\/.+)/
 const regexValLink = /(https):\/\/(tracker\.gg\/valorant\/profile\/riot)\/.+/
 const event: BotEvent = {
-    name: 'interactionCreate',
+    name: Events.InteractionCreate,
     type: EventType.ON,
     async execute(interaction) {
         const bot = interaction.client
