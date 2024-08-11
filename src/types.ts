@@ -34,3 +34,49 @@ export enum GuildIds {
     DEV = '1024961321768329246'
 }
 
+export interface ServerInfo {
+    serverId: string;
+    reviewCategoryId: string;
+    submissionChannelId: string;
+    transcriptChannelId: string;
+    ratingChannelId: string;
+    premiumRoleId: string;
+    specialPass?: boolean;
+    verifForm?: string;
+    wowpve?: WoWSubCategory;
+    wowpvp?: WoWSubCategory;
+    serverName?: string;
+}
+export interface WoWSubCategory {
+    reviewCategoryId: string;
+    submissionChannelId: string;
+    transcriptChannelId: string;
+    ratingChannelId: string;
+    premiumRoleId: string;
+}
+
+export interface ServerInfoCollection {
+    Valorant: ServerInfo;
+    WoW: ServerInfo;
+    Dev: ServerInfo;
+}
+
+
+export interface SheetBodyData {
+    status?: string;
+    createdAt?: string;
+    id?: string;
+    userID?: string;
+    userEmail?: string;
+    clipLink?: string;
+    armoryLink?: string;
+    charClass?: string;
+    twovtwo?: string;
+    threevthree?: string;
+    solo1?: string;
+    solo2?: string;
+    solo3?: string;
+    solo4?: string;
+    mythicPlusScore?: string;
+    specialization?: string;
+}
