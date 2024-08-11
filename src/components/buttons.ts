@@ -14,8 +14,8 @@ function createReviewButtons(submissionNumber: string, game:string, mode:string 
     return [reviewRow]
 }
 
-function submitReviewButton(mode: string) {
-    return new ActionRowBuilder().addComponents(
+export function submitReviewButton(mode: string): ActionRowBuilder<ButtonBuilder> {
+    return new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder()
             .setCustomId(`submitreview-${mode}`)
             .setLabel('Submit review')
@@ -35,9 +35,9 @@ function waitingForReviewRow(mode:string) {
     )
 }
 
-function verificationButton(guildId: string) { // TODO: Fix these guildIds
+export function verificationButton(guildId: string) { // TODO: Fix these guildIds
     if (guildId === GuildIds.SKILLCAPPED_WOW || guildId === GuildIds.DEV) { // If WoW server return these
-        return new ActionRowBuilder().addComponents(
+        return new ActionRowBuilder<ButtonBuilder>().addComponents(
             new ButtonBuilder()
                 .setCustomId('verify-user-wowpvp')
                 .setLabel('Verify for PVP')
@@ -48,7 +48,7 @@ function verificationButton(guildId: string) { // TODO: Fix these guildIds
                 .setStyle(ButtonStyle.Success),
         )
     }
-    return new ActionRowBuilder().addComponents(
+    return new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder()
             .setCustomId('verify-user')
             .setLabel('Verify')
@@ -59,7 +59,5 @@ function verificationButton(guildId: string) { // TODO: Fix these guildIds
 
 export {
     createReviewButtons,
-    submitReviewButton,
     waitingForReviewRow,
-    verificationButton
 }

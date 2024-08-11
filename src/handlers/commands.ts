@@ -2,6 +2,7 @@ import { Client, SlashCommandBuilder, REST, Routes } from 'discord.js'
 import { readdirSync } from 'fs'
 import { join } from 'path'
 import { GuildIds, SlashCommand } from '../types'
+import { cLog } from '../components/functions/cLog'
 
 export default async (client : Client) => {
     
@@ -41,9 +42,8 @@ const loadCommands = async (client: Client): Promise<Map<string, SlashCommandBui
                 slashCommands.get(guild).push(command.command)
             }
         }
-        console.log(command)
         client.slashCommands.set(command.command.name, command)
-        //consola.success(`Successfully loaded command: ${command.command.name}`)
+        cLog([`Successfully loaded command: ${command.command.name}`])
     }
     return slashCommands
 }

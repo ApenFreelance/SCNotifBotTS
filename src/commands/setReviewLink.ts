@@ -1,10 +1,12 @@
 import { SlashCommandBuilder } from 'discord.js'
 import { updateGoogleSheet, createSheetBody } from '../components/functions/googleApi'
-import { getCorrectTable } from '../db'
-import serverInfo from '../../config/serverInfo.json'
+import dbInstance from '../db'
+import botConfig from '../../config/bot.config.json'
+import { SlashCommand } from '../types'
+const serverInfo = botConfig.serverInfo
 
-export default {
-    data: new SlashCommandBuilder()
+const command: SlashCommand = {
+    command: new SlashCommandBuilder()
         .setName('setreviewlink')
         .setDescription('Set the reviewLink')
         .addStringOption((option) =>
@@ -33,12 +35,12 @@ export default {
                 .replace('closed-', '')
                 .replace('review-', '')
 
-            if (interaction.channel.id == serverInfo['WoW']['wowpvp'].submissionChannelId) 
+            if (interaction.channel.id === serverInfo['WoW']['wowpvp'].submissionChannelId) 
                 mode = 'wowpvp'
-            else if (interaction.channel.id == serverInfo['WoW']['wowpve'].submissionChannelId) 
+            else if (interaction.channel.id === serverInfo['WoW']['wowpve'].submissionChannelId) 
                 mode = 'wowpve'
       
-            const r = await getCorrectTable(interaction.guildId, 'reviewHistory', mode).then(table => {
+            const r = await dbInstance.getTable(interaction.guildId, 'reviewHistory', mode).then(table => {
                 return table.findOne({
                     // Gets the correct table for server
                     where: {
@@ -50,7 +52,7 @@ export default {
             await r.update({
                 reviewLink,
             })
-            if (interaction.guildId == '294958471953252353') { // WoW id
+            if (interaction.guildId === '294958471953252353') { // WoW id
                 await updateGoogleSheet(createSheetBody(mode, submissionPos, { reviewLink }))
             }
             await interaction.reply({ content: `Review Link set to ${reviewLink}` })
@@ -63,3 +65,4 @@ export default {
         }
     },
 }
+export default command

@@ -1,9 +1,9 @@
 import { SlashCommandBuilder } from 'discord.js'
 import { submitReviewButton } from '../components/buttons'
-import { GuildIds } from '../types'
+import { GuildIds, SlashCommand } from '../types'
 
-export default {
-    data: new SlashCommandBuilder()
+const command: SlashCommand = {
+    command: new SlashCommandBuilder()
         .setName('vodreview')
         .setDescription('Creates button to submit a vod review')
         .addStringOption((option) =>
@@ -18,12 +18,12 @@ export default {
         ),
 
     async execute(interaction) {
+        const mode = interaction.options.getString('mode')
         await interaction.reply({
             content: 'Click button to submit',
-            components: [
-                submitReviewButton(interaction.options.getString('mode')),
-            ],
+            components: [submitReviewButton(mode)]
         })
     },
-    validForServer: [GuildIds.SKILLCAPPED_WOW],
+    validFor: [GuildIds.SKILLCAPPED_WOW],
 }
+export default command

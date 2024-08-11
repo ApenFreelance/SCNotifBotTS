@@ -1,9 +1,9 @@
-import serverInfoJSON from '../../../config/serverInfo.json'
-
-function selectServer(serverId) {
+import botConfig from '../../../config/bot.config.json'
+const serverInfoJSON = botConfig.serverInfo
+function selectServer(serverId: string) {
     for (const key in serverInfoJSON) {
         if (serverInfoJSON[key].serverId === serverId) {
-            if (key == 'Dev') {
+            if (key === 'Dev') {
                 // THIS IS SET IN SERVERJSON
                 return serverInfoJSON[key]
             }

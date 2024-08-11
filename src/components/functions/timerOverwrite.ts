@@ -1,7 +1,7 @@
 import ReviewTimerOverwrite from '../../models/ReviewTimerOverwrite'
 import { cLog } from './cLog'
 
-async function getTimeBetweenRoles(server) {
+async function getTimeBetweenRoles(server: { serverName: string; }) {
     const roles = await ReviewTimerOverwrite.findAll({
         where: {
             isRole:true,
@@ -50,7 +50,7 @@ function formatGetOrCreateTimeBetweenReply(server, isRole, userName, userId, pri
         name = `<@${userId}>`
     
 
-    if (updatedSeconds != null) {
+    if (updatedSeconds !== null) {
         fullText += `${name} existed before with ${parseInt(updatedSeconds) / 86400} days with ${updatedUses} use(s) left\n`
         cLog([`${userName} existed before with ${parseInt(updatedSeconds) / 86400} days with ${updatedUses} use(s) left`], { guild:server, subProcess:'ReviewTimeOverwrite' })
 
@@ -80,12 +80,12 @@ async function createNewTimerOverwrite(username, userId, timeBetween, uses, isRo
 }
 async function getTimeBetweenUserApplicableRoles(userRoles, server) {
     const userApplicableRoles = []
-    for (entry of await getTimeBetweenRoles(server)) {
+    for (const entry of await getTimeBetweenRoles(server)) {
         if (userRoles.has(entry.userId)) 
             userApplicableRoles.push(entry)
         
     }
-    if (userApplicableRoles.length == 0)  
+    if (userApplicableRoles.length === 0)  
         return null
      
     return userApplicableRoles
@@ -99,10 +99,10 @@ async function getOverwrites(userId, userRoles, server) {
 }
 async function getShortestOverwrite(userTimeBetween, timeBetweenRoles, guildId = null) {
     let times = []
-    if (userTimeBetween != null) 
+    if (userTimeBetween !== null) 
         times.push(userTimeBetween)
     
-    if (timeBetweenRoles != null) 
+    if (timeBetweenRoles !== null) 
         times = times.concat(timeBetweenRoles)
     
     const smallest = times.reduce(function(prev, curr) {
@@ -118,9 +118,9 @@ async function reduceTimeBetweenUses(userId, guildId) {
             userId
         } })
     object.update({
-        uses:object.uses - 1
+        uses: (typeof object.uses === 'number' ?  object.uses - 1 : 'unlimited' ) // TODO: MAKE SURE THIS CANT BE ABUSED
     })
-    if (object.uses == 0) {
+    if (object.uses === 0) {
         object.destroy()
         cLog([`No uses left for ${object.userName}.     - Deleted `], { guild:guildId, subProcess:'TimeBetween' })
         return

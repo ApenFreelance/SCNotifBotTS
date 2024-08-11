@@ -1,9 +1,10 @@
 import { SlashCommandBuilder } from 'discord.js'
 import { getOrCreateTimeBetweenEntry } from '../components/functions/timerOverwrite'
 import { selectServer } from '../components/functions/selectServer'
+import { SlashCommand } from '../types'
 
-export default {
-    data: new SlashCommandBuilder()
+const command: SlashCommand = {
+    command: new SlashCommandBuilder()
         .setName('timer')
         .setDescription('Review timer controls')
         .addSubcommand(subcommand => // Add role overwrite
@@ -26,7 +27,7 @@ export default {
         let responseText
         const subcommand = interaction.options.getSubcommand()
         const days = interaction.options.getInteger('days')
-        let uses = interaction.options.getInteger('uses')
+        let uses: number | 'unlimited' = interaction.options.getInteger('uses')
         if (uses === null) 
             uses = 'unlimited'
     
@@ -45,3 +46,4 @@ export default {
         await interaction.reply({ content:responseText, ephemeral:true })
     },
 }
+export default command

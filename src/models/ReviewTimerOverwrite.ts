@@ -6,7 +6,7 @@ type ReviewTimerOverwriteAttributes = {
     userName: string;
     userId: string;
     timeBetween: string;
-    uses: string;
+    uses: number | 'unlimited';
     isRole: boolean;
     server: string;
 }
@@ -15,7 +15,7 @@ export default class ReviewTimerOverwrite extends Model<ReviewTimerOverwriteAttr
     declare userName: string
     declare userId: string
     declare timeBetween: string
-    declare uses: string
+    declare uses: number | 'unlimited'
     declare isRole: boolean
     declare server: string
     

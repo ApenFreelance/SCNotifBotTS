@@ -1,11 +1,12 @@
 import { SlashCommandBuilder } from 'discord.js'
 
 import { Op } from 'sequelize'
-import { getCorrectTable } from '../db'
+import dbInstance from '../db'
 import { createOverviewEmbed } from '../components/embeds'
+import { SlashCommand } from '../types'
 
-export default {
-    data: new SlashCommandBuilder()
+const command: SlashCommand = {
+    command: new SlashCommandBuilder()
         .setName('summary')
         .setDescription('Summary of all completed reviews')
         .addIntegerOption((option) =>
@@ -26,10 +27,10 @@ export default {
         const weeks = interaction.options.getInteger('weeks')
         const coach = interaction.options.getUser('coach')
         const ticket = interaction.options.getInteger('ticket')
-        const database = await getCorrectTable(interaction.guildId, 'reviewHistory')
+        const database = await dbInstance.getTable(interaction.guildId, 'reviewHistory')
         const timeFormat = 'en-US'
 
-        if (database == undefined) {
+        if (database === undefined) {
             await interaction.reply('This server is not recorded')
             return
         }
@@ -38,7 +39,7 @@ export default {
     
     },
 }
-
+export default command
 
 async function createDatabaseRequest(database, weeks, coach, ticket, timeFormat) {
     const whereArgs = {}
@@ -81,16 +82,14 @@ function countCoachReviews(selectedReviews) {
         if (review.claimedByID !== null) {
             if (!perCoach[review.claimedByID]) 
                 perCoach[review.claimedByID] = 1
-            else {
+            else 
                 perCoach[review.claimedByID]++
-            }
         }
         if (review.completedByID !== null && (review.completedByID !== review.claimedByID)) {
             if (!perCoach[review.completedByID]) 
                 perCoach[review.completedByID] = 1
-            else {
+            else 
                 perCoach[review.completedByID]++
-            }
         }
     }
     return { perCoach, total }

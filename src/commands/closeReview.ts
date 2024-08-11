@@ -1,7 +1,8 @@
 import { SlashCommandBuilder } from 'discord.js'
+import { SlashCommand } from '../types'
 
-export default {
-    data: new SlashCommandBuilder()
+const command: SlashCommand = {
+    command: new SlashCommandBuilder()
         .setName('close')
         .setDescription('close the review'),
 
@@ -17,3 +18,4 @@ export default {
         interaction.client.emit('completeReview', interaction)
     },
 }
+export default command
