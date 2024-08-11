@@ -1,5 +1,4 @@
 import { Sequelize, Model as SequelizeModel } from 'sequelize'
-import ValReviewHistory from './models/ValReviewHistory'
 import WoWReviewHistory from './models/WoWReviewHistory'
 import VerificationLogs from './models/VerificationLogs'
 import WoWCharacters from './models/WoWCharacters'
@@ -95,7 +94,6 @@ class Database {
      */
     private initializeModels(): void {
         const models = [
-            { model: ValReviewHistory, tableName: 'ValReviewHistory' },
             { model: WoWReviewHistory, tableName: 'WoWReviewHistory_PVP' },
             { model: WoWReviewHistory, tableName: 'WoWReviewHistory_PVE' },
             { model: VerificationLogs, tableName: 'VerificationLogs' },
