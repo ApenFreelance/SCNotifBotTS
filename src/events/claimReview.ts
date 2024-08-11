@@ -2,11 +2,9 @@ import { ButtonBuilder, PermissionsBitField, ActionRowBuilder, ButtonStyle, Text
 import { updateGoogleSheet, createSheetBody } from '../components/functions/googleApi'
 import dbInstance from '../db'
 import { cLog } from '../components/functions/cLog'
+import { BotEvent, EventType, ServerInfo } from '../types'
 
-interface Server {
-    serverName: string;
-    [key: string]: any;
-}
+
 
 interface ReviewHistory {
     id: string;
@@ -21,10 +19,10 @@ interface ReviewHistory {
     update: (data: Partial<ReviewHistory>) => Promise<void>;
 }
 
-export default {
+const event: BotEvent = {
     name: 'claimReview',
-    once: false,
-    async execute(interaction, server:Server, mode: string | null = null) {
+    type: EventType.ON,
+    async execute(interaction, server:ServerInfo, mode: string | null = null) {
         try {
             const submissionNumber = interaction.message?.embeds[0]?.title?.replace('Submission ', '')
             if (!submissionNumber) throw new Error('Submission number not found')
@@ -91,7 +89,7 @@ export default {
         }
     },
 }
-
+export default event
 async function getReviewHistory(guildId: string, submissionNumber: string, mode: string | null): Promise<ReviewHistory | null> {
     try {
         const table = await dbInstance.getTable(guildId, 'reviewHistory', mode)
