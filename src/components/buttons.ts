@@ -1,7 +1,7 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
 import { GuildIds } from '../types'
 
-function createReviewButtons(submissionNumber: string, game:string, mode:string | null = null) {
+export function createReviewButtons(submissionNumber: string, game:string, mode:string | null = null) {
     const reviewRow = new ActionRowBuilder()
     const buttonAmount = 5
     for (let i = 1; i <= buttonAmount; i++) {
@@ -22,7 +22,7 @@ export function submitReviewButton(mode: string): ActionRowBuilder<ButtonBuilder
             .setStyle(ButtonStyle.Success)
     )
 }
-function waitingForReviewRow(mode:string) {
+export function waitingForReviewRow(mode:string) {
     return new ActionRowBuilder().addComponents(
         new ButtonBuilder()
             .setCustomId(`claimsubmission-${mode}`)
@@ -57,7 +57,3 @@ export function verificationButton(guildId: string) { // TODO: Fix these guildId
 }
 
 
-export {
-    createReviewButtons,
-    waitingForReviewRow,
-}
