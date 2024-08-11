@@ -9,11 +9,13 @@ type VerifiedUsersAttributes = {
     serverPart: string;
 }
 export default class VerifiedUsers extends Model<VerifiedUsersAttributes> {
+    declare id: number
     declare userName: string
     declare userId: string
     declare email: string
     declare server: string
     declare serverPart: string
+    declare createdAt: Date
     static initModel(sequelize: Sequelize, tableName: string): ModelStatic<VerifiedUsers> {
         return super.init({
             userName: { type: DataTypes.STRING },
