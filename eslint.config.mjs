@@ -51,7 +51,12 @@ export default [...compat.extends(
         'space-infix-ops': ['error'],
         'vars-on-top': 'warn',
         'no-unused-expressions': 'warn',
-        '@typescript-eslint/no-unused-vars': ['error', { varsIgnorePattern: '^_$' }],
+        '@typescript-eslint/no-unused-vars': ['error', {
+            argsIgnorePattern: '^_$',
+            varsIgnorePattern: '^_$',
+            caughtErrorsIgnorePattern: '^_$'
+        }],
+        //'no-unused-vars': ['error', { varsIgnorePattern: '^_$' }],
         eqeqeq: 'warn',
         'default-case': 'error',
         'max-classes-per-file': 'error',
