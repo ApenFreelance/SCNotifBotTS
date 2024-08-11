@@ -16,21 +16,21 @@ async function createWaitingForReviewMessage(interaction, charInfo,
     const member = await interaction.guild.members.fetch(interaction.user.id)
     const submissionChannel = await interaction.client.channels.fetch(server[mode].submissionChannelId)
     let description = null
-    if (server.serverName == 'WoW') {
-        if (charInfo == null) 
+    if (server.serverName === 'WoW') {
+        if (charInfo === null) 
             description = `E-mail:\u00A0\u00A0\u00A0\u00A0\u00A0**${reviewHistory.userEmail}**\nArmory:\u00A0\u00A0\u00A0\u00A0**[${inputName}](${linkToUserPage})**\n\n**Failed to get data from Blizzard**`
         else {
             description = `E-mail:\u00A0\u00A0\u00A0\u00A0\u00A0**${reviewHistory.userEmail}**\nArmory:\u00A0\u00A0\u00A0\u00A0**[${charInfo.characterName}](${linkToUserPage})**\nItem level:\u00A0**${charInfo.armorLevel}**\nClass:\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0**${charInfo.characterClass}**\nRegion:\u00A0\u00A0\u00A0\u00A0**${charInfo.characterRegion}**`
-            if (mode == 'wowpvp') 
+            if (mode === 'wowpvp') 
                 description = addWoWPVPRoleStats(charInfo, description)
-            else if (mode == 'wowpve') {
+            else if (mode === 'wowpve') {
                 description += `\nSpecialization:${noBreakSpace.repeat(5)}**${charInfo.specialization}**`
                 description += `\nMythic+ Score:${noBreakSpace.repeat(5)}**${charInfo.mythicPlusScore}**`
             }
         }
         description += `\n\nI consent to my review being used by Skill-Capped: **${consentInput}**  `
-    } else if (server.serverName == 'Valorant') {
-        if (charInfo == null) 
+    } else if (server.serverName === 'Valorant') {
+        if (charInfo === null) 
             description = `Tracker.gg:\u00A0\u00A0\u00A0\u00A0**[${inputName}](${linkToUserPage})**\n\n**Failed to get data from API**`
         else 
             description = `Tracker.gg:\u00A0\u00A0\u00A0\u00A0**[${charInfo.accountData.data.data.name}](${linkToUserPage})**\nCurrent Rank:\u00A0**${charInfo.MMRdata.data.data.current_data.currenttierpatched}**\nAll-time Rank:\u00A0**${charInfo.MMRdata.data.data.highest_rank.patched_tier}**\nElo:\u00A0\u00A0\u00A0\u00A0**${charInfo.MMRdata.data.data.current_data.elo}**\n\nI consent to my review being used by Skill-Capped: **${consentInput}**  `
@@ -51,9 +51,9 @@ async function createWaitingForReviewMessage(interaction, charInfo,
 function addWoWPVPRoleStats(charInfo, description) {
     const maxLengt = 60
 
-    const addRating = (rating, label, index) => {
-        if (rating != null && rating != undefined) {
-            const n = `\n\n__${label}:${noBreakSpace.repeat()}**${rating}**__`.length
+    const addRating = (rating, label) => {
+        if (rating !== null && rating !== undefined) {
+            const n = `\n\n__${label}:**${rating}**__`.length
             description += `\n\n__${label}:${noBreakSpace.repeat(maxLengt - n)}**${rating}**__`
         }
     }

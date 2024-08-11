@@ -1,27 +1,28 @@
 import { cLog } from '../components/functions/cLog'
 import { updateGoogleSheet, createSheetBody } from '../components/functions/googleApi'
 import { createRatingModal } from '../components/modals'
-import { getCorrectTable } from '../db'
-import serverInfo from '../../config/serverInfo.json'
+import dbInstance from '../db'
+import botConfig from '../../config/bot.config.json'
 import { createRatingEmbed } from '../components/embeds'
-
-export default {
+import { BotEvent, EventType } from '../types'
+const serverInfo = botConfig.serverInfo
+const event: BotEvent = {
     name: 'rateReview',
-    once: false,
+    type: EventType.ON,
     async execute(interaction) {
         let [game, _, ratingNumber, submissionNumber, mode] = interaction.customId.split('-')
         let serverId
         if (interaction.isModalSubmit()) {
             cLog([interaction.user.username, ' : attempting to provide review rating'], { subProcess:'ReviewRatingModal' })
-            if (game == 'valorant') {
+            if (game === 'valorant') {
                 serverId = serverInfo['Valorant'].serverId
                 game = 'Valorant'
-            } else if (game = 'wow') {
+            } else if (game === 'wow') {
                 serverId = serverInfo['WoW'].serverId
                 await updateGoogleSheet(createSheetBody(mode, submissionNumber, { reviewComment:interaction.fields.fields.get('feedback').value }))
                 game = 'WoW'
             }
-            const reviewHistory = await getCorrectTable(serverId, 'reviewHistory', mode).then((table) => {
+            const reviewHistory = await dbInstance.getTable(serverId, 'reviewHistory', mode).then((table) => {
                 return table.findOne({
                     where:{
                         id: submissionNumber
@@ -42,13 +43,13 @@ export default {
         }
         if (interaction.isButton()) {
             cLog([interaction.user.username, ' : attempting to provide review rating'], { subProcess:'ReviewRatingButton' })
-            if (game == 'valorant') 
+            if (game === 'valorant') 
                 serverId = serverInfo['Valorant'].serverId
             else 
                 serverId = serverInfo['WoW'].serverId
           
             cLog([interaction.user.username + ' Rated: ' + submissionNumber], { subProcess:'ReviewRating' })
-            const reviewHistory = await getCorrectTable(serverId, 'reviewHistory', mode).then((table) => {
+            const reviewHistory = await dbInstance.getTable(serverId, 'reviewHistory', mode).then((table) => {
                 return table.findOne({
                     where:{
                         id: submissionNumber
@@ -58,7 +59,7 @@ export default {
             await reviewHistory.update({
                 reviewRating:parseInt(ratingNumber) 
             })
-            if (game == 'wow') { // WoW ID
+            if (game === 'wow') { // WoW ID
                 await updateGoogleSheet(createSheetBody(mode, submissionNumber, { reviewRating:reviewHistory.reviewRating }))
             }
             await interaction.showModal(createRatingModal(submissionNumber, game, mode))
@@ -66,3 +67,4 @@ export default {
         }
     }
 }
+export default event

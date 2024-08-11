@@ -2,14 +2,15 @@ import { updateGoogleSheet, createSheetBody } from '../components/functions/goog
 import blizzard from 'blizzard.js'
 import classes from '../../config/classes.json'
 import { createWaitingForReviewMessage } from '../components/actionRowComponents/createWaitingForReview.js'
-import { cLog } from '../components/functions/cLog.js'
-import { getCorrectTable } from '../db.js'
+import { cLog } from '../components/functions/cLog'
+import dbInstance from '../db'
 import axios from 'axios'
-import { reduceTimeBetweenUses, getOverwrites, getShortestOverwrite } from '../components/functions/timerOverwrite.js'
+import { reduceTimeBetweenUses, getOverwrites, getShortestOverwrite } from '../components/functions/timerOverwrite'
+import { BotEvent, EventType, SheetBodyData } from '../types'
 
-export default {
+const event: BotEvent = {
     name: 'submitReview',
-    once: false,
+    type: EventType.ON,
     async execute(interaction, server, mode = null) {
         try {
             let sheetBody = null
@@ -24,9 +25,9 @@ export default {
             // get correct link to user page
             await interaction.reply({ content: 'Attempting to submit review...', ephemeral: true })
 
-            const reviewHistory = await getCorrectTable(server.serverId, 'reviewHistory', mode)
+            const reviewHistory = await dbInstance.getTable(server.serverId, 'reviewHistory', mode)
 
-            if (server.serverName == 'WoW') {
+            if (server.serverName === 'WoW') {
                 linkToUserPage = interaction.fields.getTextInputValue('armory');
                 [_, accountRegion, accountSlug, accountName] = decodeURI(linkToUserPage)
                     .toLowerCase()
@@ -50,7 +51,7 @@ export default {
                     characterData = null
                     console.log('Failed to get char, because char doesnt exist or couldnt be found')
                 }
-            } else if (server.serverName == 'Valorant') {
+            } else if (server.serverName === 'Valorant') {
                 linkToUserPage = interaction.fields.getTextInputValue('tracker');
                 [accountName, accountRegion] = decodeURI(linkToUserPage)
                     .replace('https://tracker.gg/valorant/profile/riot/', '')
@@ -95,11 +96,11 @@ export default {
                     await interaction.editReply({ content: 'Something went wrong registering new user.', ephemeral: true })
                 }
                 const submissionPos = verifiedAccount.id
-                if (server.serverName == 'WoW') {
+                if (server.serverName === 'WoW') {
                     sheetBody = firstSheetBody(mode, submissionPos, verifiedAccount, characterData, linkToUserPage)
                     await updateGoogleSheet(sheetBody)
-                } else if (server.serverName == 'Valorant') {
-                    if (characterData != null) {
+                } else if (server.serverName === 'Valorant') {
+                    if (characterData !== null) {
                         await verifiedAccount.update({
                             CurrentTier: characterData.MMRdata.data.data.current_data.currenttierpatched,
                             AllTimeTier: characterData.MMRdata.data.data.highest_rank.patched_tier,
@@ -127,7 +128,7 @@ export default {
                 await interaction.editReply({ content: `You can send a new submission in <t:${verifiedAccount.createdAt / 1000 + parseInt(shortest.timeBetween) }:R> ( <t:${verifiedAccount.createdAt / 1000 + parseInt(shortest.timeBetween)}> )`, ephemeral: true })
                 return
             }
-            if (shortest.uses != 'unlimited') 
+            if (shortest.uses !== 'unlimited') 
                 await reduceTimeBetweenUses(shortest.userId, interaction.guildId)
             
 
@@ -152,14 +153,14 @@ export default {
                 mode
             )
             const submissionPos = verifiedAccount.id
-            if (server.serverName == 'WoW') {
+            if (server.serverName === 'WoW') {
                 sheetBody = firstSheetBody(mode, submissionPos, verifiedAccount, characterData, linkToUserPage)
                 await updateGoogleSheet(sheetBody)
-                await verifiedAccount.update({ charIdOnSubmission: characterData.id }).catch((err) => {
+                await verifiedAccount.update({ charIdOnSubmission: characterData.id }).catch((_) => {
                     console.log('No charId found')
                 })
-            } else if (server.serverName == 'Valorant') {
-                if (characterData != null) {
+            } else if (server.serverName === 'Valorant') {
+                if (characterData !== null) {
                     await verifiedAccount.update({
                         CurrentTier: characterData.MMRdata.data.data.current_data.currenttierpatched,
                         AllTimeTier: characterData.MMRdata.data.data.highest_rank.patched_tier,
@@ -176,6 +177,7 @@ export default {
         }
     }
 }
+export default event
 
 async function connectToWoW(interaction, accountRegion) {
     const con = await blizzard.wow
@@ -204,7 +206,7 @@ async function getValorantStats(interaction, accountName, accountRegion) {
             })
         })
     cLog([accountData.data.status], { guild: interaction.guild, subProcess: 'AccountData' })
-    if (accountData.data.status != 200) {
+    if (accountData.data.status !== 200) {
         cLog([accountData.data.errors[0].message], {
             guild: interaction.guild,
             subProcess: 'AccountData',
@@ -239,7 +241,7 @@ async function getCharacterInfo(region, slug, characterName, wowClient, armoryLi
     const mythicPlusScore = await getMythicPlusScore(slug, characterName, wowClient, guildId)
     
     
-    let characterData = await getCorrectTable(guildId, 'WoWCharacter')
+    let characterData = await dbInstance.getTable(guildId, 'WoWCharacter')
     characterData = await characterData.create({
         armoryLink,
         characterName: Cprofile.name,
@@ -325,7 +327,7 @@ async function getCharacterProfile(realm, name, wowClient, guildId) {
 }
 
 function firstSheetBody(mode, submissionPos, verifiedAccount, characterData, armoryLink) {
-    const sheetBodyData = {
+    const sheetBodyData: SheetBodyData = {
         status: verifiedAccount.status,
         createdAt: verifiedAccount.createdAt,
         id: verifiedAccount.id,
@@ -334,7 +336,7 @@ function firstSheetBody(mode, submissionPos, verifiedAccount, characterData, arm
         clipLink: verifiedAccount.clipLink,
         armoryLink,
     }
-    if (characterData != null) {
+    if (characterData !== null) {
         sheetBodyData.charClass = characterData.characterClass
         sheetBodyData.twovtwo = characterData.twoVtwoRating
         sheetBodyData.threevthree = characterData.threeVthreeRating

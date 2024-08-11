@@ -1,17 +1,16 @@
-const {
-    updateGoogleSheet,
-    createSheetBody,
-} = require('../components/functions/googleApi')
+
 import { cLog } from '../components/functions/cLog'
 import { createSubmissionModal, createUserVerificationModal } from '../components/modals'
-import { getCorrectTable } from '../db'
+import dbInstance from '../db'
 import { selectServer } from '../components/functions/selectServer'
+import { BotEvent, EventType } from '../types'
+import { createSheetBody, updateGoogleSheet } from '../components/functions/googleApi'
 
 const regexWoWLink = /(https):\/\/((worldofwarcraft\.blizzard\.com||worldofwarcraft\.com)\/[\w_-]+\/character\/(us|eu|kr|tw|cn|)\/[\w_-]+\/.+)/
 const regexValLink = /(https):\/\/(tracker\.gg\/valorant\/profile\/riot)\/.+/
-export default {
+const event: BotEvent = {
     name: 'interactionCreate',
-    once: false,
+    type: EventType.ON,
     async execute(interaction) {
         const bot = interaction.client
         try {
@@ -40,7 +39,7 @@ export default {
                 bot.emit('verifyUser', interaction, server)
             }
 
-            if (interaction.customId == 'deletemessage') {
+            if (interaction.customId === 'deletemessage') {
                 await interaction.message.delete()
                 cLog(['Deleted refund message'], {
                     guild: server.serverId,
@@ -48,7 +47,7 @@ export default {
                 })
             }
 
-            if (interaction.customId.split('-')[0] == 'submitreview') {
+            if (interaction.customId.split('-')[0] === 'submitreview') {
                 if (await blockIfLacksRole(interaction, server.serverName)) 
                     return
                 
@@ -58,7 +57,7 @@ export default {
                     interaction.customId.split('-')[1]
                 )
             }
-            if (interaction.customId.split('-')[0] == 'submissionmodal') {
+            if (interaction.customId.split('-')[0] === 'submissionmodal') {
                 // Handles response from the submitted submission through modal
                 if (validLink(interaction, server.serverName)) {
                     // Begin submission creation handling
@@ -67,29 +66,29 @@ export default {
                     await interaction.reply({ content:'This link is not valid.\n\nThink this is a mistake? Let us know', ephemeral: true })
                 
             }
-            if (interaction.customId.split('-')[0] == 'claimsubmission') {
+            if (interaction.customId.split('-')[0] === 'claimsubmission') {
                 // Begin claim handling
                 cLog(['Claiming review nr: ', interaction.customId.split('-')[1],], { guild: interaction.guild, subProcess: 'buttonClick' })
                 bot.emit('claimReview', interaction, server, interaction.customId.split('-')[1])
             }
-            if (interaction.customId.split('-')[0] == 'rejectsubmission') {
+            if (interaction.customId.split('-')[0] === 'rejectsubmission') {
                 // Begin rejection handling
                 bot.emit('rejectReview', interaction, server, interaction.customId.split('-')[1])
             }
-            if (interaction.customId.split('-')[0] == 'closesubmission') {
+            if (interaction.customId.split('-')[0] === 'closesubmission') {
                 // Close. NOT FINAL STEP. THIS IS WHEN REVIEW STATUS IS SET TO CLOSED. COMPLETE IS LAST
                 bot.emit('closeSubmission', interaction, server, interaction.customId.split('-')[2] || null)
             }
-            if (interaction.customId.split('-')[0] == 'delete') {
+            if (interaction.customId.split('-')[0] === 'delete') {
                 // THIS IS WHAT DELETES CHANNEL AND SO ON
                 bot.emit('completeReview', interaction, server, interaction.customId.split('-')[2] || null)
             }
-            if (interaction.customId.split('-')[0] == 'completesubmission') {
+            if (interaction.customId.split('-')[0] === 'completesubmission') {
                 // Triggers BEFORE deleting channel if missing reviewLink
                 const reviewlink = interaction.fields.getTextInputValue('reviewlink')
                 cLog(['Review nr: ', interaction.customId.split('-')[1],], { guild: interaction.guild, subProcess: 'reviewLinkEmpty' })
 
-                const reviewHistory = await getCorrectTable(
+                const reviewHistory = await dbInstance.getTable(
                     server.serverId,
                     'reviewHistory',
                     interaction.customId.split('-')[2] || null
@@ -105,7 +104,7 @@ export default {
                     reviewLink: reviewlink,
                 })
                 // WoW logs to sheet as well
-                if (server.serverName == 'WoW') {
+                if (server.serverName === 'WoW') {
                     await updateGoogleSheet(
                         createSheetBody(
                             interaction.customId.split('-')[2],
@@ -117,7 +116,7 @@ export default {
                     ephemeral: true,
                 })
             }
-            if (interaction.customId.split('-')[1] == 'reviewrating' || interaction.customId.split('-')[2] == 'reviewrating') {
+            if (interaction.customId.split('-')[1] === 'reviewrating' || interaction.customId.split('-')[2] === 'reviewrating') {
                 // Handle user submitted reviews to their review
                 bot.emit('rateReview', interaction)
             }
@@ -138,6 +137,7 @@ export default {
         }
     },
 }
+export default event
 
 async function slashCommandHandler(interaction) {
     const command = interaction.client.commands.get(interaction.commandName)
@@ -154,7 +154,7 @@ async function slashCommandHandler(interaction) {
 }
 
 async function blockIfLacksRole(interaction, game) {
-    if (game == 'WoW') {
+    if (game === 'WoW') {
         if (
             !interaction.member.roles.cache.some(
                 (role) =>
@@ -171,7 +171,7 @@ async function blockIfLacksRole(interaction, game) {
             return true
         }
     }
-    if (game == 'Valorant') {
+    if (game === 'Valorant') {
         if (
             !interaction.member.roles.cache.some(
                 (role) =>
@@ -185,18 +185,18 @@ async function blockIfLacksRole(interaction, game) {
             })
             return true
         }
-        if (game == 'Dev') 
+        if (game === 'Dev') 
             return false
         
     }
 }
 
 function validLink(interaction, game) {
-    if (game == 'WoW') {
+    if (game === 'WoW') {
         return regexWoWLink.test(
             interaction.fields.getTextInputValue('armory')
         )
-    } else if (game == 'Valorant') {
+    } else if (game === 'Valorant') {
         return regexValLink.test(
             interaction.fields.getTextInputValue('tracker')
         )

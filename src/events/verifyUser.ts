@@ -3,11 +3,12 @@ import { cLog } from '../components/functions/cLog'
 import { updateGoogleSheet, createVerifSheetBody } from '../components/functions/googleApi'
 import VerificationLogs from '../models/VerificationLogs'
 import VerifiedUsers from '../models/VerifiedUsers'
-const { Op } = require('sequelize')
+import { BotEvent, EventType } from '../types'
+import { Op } from 'sequelize'
 
-export default {
+const event: BotEvent = {
     name: 'verifyUser',
-    once: false,
+    type: EventType.ON,
     async execute(interaction, server) {
         const serverPart = interaction.customId.split('-')[2] || null
 
@@ -79,6 +80,7 @@ export default {
         }
     },
 }
+export default event
 
 async function checkIfAccountAlreadyLinked(interaction, email, serverPart) {
     const linkedAccounts = await VerifiedUsers.findOne({
@@ -96,14 +98,14 @@ async function checkIfAccountAlreadyLinked(interaction, email, serverPart) {
     })
     if (!linkedAccounts) return [false, true]
 
-    if (linkedAccounts.email == email && linkedAccounts.userId == interaction.user.id) 
+    if (linkedAccounts.email === email && linkedAccounts.userId === interaction.user.id) 
         return [false, true]
     
     return [true, false]
 }
 
 function ignoreIfAlreadyReplied(err) {
-    if (err.message == 'The reply to this interaction has already been sent or deferred.') 
+    if (err.message === 'The reply to this interaction has already been sent or deferred.') 
         return true
     
     throw err
@@ -127,7 +129,7 @@ async function verifyUserOnWebsite(email) {
         
     })
     console.log('response : ', response.data)
-    if (!response.data.success == 'success') { // This is if website handled request. Returns success even if no user found
+    if (!response.data.success === 'success') { // This is if website handled request. Returns success even if no user found
         return [null, true]
     }
     if (response.data.data.emailExistsFirebase) return [true, null]

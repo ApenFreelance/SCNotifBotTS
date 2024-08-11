@@ -1,6 +1,8 @@
 import fs from 'fs'
 import classes from '../../../config/classes.json'
+const maxLengt = 60
 const regex = /\*\*(https:\/\/.*?)\*\*/g
+const noBreakSpace = '\u00A0'
 async function createTranscript(channel, ticket, charInfo = null) {
     const ticketMessages = await fetchTicketMessages(channel)
     const transcriptTemplate = `<ticket-overview id="markdown-overview" class="markdown-body">
@@ -166,15 +168,15 @@ function addOverviewToTranscript(ticket, charInfo, firstMessage) {
     Class:**${charInfo.characterClass}**
     Region:**${charInfo.characterRegion}**
 `
-    if (charInfo.twoVtwoRating != null) {
-        const n = `\n\n__2v2:${noBreakSpace.repeat()}**${charInfo.twoVtwoRating}**__`
+    if (charInfo.twoVtwoRating !== null) {
+        const n = `\n\n__2v2:**${charInfo.twoVtwoRating}**__`
             .length
         WoWTranscriptOverview += `\n\n__2v2:${noBreakSpace.repeat(65 - n)}**${
             charInfo.twoVtwoRating
         }**__`
     }
-    if (charInfo.threeVthreeRating != null) {
-        const n = `\n\n__3v3:${noBreakSpace.repeat()}**${
+    if (charInfo.threeVthreeRating !== null) {
+        const n = `\n\n__3v3:**${
             charInfo.threeVthreeRating
         }**__`.length
         WoWTranscriptOverview += `\n\n__3v3:${noBreakSpace.repeat(65 - n)}**${
@@ -182,25 +184,25 @@ function addOverviewToTranscript(ticket, charInfo, firstMessage) {
         }**__`
     }
     if (
-        charInfo.soloShuffleSpec1Rating != null &&
-    charInfo.soloShuffleSpec1Rating != undefined
+        charInfo.soloShuffleSpec1Rating !== null &&
+    charInfo.soloShuffleSpec1Rating !== undefined
     ) {
         const n = `\n\n__Shuffle ${
             classes[charInfo.characterClass][0]
-        }:${noBreakSpace.repeat()}**${charInfo.soloShuffleSpec1Rating}**__`.length
+        }:**${charInfo.soloShuffleSpec1Rating}**__`.length
         WoWTranscriptOverview += `\n\n__Shuffle ${
             classes[charInfo.characterClass][0]
-        }:${noBreakSpace.repeat(maxLengt - n)}**${
+        }:${noBreakSpace.repeat( - n)}**${
             charInfo.soloShuffleSpec1Rating
         }**__`
     }
     if (
-        charInfo.soloShuffleSpec2Rating != null &&
-    charInfo.soloShuffleSpec2Rating != undefined
+        charInfo.soloShuffleSpec2Rating !== null &&
+    charInfo.soloShuffleSpec2Rating !== undefined
     ) {
         const n = `\n\n__Shuffle ${
             classes[charInfo.characterClass][1]
-        }:${noBreakSpace.repeat()}**${charInfo.soloShuffleSpec2Rating}**__`.length
+        }:$**${charInfo.soloShuffleSpec2Rating}**__`.length
         WoWTranscriptOverview += `\n\n__Shuffle ${
             classes[charInfo.characterClass][1]
         }:${noBreakSpace.repeat(maxLengt - n)}**${
@@ -208,12 +210,12 @@ function addOverviewToTranscript(ticket, charInfo, firstMessage) {
         }**__`
     }
     if (
-        charInfo.soloShuffleSpec3Rating != null &&
-    charInfo.soloShuffleSpec3Rating != undefined
+        charInfo.soloShuffleSpec3Rating !== null &&
+    charInfo.soloShuffleSpec3Rating !== undefined
     ) {
         const n = `\n\n__Shuffle ${
             classes[charInfo.characterClass][2]
-        }:${noBreakSpace.repeat()}**${charInfo.soloShuffleSpec3Rating}**__`.length
+        }:**${charInfo.soloShuffleSpec3Rating}**__`.length
         WoWTranscriptOverview += `\n\n__Shuffle ${
             classes[charInfo.characterClass][2]
         }:${noBreakSpace.repeat(maxLengt - n)}**${
@@ -221,12 +223,12 @@ function addOverviewToTranscript(ticket, charInfo, firstMessage) {
         }**__`
     }
     if (
-        charInfo.soloShuffleSpec4Rating != null &&
-    charInfo.soloShuffleSpec4Rating != undefined
+        charInfo.soloShuffleSpec4Rating !== null &&
+    charInfo.soloShuffleSpec4Rating !== undefined
     ) {
         const n = `\n\n__Shuffle ${
             classes[charInfo.characterClass][3]
-        }:${noBreakSpace.repeat()}**${charInfo.soloShuffleSpec4Rating}**__`.length
+        }:**${charInfo.soloShuffleSpec4Rating}**__`.length
         WoWTranscriptOverview += `\n\n__Shuffle ${
             classes[charInfo.characterClass][3]
         }:${noBreakSpace.repeat(maxLengt - n)}**${
@@ -234,16 +236,8 @@ function addOverviewToTranscript(ticket, charInfo, firstMessage) {
         }**__`
     }
 
-    const ValTranscriptOverview = `
-  E-mail:\u00A0\u00A0\u00A0\u00A0\u00A0**${ticket.userEmail}**
-  Tracker.gg:\u00A0\u00A0\u00A0\u00A0**[${charInfo.accountData.data.data.name}](${inputTrack})**
-  Current Rank:\u00A0**${charInfo.MMRdata.data.data.current_data.currenttierpatched}**
-  All-time Rank:\u00A0**${charInfo.MMRdata.data.data.highest_rank.patched_tier}**
-  Elo:\u00A0\u00A0\u00A0\u00A0**${charInfo.MMRdata.data.data.current_data.elo}**
-  `
-
-    if (channel.guild == '1024961321768329246') return ValTranscriptOverview
-    if (channel.guild == '1024961321768329246') return WoWTranscriptOverview
+    const _ = WoWTranscriptOverview
+    //if (channel.guild === '1024961321768329246') return WoWTranscriptOverview
 
     return undefined
 }

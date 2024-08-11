@@ -1,11 +1,7 @@
-import { ActionRowBuilder, ButtonBuilder, EmbedBuilder } from 'discord.js'
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } from 'discord.js'
 import { cLog } from '../components/functions/cLog'
-const row = new ActionRowBuilder().addComponents(
-    new ButtonBuilder()
-        .setCustomId('submitreview')
-        .setLabel('Submit review')
-        .setStyle('Success')
-)
+import { BotEvent, EventType } from '../types'
+
 const refundEmbed = new EmbedBuilder()
     .setColor('#3ba55d')
     .setTitle('How to get a refund')
@@ -17,7 +13,7 @@ const refundRow = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
         .setCustomId('deletemessage')
         .setLabel('Delete')
-        .setStyle('Danger')
+        .setStyle(ButtonStyle.Danger)
 )
 
 const uiTriggers = [
@@ -39,20 +35,20 @@ const uiEmbed = new EmbedBuilder()
         'UI errors are common with the rework to the Blizzard UI in Dragonflight. The most common triggers for UI errors are:\n\n1) Changing talents\n2) Interacting with the spellbook\n\nTo minimize the risk of a UI error mid game, be sure to /reload UI in the starting room, especially after changing talents.'
     )
 
-export default {
+const event: BotEvent = {
     name: 'messageCreate',
-    once: false,
+    type: EventType.ON,
     async execute(message) {
         if (message.author.bot) return
-        if (message.author.id == '443323751573225472' && message.content == 'Refresh All Commands') {
+        /* if (message.author.id === '443323751573225472' && message.content === 'Refresh All Commands') {
             message.delete()
             await require('../src/deploycommands').deployCommands()
             return
-        }
+        } */
         if (
             message.content.toLowerCase().includes('refund') &&
-            (message.guildId == '1024961321768329246' ||
-                message.guildId == '855206452771684382')
+            (message.guildId === '1024961321768329246' ||
+                message.guildId === '855206452771684382')
         ) {
             await message.reply({
                 embeds: [refundEmbed],
@@ -72,3 +68,4 @@ export default {
         
     },
 }
+export default event

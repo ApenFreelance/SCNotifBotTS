@@ -2,16 +2,16 @@
 import { cLog } from '../components/functions/cLog'
 import { updateGoogleSheet, createSheetBody } from '../components/functions/googleApi'
 import { createTranscript, createHTMLfile, sendTranscript, addTranscriptToDB } from '../components/functions/transcript'
-const fs = require('fs')
-import { completeSubmissionEmbed } from '../components/modals.js'
-import { getCorrectTable } from '../db'
+import { completeSubmissionEmbed } from '../components/modals'
+import dbInstance from '../db'
+import { BotEvent, EventType } from '../types'
+import fs from 'fs'
 
 
 
-
-export default {
+const event: BotEvent = {
     name: 'completeReview',
-    once: false,
+    type: EventType.ON,
     async execute(interaction, server, mode = null) { 
         let channel = null
         let submissionNumber
@@ -20,18 +20,18 @@ export default {
         } catch (err) {
             cLog([err, 'END OF ERR'], { guild:interaction.guildId, subProcess:`CompleteReview-${submissionNumber}` })
         }
-        channel = interaction.guild.channels.cache.find(channel => channel.name == `review-${submissionNumber}` && channel.parentId == server[mode].reviewCategoryId)
+        channel = interaction.guild.channels.cache.find(channel => channel.name === `review-${submissionNumber}` && channel.parentId === server[mode].reviewCategoryId)
         if (typeof channel === 'undefined') 
-            channel = interaction.guild.channels.cache.find(channel => channel.name == `closed-${submissionNumber}` && channel.parentId == server[mode].reviewCategoryId)
+            channel = interaction.guild.channels.cache.find(channel => channel.name === `closed-${submissionNumber}` && channel.parentId === server[mode].reviewCategoryId)
       
-        const reviewHistory = await getCorrectTable(interaction.guild.id, 'reviewHistory', mode).then((table) => {
+        const reviewHistory = await dbInstance.getTable(interaction.guild.id, 'reviewHistory', mode).then((table) => {
             return table.findOne({
                 where:{
                     id:submissionNumber
                 },
                 order: [['CreatedAt', 'DESC']] })
         })
-        if (reviewHistory.reviewLink == null) {
+        if (reviewHistory.reviewLink === null) {
             await completeSubmissionEmbed(interaction, reviewHistory.id, mode)
             return
         }
@@ -41,7 +41,7 @@ export default {
             completedByTag:interaction.user.username,
             completedAt: Date.now()
         })
-        if (server.serverName == 'WoW') 
+        if (server.serverName === 'WoW') 
             await updateGoogleSheet(createSheetBody(mode, submissionNumber, { status:reviewHistory.status, completedAt:reviewHistory.completedAt, reviewLink:reviewHistory.reviewLink }))
         
         try {
@@ -71,3 +71,4 @@ export default {
         cLog(['Deleted channel for review: ' + submissionNumber], { guild:interaction.guild, subProcess:'CompleteReview' })
     },
 }
+export default event

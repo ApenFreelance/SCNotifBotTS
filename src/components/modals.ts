@@ -8,7 +8,7 @@ import { cLog } from './functions/cLog'
 
 async function completeSubmissionEmbed(interaction, submissionModal, mode = null) {
     const modal = new ModalBuilder()
-        .setCustomId(`completesubmission-${submissionModal}${mode == null ? '' : '-' + mode}`)
+        .setCustomId(`completesubmission-${submissionModal}${mode === null ? '' : '-' + mode}`)
         .setTitle('Close submission')
     const closeInput = new TextInputBuilder()
         .setCustomId('reviewlink')
@@ -21,7 +21,7 @@ async function completeSubmissionEmbed(interaction, submissionModal, mode = null
 }
 
 async function createSubmissionModal(interaction, game, mode = '') {
-    if (game == null) {
+    if (game === null) {
         cLog(['This server was NULL!'], {
             guild: interaction.guildId,
             subProcess: 'CreateSubmissionModal',
@@ -30,7 +30,7 @@ async function createSubmissionModal(interaction, game, mode = '') {
     }
     // The modal
     const modal = new ModalBuilder()
-        .setCustomId(`submissionmodal${mode == '' ? '' : '-' + mode}`)
+        .setCustomId(`submissionmodal${mode === '' ? '' : '-' + mode}`)
         .setTitle('Submission Modal')
 
     // The common fields in modal
@@ -81,7 +81,7 @@ async function createSubmissionModal(interaction, game, mode = '') {
     // Val rows
     const trackerRow = new ActionRowBuilder().addComponents(trackerInput)
 
-    if (game.serverName == 'WoW') {
+    if (game.serverName === 'WoW') {
         modal.addComponents(
             ytRow,
             armoryRow,
@@ -89,7 +89,7 @@ async function createSubmissionModal(interaction, game, mode = '') {
             improvementRow,
             consentRow
         )
-    } else if (game.serverName == 'Valorant') {
+    } else if (game.serverName === 'Valorant') {
         modal.addComponents(
             ytRow,
             trackerRow,
@@ -109,7 +109,7 @@ async function createSubmissionModal(interaction, game, mode = '') {
 }
 function createRatingModal(submissionNumber, game, mode) {
     const feedbackmodal = new ModalBuilder()
-        .setCustomId(`${game}-modal-reviewrating-${submissionNumber}${mode == null ? '' : '-' + mode}`)
+        .setCustomId(`${game}-modal-reviewrating-${submissionNumber}${mode === null ? '' : '-' + mode}`)
         .setTitle('Feedback Modal')
 
     const commentInput = new TextInputBuilder()

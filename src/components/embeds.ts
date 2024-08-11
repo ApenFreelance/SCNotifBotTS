@@ -32,7 +32,7 @@ function createOverviewEmbed(counted, time, selectedReviews) {
     }
     function formatReviewSummaries() {
         for (const review of selectedReviews.reverse()) {
-            const reviewRating = review.reviewRating == null ? '' : `\n> Rated: ${review.reviewRating}` 
+            const reviewRating = review.reviewRating === null ? '' : `\n> Rated: ${review.reviewRating}` 
             const reviewAddString = `\n\n**Review-${review.id}**\n> ${review.status}\n> <@${review.userID}> ${reviewRating}`
             console.log(review)
             if ((description += reviewAddString).length > 4096) {

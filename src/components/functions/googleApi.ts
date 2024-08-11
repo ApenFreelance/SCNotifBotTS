@@ -36,7 +36,7 @@ async function authorize() {
         //url to spreadsheets API
         scopes: 'https://www.googleapis.com/auth/spreadsheets',
     })
-    if (authClient == null) 
+    if (authClient === null) 
         throw Error('authentication failed')
     
     return authClient
@@ -73,9 +73,9 @@ function createSheetBody(
     }
 ) {
     let sheetName = null
-    if (mode == 'wowpvp') 
+    if (mode === 'wowpvp') 
         sheetName = 'PVP'
-    else if (mode == 'wowpve') 
+    else if (mode === 'wowpve') 
         sheetName = 'PVE'
     
     const pvpproperties = [
@@ -122,7 +122,7 @@ function createSheetBody(
         { range: `${sheetName}!Q${submissionPos}`, value: reviewRating },
         { range: `${sheetName}!S${submissionPos}`, value: reviewComment },
     ]
-    const properties = mode == 'wowpvp' ? pvpproperties : pveproperties
+    const properties = mode === 'wowpvp' ? pvpproperties : pveproperties
     const sheetBody = properties
         .filter(({ value }) => value !== null)
         .map(({ range, value }) => ({ range, values: [[value]] }))
