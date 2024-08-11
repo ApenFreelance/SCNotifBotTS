@@ -4,8 +4,9 @@ import { join } from 'path'
 import { BotEvent, EventType } from '../types'
 
 export default async (client: Client) => {
+    console.log('Loading events into bot')
     const eventsDir = join(__dirname, '../events')
-    const eventFiles = readdirSync(eventsDir).filter(file => file.endsWith('.js'))
+    const eventFiles = readdirSync(eventsDir).filter(file => file.endsWith('.js') || file.endsWith('.ts'))
     for (const file of eventFiles) {
         const { default: event }: { default: BotEvent } = await import(`${eventsDir}/${file}`)
         

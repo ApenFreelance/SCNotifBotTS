@@ -1,10 +1,11 @@
 import { Collection, Client, GatewayIntentBits } from 'discord.js'
-import { mainBuildHandler } from './components/functions/buildHandler'
+//import { BuildHandler } from './classes/BuildHandler'
 import { readdirSync } from 'fs'
 import { cLog } from './components/functions/cLog'
 import { join } from 'path'
 import BotConfig from '../config/bot.config.json'
 import dotenv from 'dotenv'
+import { SlashCommand } from './types'
 
 dotenv.config()
 
@@ -14,7 +15,7 @@ dotenv.config()
  */
 function validateEnvVariables() {
     const missingVariables = []
-    for (const variable in BotConfig.envvariables.required) {
+    for (const variable of BotConfig.envvariables.required) {
         if (!process.env[variable]) 
             missingVariables.push(variable)
     }
@@ -45,10 +46,11 @@ function initializeBotClient(): Client {
  */
 async function loadHandlers(bot: Client): Promise<void> {
     const handlersDir = join(__dirname, './handlers')
-    const handlerFiles = readdirSync(handlersDir).filter(file => file.endsWith('.js'))
+    const handlerFiles = readdirSync(handlersDir).filter(file => file.endsWith('.js') || file.endsWith('.ts'))
     for (const file of handlerFiles) {
         const { default: handler } = await import(`${handlersDir}/${file}`)
-        handler.default(bot)
+        console.log(`Loading handler: ${file}`)
+        await handler(bot)
     }
 }
 
@@ -62,24 +64,27 @@ function setupEventListeners(bot: Client): void {
         cLog([`${bot.user.username} has logged in`], { subProcess: 'Start-up' })
 
         cLog(['Starting up buildHandler'], { subProcess: 'Start-up' })
-        try {
-            mainBuildHandler()
+        cLog(['BUILD HANDLER CURRENTLY INACTIVE'], { subProcess: 'Start-up' })
+
+        /* try {
+            const buildHandler = new BuildHandler()
+            buildHandler.run()
             setInterval(mainBuildHandler, 24 * 60 * 60 * 1000)
         } catch (err) {
             cLog(['Error in buildHandler : ', err], { subProcess: 'Interval' })
-        }
+        } */
     })
 
     bot.rest.on('rateLimited', () => {
         console.log('[ RATE LIMIT ]')
     })
 
-    process.on('unhandledRejection', (error) => {
+    /* process.on('unhandledRejection', (error) => {
         console.error('Unhandled promise rejection:', error)
     })
     process.on('uncaughtException', (error) => {
         console.error('Uncaught Exception : ', error)
-    })
+    }) */
 }
 
 /**
@@ -91,14 +96,13 @@ async function start(): Promise<void> {
     validateEnvVariables()
 
     const bot = initializeBotClient()
-    bot.slashCommands = new Collection()
+    bot.slashCommands = new Collection<string, SlashCommand>()
 
     await loadHandlers(bot)
     setupEventListeners(bot)
 
     try {
         await bot.login(process.env.BOT_TOKEN)
-        console.log('Bot started')
     } catch (err) {
         console.error('Error starting bot : ', err)
     }

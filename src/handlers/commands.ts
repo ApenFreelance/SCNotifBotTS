@@ -8,12 +8,12 @@ export default async (client : Client) => {
     const loadedCommands = await loadCommands(client)
     loadedCommands.forEach((slashCommands, guild: GuildIds | 'Global') => {
         
-        //consola.info(`Registering commands for ${guild}`)
+        console.log(`Registering commands for ${guild}`)
         try {
             registerSlashCommands(slashCommands, guild)
         } catch (e) {
             
-            //consola.error(`Failed to register commands for ${guild}`)
+            console.error(`Failed to register commands for ${guild}\n${e}`)
             return
         }
         //consola.success(`Registered commands for ${guild}\n`)
@@ -24,10 +24,10 @@ export default async (client : Client) => {
 const loadCommands = async (client: Client): Promise<Map<string, SlashCommandBuilder[]>> => {
     const slashCommands = new Map<string, SlashCommandBuilder[]>()
     const slashCommandsDir = join(__dirname, '../commands')
-    const slashCommandFiles = readdirSync(slashCommandsDir).filter(file => file.endsWith('.js'))
-    //consola.info('Loading commands into bot')
+    const slashCommandFiles = readdirSync(slashCommandsDir).filter(file => file.endsWith('.js') || file.endsWith('.ts'))
+    console.log('Loading commands into bot')
     for (const file of slashCommandFiles) {
-        if (!file.endsWith('.js')) return
+        if (!(file.endsWith('.js') || file.endsWith('.ts'))) return
          
         const { default: command }: { default: SlashCommand } = await import(`${slashCommandsDir}/${file}`)
         const key: 'Global' | GuildIds | GuildIds[] = command.validFor === undefined ? 'Global' : command.validFor
@@ -41,6 +41,7 @@ const loadCommands = async (client: Client): Promise<Map<string, SlashCommandBui
                 slashCommands.get(guild).push(command.command)
             }
         }
+        console.log(command)
         client.slashCommands.set(command.command.name, command)
         //consola.success(`Successfully loaded command: ${command.command.name}`)
     }
