@@ -13,7 +13,6 @@ This is to allow multiple tables to use the same schema. Mostly for dev purposes
 ```ts
 function initializeModels(): void {
     const models = [
-        { model: ValReviewHistory, tableName: 'ValReviewHistory' },
         { model: WoWReviewHistory, tableName: 'WoWReviewHistory_PVP' },
         { model: WoWReviewHistory, tableName: 'WoWReviewHistory_PVE' },
         { model: WoWCharacters, tableName: 'WoWCharacters' },
