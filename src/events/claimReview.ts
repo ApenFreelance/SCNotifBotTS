@@ -3,7 +3,7 @@ import { updateGoogleSheet, createSheetBody } from '../components/functions/goog
 import dbInstance from '../db'
 import { cLog } from '../components/functions/cLog'
 import { BotEvent, EventType, ServerInfo } from '../types'
-
+import { CustomEvents } from '../types'
 
 
 interface ReviewHistory {
@@ -20,7 +20,7 @@ interface ReviewHistory {
 }
 
 const event: BotEvent = {
-    name: 'claimReview',
+    name: CustomEvents.ClaimReview,
     type: EventType.ON,
     async execute(interaction, server:ServerInfo, mode: string | null = null) {
         try {

@@ -1,10 +1,10 @@
 import { updateGoogleSheet, createSheetBody } from '../components/functions/googleApi'
 import dbInstance from '../db'
 import { cLog } from '../components/functions/cLog'
-import { BotEvent, EventType } from '../types'
+import { BotEvent, CustomEvents, EventType } from '../types'
 
 const event: BotEvent = {
-    name: 'rejectReview',
+    name: CustomEvents.RejectReview,
     type: EventType.ON,
     async execute(interaction, server, mode = null) {    
         const embedAuthor = interaction.message.embeds[0].author.name.match(/\d{18}/)

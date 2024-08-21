@@ -4,13 +4,13 @@ import { updateGoogleSheet, createSheetBody } from '../components/functions/goog
 import { createTranscript, createHTMLfile, sendTranscript, addTranscriptToDB } from '../components/functions/transcript'
 import { completeSubmissionEmbed } from '../components/modals'
 import dbInstance from '../db'
-import { BotEvent, EventType } from '../types'
+import { BotEvent, CustomEvents, EventType } from '../types'
 import fs from 'fs'
 
 
 
 const event: BotEvent = {
-    name: 'completeReview',
+    name: CustomEvents.CompleteReview,
     type: EventType.ON,
     async execute(interaction, server, mode = null) { 
         let channel = null

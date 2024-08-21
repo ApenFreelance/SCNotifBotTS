@@ -2,10 +2,10 @@ import { ButtonBuilder, ActionRowBuilder, ButtonStyle } from 'discord.js'
 import { createReviewButtons } from '../components/buttons'
 import { cLog } from '../components/functions/cLog'
 import dbInstance from '../db'
-import { BotEvent, EventType } from '../types'
+import { BotEvent, CustomEvents, EventType } from '../types'
 
 const event: BotEvent = {
-    name: 'closeSubmission',
+    name: CustomEvents.CloseSubmission,
     type: EventType.ON,
     async execute(interaction, server, mode) {
         const submissionNr = interaction.customId.split('-')[1]

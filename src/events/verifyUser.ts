@@ -3,11 +3,11 @@ import { cLog } from '../components/functions/cLog'
 import { updateGoogleSheet, createVerifSheetBody } from '../components/functions/googleApi'
 import VerificationLogs from '../models/VerificationLogs'
 import VerifiedUsers from '../models/VerifiedUsers'
-import { BotEvent, EventType } from '../types'
+import { BotEvent, CustomEvents, EventType } from '../types'
 import { Op } from 'sequelize'
 
 const event: BotEvent = {
-    name: 'verifyUser',
+    name: CustomEvents.VerifyUser,
     type: EventType.ON,
     async execute(interaction, server) {
         const serverPart = interaction.customId.split('-')[2] || null

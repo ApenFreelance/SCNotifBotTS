@@ -5,10 +5,10 @@ import { createWaitingForReviewMessage } from '../components/actionRowComponents
 import { cLog } from '../components/functions/cLog'
 import dbInstance from '../db'
 import { reduceTimeBetweenUses, getOverwrites, getShortestOverwrite } from '../components/functions/timerOverwrite'
-import { BotEvent, EventType, SheetBodyData } from '../types'
+import { BotEvent, CustomEvents, EventType, SheetBodyData } from '../types'
 
 const event: BotEvent = {
-    name: 'submitReview',
+    name: CustomEvents.SubmitReview,
     type: EventType.ON,
     async execute(interaction, server, mode = null) {
         try {

@@ -4,10 +4,10 @@ import { createRatingModal } from '../components/modals'
 import dbInstance from '../db'
 import botConfig from '../../config/bot.config.json'
 import { createRatingEmbed } from '../components/embeds'
-import { BotEvent, EventType } from '../types'
+import { BotEvent, CustomEvents, EventType } from '../types'
 const serverInfo = botConfig.serverInfo
 const event: BotEvent = {
-    name: 'rateReview',
+    name: CustomEvents.RateReview,
     type: EventType.ON,
     async execute(interaction) {
         let [game, _, ratingNumber, submissionNumber, mode] = interaction.customId.split('-')

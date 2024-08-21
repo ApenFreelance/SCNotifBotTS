@@ -16,8 +16,19 @@ export enum EventType {
     REST_ON = 'rest_on'
 }
 
+
+export enum CustomEvents {
+    ClaimReview = 'claimReview',
+    CloseSubmission = 'closeSubmission',
+    CompleteReview = 'completeReview',
+    RateReview = 'rateReview',
+    RejectReview = 'rejectReview',
+    SubmitReview = 'submitReview',
+    VerifyUser = 'verifyUser',
+}
+
 export interface BotEvent {
-    name: Events | RESTEvents | string,
+    name: Events | RESTEvents | CustomEvents,
     type: EventType,
     execute: (...args) => void
 }
