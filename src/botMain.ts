@@ -6,6 +6,7 @@ import { join } from 'path'
 import BotConfig from '../config/bot.config.json'
 import dotenv from 'dotenv'
 import { SlashCommand } from './types'
+import express from 'express'
 
 dotenv.config()
 
@@ -87,6 +88,33 @@ function setupEventListeners(bot: Client): void {
     }) */
 }
 
+
+/**
+ * Initializes an Express server to handle incoming requests.
+ */
+function initializeExpressServer() {
+    const app = express()
+    const port = process.env.PORT || 3000
+
+    app.use(express.json())
+
+    app.get('/', (req, res) => {
+        res.send('Hello, this is your Discord bot server!')
+    })
+
+    app.post('/webhook', (req, res) => {
+        // Handle the incoming request
+        console.log('Received webhook:', req.body)
+        res.status(200).send('Webhook received')
+    })
+
+    app.listen(port, () => {
+        console.log(`Server is running on port ${port}`)
+    })
+}
+
+
+
 /**
  * Starts the bot by validating environment variables, initializing the bot client,
  * loading handlers, setting up event listeners, and logging in to Discord.
@@ -105,6 +133,11 @@ async function start(): Promise<void> {
         await bot.login(process.env.BOT_TOKEN)
     } catch (err) {
         console.error('Error starting bot : ', err)
+    }
+    try {
+        initializeExpressServer()
+    } catch (err) {
+        console.error('Error starting express server : ', err)
     }
 }
 
