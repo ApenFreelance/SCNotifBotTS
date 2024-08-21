@@ -23,12 +23,14 @@ const event: BotEvent = {
             //await interaction.reply({content:"Processing...", ephemeral:true}) // This is to show something is happening and to prevent timeout. EDIT IT ALONG THE WAY
             // Line above causes issues with modals
             const server = selectServer(interaction.guildId) //
-            /*
-            Contains:
-            serverName
-            serverId
-            reviewCategoryId
-            */
+            
+            
+            if (interaction.isButton()) 
+                await handleButtonInteraction()
+            else if (interaction.isModalSubmit()) 
+                await handleModalSubmitInteraction()
+            
+            
             if (interaction.customId.startsWith('verify-user') && interaction.isButton()) {
                 const serverPart = interaction.customId.split('-')[2] || null
                 cLog(['User clicked verify-user : ', interaction.user.username], { guild: interaction.guild, subProcess: 'buttonClick' })
@@ -209,3 +211,13 @@ function validLink(interaction, game) {
         return true
     }
 }
+
+async function handleButtonInteraction() {
+    // Placeholder
+}
+
+async function handleModalSubmitInteraction() {
+    // Placeholder
+}
+
+
