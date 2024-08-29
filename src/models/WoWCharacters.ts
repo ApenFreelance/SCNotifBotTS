@@ -70,6 +70,7 @@ export default class WoWCharacters extends Model<WoWCharactersAttributes> {
             {
                 tableName,
                 timestamps: true,
+                underscored:true,
                 sequelize,
             }
         ) as ModelStatic<WoWCharacters>

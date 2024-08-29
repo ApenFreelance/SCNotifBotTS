@@ -31,6 +31,7 @@ export default class ReviewTimerOverwrite extends Model<ReviewTimerOverwriteAttr
             tableName,
             updatedAt:true,
             createdAt:true,
+            underscored:true,
             // raw:true,
             sequelize
         }) as ModelStatic<ReviewTimerOverwrite>

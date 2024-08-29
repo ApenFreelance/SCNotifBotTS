@@ -33,6 +33,7 @@ export default class VerificationLogs extends Model<VerificationLogsAttributes> 
             tableName,
             updatedAt:true,
             createdAt:true,
+            underscored:true,
             sequelize
         }) as ModelStatic<VerificationLogs>
     }

@@ -69,6 +69,7 @@ export default class ValReviewHistory extends Model<ReviewHistoryAttributes> {
             tableName,
             updatedAt:false,
             createdAt:true,
+            underscored:true,
             sequelize
         }) as ModelStatic<ValReviewHistory>
     }

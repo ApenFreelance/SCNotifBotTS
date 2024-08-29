@@ -63,6 +63,7 @@ export default class WoWReviewHistory extends Model<WoWReviewHistoryAttributes> 
             tableName,
             updatedAt:false,
             createdAt:true,
+            underscored:true,
             sequelize
         }) as ModelStatic<WoWReviewHistory>
     }
