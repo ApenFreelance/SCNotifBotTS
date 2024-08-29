@@ -66,12 +66,12 @@ class Database {
     private constructor() {
         this.sequelize = new Sequelize(
             process.env.dbName!,
-            process.env.dbUser!,
+            process.env.dbName!,
             process.env.dbPass!,
             {
                 host: process.env.dbHost!,
                 dialect: 'mariadb',
-                logging: false,
+                logging: console.log,
             }
         )
         this.initializeModels()
@@ -94,15 +94,15 @@ class Database {
      */
     private initializeModels(): void {
         const models = [
-            { model: WoWReviewHistory, tableName: 'WoWReviewHistory_PVP' },
-            { model: WoWReviewHistory, tableName: 'WoWReviewHistory_PVE' },
-            { model: VerificationLogs, tableName: 'VerificationLogs' },
-            { model: WoWCharacters, tableName: 'WoWCharacters' },
-            { model: VerifiedUsers, tableName: 'VerifiedUsers' }
+            //{ model: WoWReviewHistory, tableName: 'WoWReviewHistory_PVPTEST' },
+            { model: WoWReviewHistory, tableName: 'WoWReviewHistory_PVETEST' },
+            { model: VerificationLogs, tableName: 'VerificationLogsTEST' },
+            { model: WoWCharacters, tableName: 'WoWCharactersTEST' },
+            { model: VerifiedUsers, tableName: 'VerifiedUsersTEST' }
         ]
         models.forEach(({ model, tableName }) => {
             model.initModel(this.sequelize, tableName)
-            model.sync()
+            model.sync({ alter: true })
             this.modelMapping[tableName] = model
         })
     }
@@ -156,6 +156,17 @@ class Database {
             return model
         }
         return tableName
+    }
+    /**
+     * Test the database connection.
+     */
+    public async testConnection(): Promise<void> {
+        try {
+            await this.sequelize.authenticate()
+            console.log('Connection has been established successfully.')
+        } catch (error) {
+            console.error('Unable to connect to the database:', error)
+        }
     }
 }
 
