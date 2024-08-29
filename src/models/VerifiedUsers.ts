@@ -2,20 +2,20 @@ import { ModelStatic, Sequelize } from 'sequelize'
 import { DataTypes, Model } from 'sequelize'
 
 type VerifiedUsersAttributes = {
-    user_name: string;
-    user_id: string;
+    userName: string;
+    userId: string;
     email: string;
     server: string;
-    server_part: string;
+    serverPart: string;
 }
 export default class VerifiedUsers extends Model<VerifiedUsersAttributes> {
     declare id: number
-    declare user_name: string
-    declare user_id: string
+    declare userName: string
+    declare userId: string
     declare email: string
     declare server: string
-    declare server_part: string
-    declare createdt: Date
+    declare serverPart: string
+    declare createdAt: Date
     static initModel(sequelize: Sequelize, tableName: string): ModelStatic<VerifiedUsers> {
         return super.init({
             userName: { type: DataTypes.STRING },
@@ -27,7 +27,6 @@ export default class VerifiedUsers extends Model<VerifiedUsersAttributes> {
             tableName,
             updatedAt:true,
             createdAt:true,
-            underscored:true,
             sequelize
         }) as ModelStatic<VerifiedUsers>
     }
