@@ -2,6 +2,7 @@ import { ModelStatic, Sequelize } from 'sequelize'
 import { DataTypes, Model } from 'sequelize'
 
 type WoWCharactersAttributes = {
+  reviewNumber: number;
   userEmail: string;
   armoryLink: string;
   characterName: string;
@@ -23,6 +24,7 @@ type WoWCharactersAttributes = {
 };
 
 export default class WoWCharacters extends Model<WoWCharactersAttributes> {
+    declare reviewNumber: number
     declare userEmail: string
     declare armoryLink: string
     declare characterName: string
@@ -45,6 +47,7 @@ export default class WoWCharacters extends Model<WoWCharactersAttributes> {
     static initModel(sequelize:Sequelize, tableName: string): ModelStatic<WoWCharacters> {
         return super.init(
             {
+                reviewNumber: { type: DataTypes.INTEGER },
                 userEmail: { type: DataTypes.STRING },
                 armoryLink: { type: DataTypes.STRING },
                 characterName: { type: DataTypes.STRING },
