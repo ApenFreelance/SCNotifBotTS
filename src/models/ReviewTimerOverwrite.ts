@@ -3,7 +3,7 @@ import { DataTypes, Model } from 'sequelize'
 
 
 type ReviewTimerOverwriteAttributes = {
-    userName: string;
+    username: string;
     userId: string;
     timeBetween: string;
     uses: number | 'unlimited';
@@ -12,7 +12,7 @@ type ReviewTimerOverwriteAttributes = {
 }
 
 export default class ReviewTimerOverwrite extends Model<ReviewTimerOverwriteAttributes> {
-    declare userName: string
+    declare username: string
     declare userId: string
     declare timeBetween: string
     declare uses: number | 'unlimited'
@@ -21,7 +21,7 @@ export default class ReviewTimerOverwrite extends Model<ReviewTimerOverwriteAttr
     
     static initModel(sequelize: Sequelize, tableName: string): ModelStatic<ReviewTimerOverwrite> {
         return super.init({
-            userName: { type: DataTypes.STRING },
+            username: { type: DataTypes.STRING },
             userId: { type: DataTypes.STRING },
             timeBetween: { type: DataTypes.STRING },
             uses: { type: DataTypes.STRING },
