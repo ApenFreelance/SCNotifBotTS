@@ -5,7 +5,6 @@ type ReviewHistoryAttributes = {
     status: string;
     userEmail: string;
     userID: string;
-    userTag: string;
     clipLink: string;
     AllTimeTier: string;
     CurrentTier: string;
@@ -28,7 +27,6 @@ export default class ValReviewHistory extends Model<ReviewHistoryAttributes> {
     declare status: string
     declare userEmail: string
     declare userID: string
-    declare userTag: string
     declare clipLink: string
     declare AllTimeTier: string
     declare CurrentTier: string
@@ -49,7 +47,6 @@ export default class ValReviewHistory extends Model<ReviewHistoryAttributes> {
             status: { type: DataTypes.STRING },
             userEmail: { type: DataTypes.STRING },
             userID: { type: DataTypes.STRING },
-            userTag: { type: DataTypes.STRING },
             clipLink: { type: DataTypes.STRING },
             AllTimeTier: { type: DataTypes.STRING },
             CurrentTier: { type: DataTypes.STRING },
