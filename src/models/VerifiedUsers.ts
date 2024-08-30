@@ -1,28 +1,37 @@
 import { ModelStatic, Sequelize } from 'sequelize'
 import { DataTypes, Model } from 'sequelize'
+import { AccessLevel } from '../types'
 
 type VerifiedUsersAttributes = {
-    userName: string;
+    username: string;
     userId: string;
+    skillCappedId: string;
     email: string;
     server: string;
     serverPart: string;
+    linkId: string;
+    linkExpirationTime: Date;
+    accessLevel: AccessLevel;
+    skillCappedSbCheckDate: Date;
 }
 export default class VerifiedUsers extends Model<VerifiedUsersAttributes> {
     declare id: number
-    declare userName: string
+    declare username: string
     declare userId: string
     declare email: string
     declare server: string
     declare serverPart: string
+    declare accessLevel: AccessLevel
     declare createdAt: Date
+
     static initModel(sequelize: Sequelize, tableName: string): ModelStatic<VerifiedUsers> {
         return super.init({
-            userName: { type: DataTypes.STRING },
+            username: { type: DataTypes.STRING },
             userId: { type: DataTypes.STRING },
             email: { type: DataTypes.STRING },
             server: { type: DataTypes.STRING },
-            serverPart: { type: DataTypes.STRING }
+            serverPart: { type: DataTypes.STRING },
+            accessLevel: { type: DataTypes.STRING },
         }, {
             tableName,
             updatedAt:true,
