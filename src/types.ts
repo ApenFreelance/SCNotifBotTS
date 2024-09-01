@@ -1,4 +1,4 @@
-import { AutocompleteInteraction, Collection, Events, RESTEvents } from 'discord.js'
+import { AutocompleteInteraction, Collection, DiscordAPIError, Events, RESTEvents } from 'discord.js'
 import { ChatInputCommandInteraction } from 'discord.js'
 
 export interface SlashCommand {
@@ -25,6 +25,7 @@ export enum CustomEvents {
     RejectReview = 'rejectReview',
     SubmitReview = 'submitReview',
     VerifyUser = 'verifyUser',
+    InitVerifyUser = 'initVerifyUser',
 }
 
 export interface BotEvent {
@@ -90,4 +91,14 @@ export interface SheetBodyData {
     solo4?: string;
     mythicPlusScore?: string;
     specialization?: string;
+}
+
+export enum AccessLevel {
+    NO_ACCESS = 'NO_ACCESS',
+    ACCESS = 'ACCESS'
+}
+
+
+export enum DiscordAPIErrorEnum {
+    MISSING_ACCESS = 50001,
 }
