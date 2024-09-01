@@ -1,44 +1,34 @@
 import { Client } from 'discord.js'
 import { Router, Request, Response } from 'express'
-import VerifiedUsers from '../models/VerifiedUsers'
 import { CustomEvents } from '../types'
 
-const userRouter = (bot: Client) => {
+const testRouter = (bot: Client) => {
     const router = Router()
 
-    router.post('/verify', async (req: Request, res: Response) => {
+    router.get('/test', async (req, res) => {
+        res.status(200).json({ message: 'Got it' }) 
+
+    })
+
+
+    router.get('/verify-user/:linkId', async (req: Request, res: Response) => {
         try {
-            const { skillCappedId, linkId, skillCappedCheckDate } = req.body
-            
-            if (!skillCappedId) 
-                return res.status(400).json({ error: 'User ID is required' })
-            if (!linkId) 
-                return res.status(400).json({ error: 'linkId is required' })
-        
-            // Logic to remove the user's subscription perks
-            // This might involve updating the database, calling other services, etc.
-            const user = await VerifiedUsers.findOne({
-                where: {
-                    linkId, // Since we lack a way to connect the accounts beside this and skill capped id...
-                }
-            })
-            if (!user) 
-                return res.status(400).json({ error: 'No account with this User ID exists' })
-           
+            const { linkId } = req.params
+            console.log('\nRECEIVED REQUEST\n')
+            if (!linkId)
+                res.status(400).json({ message: 'linkId missing' })
 
             /**
-             * ! REQUIREMENTS FOR FINDING THE CORRECT ACC
-             * * ASSUME THAT USER AUTHENTICATES THROUGH BOT FIRST
-             * 
-             * If SkillCapped ID is connected somewhere already  
-             * 
+             * Returning static data just to like... look cool i guess
              */
+            const data = {
+                skillCappedId: 2313221,
+                linkId
+
+            }   
 
 
-
-            await emitVerificationToBot(skillCappedId, bot)
-        
-            res.status(200).json({ message: 'User subscription perks removed successfully' })
+            res.status(200).json({ ...data })
         } catch (error) {
             console.error('Error removing user subscription perks:', error)
             res.status(500).json({ error: 'Internal Server Error' })
@@ -75,10 +65,10 @@ async function removeUserPerks(userId: string, bot): Promise<void> {
 }
 
 async function emitVerificationToBot(userId:string, bot): Promise<void> {
-    console.log(`Adding for user with ID: ${userId}`)
+    console.log(`Removing perks for user with ID: ${userId}`)
     bot.emit(CustomEvents.VerifyUser, userId, )
 }
 
 
-export default userRouter
+export default testRouter
 
