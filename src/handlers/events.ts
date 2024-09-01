@@ -1,4 +1,4 @@
-import { Client } from 'discord.js'
+import { Client, ClientEvents } from 'discord.js'
 import { readdirSync } from 'fs'
 import { join } from 'path'
 import { BotEvent, EventType } from '../types'
@@ -11,9 +11,9 @@ export default async (client: Client) => {
         const { default: event }: { default: BotEvent } = await import(`${eventsDir}/${file}`)
         
         if (event.type === EventType.ONCE) 
-            client.once(event.name, (...args) => event.execute(...args))
+            client.once(event.name as keyof ClientEvents, (...args) => event.execute(...args))
         else if (event.type === EventType.ON) 
-            client.on(event.name, (...args) => event.execute(...args))
+            client.on(event.name as keyof ClientEvents, (...args) => event.execute(...args))
         else if (event.type === EventType.REST_ON) {
             // TODO: Make this work with rate limit
             // eslint-disable-next-line
