@@ -76,7 +76,7 @@ class Database {
             {
                 host: process.env.dbHost!,
                 dialect: 'mariadb',
-                logging: console.log,
+                logging: false,
             }
         )
         this.authenticateAndInitialize()
