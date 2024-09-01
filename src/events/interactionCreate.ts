@@ -26,16 +26,12 @@ const event: BotEvent = {
             
             
             if (interaction.isButton()) 
-                await handleButtonInteraction()
+                await handleButtonInteraction(interaction)
             else if (interaction.isModalSubmit()) 
                 await handleModalSubmitInteraction()
             
             
-            if (interaction.customId.startsWith('verify-user') && interaction.isButton()) {
-                const serverPart = interaction.customId.split('-')[2] || null
-                cLog(['User clicked verify-user : ', interaction.user.username], { guild: interaction.guild, subProcess: 'buttonClick' })
-                await interaction.showModal(createUserVerificationModal(serverPart))
-            }
+            
 
             if (interaction.customId.startsWith('verify-user') && interaction.isModalSubmit()) {
                 cLog(['User clicked verify-user : ', interaction.user.username], { guild: interaction.guild, subProcess: 'ModalSub' })
@@ -212,8 +208,12 @@ function validLink(interaction, game) {
     }
 }
 
-async function handleButtonInteraction() {
-    // Placeholder
+async function handleButtonInteraction(interaction) {
+    if (interaction.customId.startsWith('verify-user')) {
+        const serverPart = interaction.customId.split('-')[2] || null
+        cLog(['User clicked verify-user : ', interaction.user.username], { guild: interaction.guild, subProcess: 'buttonClick' })
+        await interaction.showModal(createUserVerificationModal(serverPart))
+    }
 }
 
 async function handleModalSubmitInteraction() {
