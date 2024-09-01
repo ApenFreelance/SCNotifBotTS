@@ -10,7 +10,7 @@ async function getTimeBetweenRoles(server: { serverName: string; }) {
     })
     return roles
 }
-async function getOrCreateTimeBetweenEntry(userId, userName, days, uses, server, isRole) {
+async function getOrCreateTimeBetweenEntry(userId, username, days, uses, server, isRole) {
     const [entry, created] = await ReviewTimerOverwrite.findOrCreate({
         where: {
             userId,
@@ -18,14 +18,14 @@ async function getOrCreateTimeBetweenEntry(userId, userName, days, uses, server,
             isRole
         },
         defaults: {
-            userName,
+            username,
             timeBetween: days,
             uses,
             isRole,
             server:server.serverName
         } })
     if (created) 
-        return formatGetOrCreateTimeBetweenReply(server, isRole, userName, userId, entry.timeBetween, entry.uses)
+        return formatGetOrCreateTimeBetweenReply(server, isRole, username, userId, entry.timeBetween, entry.uses)
     
     const entrySeconds = entry.timeBetween
     const entryUses = entry.uses
@@ -33,15 +33,15 @@ async function getOrCreateTimeBetweenEntry(userId, userName, days, uses, server,
         userId,
         server: server.serverName,
         isRole,
-        userName,
+        username,
         timeBetween: days,
         uses,
     })
 
-    return formatGetOrCreateTimeBetweenReply(server, isRole, userName, userId, updated.timeBetween, updated.uses, entrySeconds, entryUses)
+    return formatGetOrCreateTimeBetweenReply(server, isRole, username, userId, updated.timeBetween, updated.uses, entrySeconds, entryUses)
 }
 
-function formatGetOrCreateTimeBetweenReply(server, isRole, userName, userId, primarySeconds, primaryUses, updatedSeconds = null, updatedUses = null) {
+function formatGetOrCreateTimeBetweenReply(server, isRole, username, userId, primarySeconds, primaryUses, updatedSeconds = null, updatedUses = null) {
     let name
     let fullText = ''
     if (isRole) 
@@ -52,11 +52,11 @@ function formatGetOrCreateTimeBetweenReply(server, isRole, userName, userId, pri
 
     if (updatedSeconds !== null) {
         fullText += `${name} existed before with ${parseInt(updatedSeconds) / 86400} days with ${updatedUses} use(s) left\n`
-        cLog([`${userName} existed before with ${parseInt(updatedSeconds) / 86400} days with ${updatedUses} use(s) left`], { guild:server, subProcess:'ReviewTimeOverwrite' })
+        cLog([`${username} existed before with ${parseInt(updatedSeconds) / 86400} days with ${updatedUses} use(s) left`], { guild:server, subProcess:'ReviewTimeOverwrite' })
 
     }
     fullText += `${name} now set to ${parseInt(primarySeconds) / 86400} days for ${primaryUses} use(s)\n`
-    cLog([`${userName} now set to ${parseInt(primarySeconds) / 86400} days for ${primaryUses} use(s)`], { guild:server, subProcess:'ReviewTimeOverwrite' })
+    cLog([`${username} now set to ${parseInt(primarySeconds) / 86400} days for ${primaryUses} use(s)`], { guild:server, subProcess:'ReviewTimeOverwrite' })
     return fullText
     
 }
@@ -71,7 +71,7 @@ async function getTimeBetweenByUserId(userId, server) {
 
 async function createNewTimerOverwrite(username, userId, timeBetween, uses, isRole) {
     await ReviewTimerOverwrite.create({
-        userName: username,
+        username,
         userId,
         timeBetween,
         uses,
@@ -108,7 +108,7 @@ async function getShortestOverwrite(userTimeBetween, timeBetweenRoles, guildId =
     const smallest = times.reduce(function(prev, curr) {
         return parseInt(prev.timeBetween) < parseInt(curr.timeBetween) ? prev : curr
     })
-    cLog(['Found shortest entery as: ' + smallest.userName], { guild:guildId, subProcess:'TimeBetween' })
+    cLog(['Found shortest entery as: ' + smallest.username], { guild:guildId, subProcess:'TimeBetween' })
     return smallest
 }
 
@@ -122,9 +122,9 @@ async function reduceTimeBetweenUses(userId, guildId) {
     })
     if (object.uses === 0) {
         object.destroy()
-        cLog([`No uses left for ${object.userName}.     - Deleted `], { guild:guildId, subProcess:'TimeBetween' })
+        cLog([`No uses left for ${object.username}.     - Deleted `], { guild:guildId, subProcess:'TimeBetween' })
         return
     }
-    cLog([`Uses left for ${object.userName}: ` + object.uses], { guild:guildId, subProcess:'TimeBetween' })
+    cLog([`Uses left for ${object.username}: ` + object.uses], { guild:guildId, subProcess:'TimeBetween' })
 }
 export { getTimeBetweenByUserId, getTimeBetweenRoles, createNewTimerOverwrite, getTimeBetweenUserApplicableRoles, getOverwrites, getShortestOverwrite, reduceTimeBetweenUses, getOrCreateTimeBetweenEntry }
