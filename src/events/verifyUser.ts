@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { cLog } from '../components/functions/cLog'
-import { updateGoogleSheet, createVerifSheetBody } from '../components/functions/googleApi'
+//import { updateGoogleSheet, createVerifSheetBody } from '../components/functions/googleApi'
 import VerificationLogs from '../models/VerificationLogs'
 import VerifiedUsers from '../models/VerifiedUsers'
 import { BotEvent, CustomEvents, EventType } from '../types'
@@ -14,7 +14,7 @@ const event: BotEvent = {
 
         const email = interaction.fields.getTextInputValue('email')
         const logEntry = await VerificationLogs.create({
-            userName: interaction.user.username,
+            username: interaction.user.username,
             userId: interaction.user.id,
             email,
             server: interaction.guild.id,
@@ -47,7 +47,7 @@ const event: BotEvent = {
             })
             return
         }
-        const [otherConnectedAccount] = await checkIfAccountAlreadyLinked(interaction, email)
+        const [otherConnectedAccount] = await checkIfAccountAlreadyLinked(interaction)
         if (otherConnectedAccount) {
             cLog(['Account already linked : ', interaction.user.username], { guild: interaction.guild, subProcess: 'VerifyUser' })
             await interaction.reply({ content:'This account is already linked.\n\n# Believe this is a mistake?\nContact staff to resolve this issue', ephemeral:true })
@@ -64,16 +64,16 @@ const event: BotEvent = {
         await grantUserPremium(interaction, server, serverPart)
         logEntry.update({ wasSuccessful: true })
         const [verifEntry, _] = await VerifiedUsers.findOrCreate({ where: {
-            userName:interaction.user.username,
+            username:interaction.user.username,
             userId: interaction.user.id,
-            email,
         }, defaults: {
             server: interaction.guild.id,
         } })
         if (server.serverName === 'WoW' || server.specialPass) {
             try {
                 cLog(['Attempting to update sheet  : ', interaction.user.username], { guild: interaction.guild, subProcess: 'VerifyUserSheet' })
-                await updateGoogleSheet(createVerifSheetBody(verifEntry.id, { userName:verifEntry.userName, userId:verifEntry.userId, email:verifEntry.email, createdAt:verifEntry.createdAt }))
+                console.log(verifEntry)
+                //await updateGoogleSheet(createVerifSheetBody(verifEntry.id, { username:verifEntry.username, userId:verifEntry.userId, email:verifEntry.email, createdAt:verifEntry.createdAt }))
             } catch (err) {
                 cLog([': ', err], { guild: interaction.guild, subProcess: 'VerifyUserSheet' })
             }
@@ -82,7 +82,7 @@ const event: BotEvent = {
 }
 export default event
 
-async function checkIfAccountAlreadyLinked(interaction, email: string) {
+async function checkIfAccountAlreadyLinked(interaction) {
     const linkedAccounts = await VerifiedUsers.findOne({
         where: {
             [Op.and]: [
@@ -90,7 +90,6 @@ async function checkIfAccountAlreadyLinked(interaction, email: string) {
                 {
                     [Op.or]: [
                         { userId: interaction.user.id }, 
-                        { email }
                     ]
                 }
             ]
@@ -98,9 +97,6 @@ async function checkIfAccountAlreadyLinked(interaction, email: string) {
     })
     if (!linkedAccounts) return [false, true]
 
-    if (linkedAccounts.email === email && linkedAccounts.userId === interaction.user.id) 
-        return [false, true]
-    
     return [true, false]
 }
 
@@ -146,3 +142,6 @@ async function grantUserPremium(interaction, server, serverPart) {
         .catch(ignoreIfAlreadyReplied)
     cLog(['User granted premium  : ', interaction.user.username], { guild: interaction.guild, subProcess: 'VerifyUser' })
 }
+
+
+
