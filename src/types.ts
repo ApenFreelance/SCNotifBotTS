@@ -1,10 +1,10 @@
-import { AutocompleteInteraction, Collection, DiscordAPIError, Events, RESTEvents } from 'discord.js'
+import { AutocompleteInteraction, Collection, Events, RESTEvents } from 'discord.js'
 import { ChatInputCommandInteraction } from 'discord.js'
 
 export interface SlashCommand {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     command: any,
-    execute: (interaction : ChatInputCommandInteraction) => void,
+    execute: (interaction : ChatInputCommandInteraction) => Promise<void>,
     autocomplete?: (interaction: AutocompleteInteraction) => void,
     helpText?: string | 'This command doesn\'t have a help description.' // TODO: On HelpCommand make sure on empty you get default value,
     validFor?: GuildIds[] | GuildIds,
