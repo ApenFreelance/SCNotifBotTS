@@ -7,28 +7,27 @@ type VerifiedUsersAttributes = {
     userId: string;
     skillCappedId: string;
     server: string;
-    serverPart: string;
     linkId: string;
     linkExpirationTime: Date;
     accessLevel: AccessLevel;
-    skillCappedSbCheckDate: Date;
+    skillCappedCheckDate: Date;
 }
 export default class VerifiedUsers extends Model<VerifiedUsersAttributes> {
     declare id: number
     declare username: string
     declare userId: string
     declare server: string
-    declare serverPart: string
     declare accessLevel: AccessLevel
     declare createdAt: Date
+    declare skillCappedCheckDate: Date
 
     static initModel(sequelize: Sequelize, tableName: string): ModelStatic<VerifiedUsers> {
         return super.init({
             username: { type: DataTypes.STRING },
             userId: { type: DataTypes.STRING },
             server: { type: DataTypes.STRING },
-            serverPart: { type: DataTypes.STRING },
             accessLevel: { type: DataTypes.STRING },
+            skillCappedCheckDate: { type: DataTypes.DATE }
         }, {
             tableName,
             updatedAt:true,
