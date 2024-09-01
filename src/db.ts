@@ -108,24 +108,33 @@ class Database {
     /**
      * Initialize the models and store them in the model mapping.
      */
-    private initializeModels(): void {
+    private async initializeModels(): Promise<void> {
         const models = [
             { model: GlobalCounters, tableName: 'GlobalCountersTEST' },
-            { model: WoWReviewHistory, tableName: 'WoWReviewHistoryTEST' },
             { model: VerificationLogs, tableName: 'VerificationLogsTEST' },
+            { model: WoWReviewHistory, tableName: 'WoWReviewHistoryTEST' },
             { model: WoWCharacters, tableName: 'WoWCharactersTEST' },
             { model: VerifiedUsers, tableName: 'VerifiedUsersTEST' }
         ]
-        models.forEach(({ model, tableName }) => {
-            model.initModel(this.sequelize, tableName)
-            model.sync({ }).catch(err => {
-                if (err.message === 'Cannot delete property \'meta\' of [object Array]' ) 
-                    console.error('\n\nYou likely got this error because you set `model.sync({ alter: true })`. I would look more into it, but you shouldnt be altering these tables all willie nillie anyway right?\n', err, '\n\n')
-                else 
-                    console.error(err)
-            })
-            this.modelMapping[tableName] = model
-        })
+        
+        for (const { model, tableName } of models) {
+            try {
+                model.initModel(this.sequelize, tableName)
+                await model.sync({ alter: true })
+                this.modelMapping[tableName] = model
+                console.log(`Successfully initialized model: ${tableName}`)
+            } catch (err) {
+                if (err.message === 'Cannot delete property \'meta\' of [object Array]') {
+                    console.error(
+                        '\n\nYou likely got this error because you set `model.sync({ alter: true })`. I would look more into it, but you shouldn\'t be altering these tables all willy-nilly anyway right?\n',
+                        err,
+                        '\n\n'
+                    )
+                } else 
+                    console.error(`Error initializing model: ${tableName}`, err)
+                
+            }
+        }
     }
 
     /**
