@@ -119,10 +119,6 @@ const event: BotEvent = {
                 // Handle user submitted reviews to their review
                 bot.emit('rateReview', interaction)
             }
-            if (interaction.customId.startsWith('clip-')) {
-                // THIS MIGHT BE DEPRECATED
-                bot.emit('mediaCollection', interaction, server)
-            }
         } catch (err) {
             console.log(
                 'Failed somewhere during interaction : ',
