@@ -2,7 +2,7 @@ import { ModelStatic, Sequelize } from 'sequelize'
 import { DataTypes, Model } from 'sequelize'
 
 type VerificationLogsAttributes = {
-    userName: string;
+    username: string;
     userId: string;
     email: string;
     wasSuccessful: boolean;
@@ -12,7 +12,7 @@ type VerificationLogsAttributes = {
 }
 
 export default class VerificationLogs extends Model<VerificationLogsAttributes> {
-    declare userName: string
+    declare username: string
     declare userId: string
     declare email: string
     declare wasSuccessful: boolean
@@ -22,7 +22,7 @@ export default class VerificationLogs extends Model<VerificationLogsAttributes> 
 
     static initModel(sequelize: Sequelize, tableName: string): ModelStatic<VerificationLogs> {
         return super.init({
-            userName: { type: DataTypes.STRING },
+            username: { type: DataTypes.STRING },
             userId: { type: DataTypes.STRING },
             email: { type: DataTypes.STRING },
             wasSuccessful: { type: DataTypes.BOOLEAN },
