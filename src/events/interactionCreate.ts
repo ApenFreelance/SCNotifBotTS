@@ -1,19 +1,18 @@
 
 import { cLog } from '../components/functions/cLog'
 import { createSubmissionModal, createUserVerificationModal } from '../components/modals'
-import dbInstance from '../db'
+//import dbInstance from '../db'
 import { selectServer } from '../components/functions/selectServer'
-import { BotEvent, EventType } from '../types'
-import { createSheetBody, updateGoogleSheet } from '../components/functions/googleApi'
-import { Events } from 'discord.js'
+import { BotEvent, CustomEvents, EventType, ServerInfo } from '../types'
+//import { createSheetBody, updateGoogleSheet } from '../components/functions/googleApi'
+import { ButtonInteraction, Client, Events, Interaction } from 'discord.js'
 
 const regexWoWLink = /(https):\/\/((worldofwarcraft\.blizzard\.com||worldofwarcraft\.com)\/[\w_-]+\/character\/(us|eu|kr|tw|cn|)\/[\w_-]+\/.+)/
 const regexValLink = /(https):\/\/(tracker\.gg\/valorant\/profile\/riot)\/.+/
 const event: BotEvent = {
     name: Events.InteractionCreate,
     type: EventType.ON,
-    async execute(interaction) {
-        const bot = interaction.client
+    async execute(interaction: Interaction) {
         try {
             if (interaction.isCommand()) {
                 await slashCommandHandler(interaction)
@@ -26,63 +25,24 @@ const event: BotEvent = {
             
             
             if (interaction.isButton()) 
-                await handleButtonInteraction(interaction)
+                await handleButtonInteraction(interaction, server)
             else if (interaction.isModalSubmit()) 
-                await handleModalSubmitInteraction()
+                await handleModalSubmitInteraction(interaction, server)
             
             
             
 
-            if (interaction.customId.startsWith('verify-user') && interaction.isModalSubmit()) {
-                cLog(['User clicked verify-user : ', interaction.user.username], { guild: interaction.guild, subProcess: 'ModalSub' })
-                bot.emit('verifyUser', interaction, server)
-            }
+            
 
-            if (interaction.customId === 'deletemessage') {
-                await interaction.message.delete()
-                cLog(['Deleted refund message'], {
-                    guild: server.serverId,
-                    subProcess: 'Refund Message',
-                })
-            }
 
-            if (interaction.customId.split('-')[0] === 'submitreview') {
-                if (await blockIfLacksRole(interaction, server.serverName)) 
-                    return
-                
-                await createSubmissionModal(
-                    interaction,
-                    server,
-                    interaction.customId.split('-')[1]
-                )
-            }
-            if (interaction.customId.split('-')[0] === 'submissionmodal') {
-                // Handles response from the submitted submission through modal
-                if (validLink(interaction, server.serverName)) {
-                    // Begin submission creation handling
-                    bot.emit('submitReview', interaction, server, interaction.customId.split('-')[1])
-                } else 
-                    await interaction.reply({ content:'This link is not valid.\n\nThink this is a mistake? Let us know', ephemeral: true })
-                
-            }
-            if (interaction.customId.split('-')[0] === 'claimsubmission') {
-                // Begin claim handling
-                cLog(['Claiming review nr: ', interaction.customId.split('-')[1],], { guild: interaction.guild, subProcess: 'buttonClick' })
-                bot.emit('claimReview', interaction, server, interaction.customId.split('-')[1])
-            }
-            if (interaction.customId.split('-')[0] === 'rejectsubmission') {
-                // Begin rejection handling
-                bot.emit('rejectReview', interaction, server, interaction.customId.split('-')[1])
-            }
-            if (interaction.customId.split('-')[0] === 'closesubmission') {
-                // Close. NOT FINAL STEP. THIS IS WHEN REVIEW STATUS IS SET TO CLOSED. COMPLETE IS LAST
-                bot.emit('closeSubmission', interaction, server, interaction.customId.split('-')[2] || null)
-            }
-            if (interaction.customId.split('-')[0] === 'delete') {
-                // THIS IS WHAT DELETES CHANNEL AND SO ON
-                bot.emit('completeReview', interaction, server, interaction.customId.split('-')[2] || null)
-            }
-            if (interaction.customId.split('-')[0] === 'completesubmission') {
+
+            
+
+
+
+
+
+            /*             if (interaction.customId.split('-')[0] === 'completesubmission') {
                 // Triggers BEFORE deleting channel if missing reviewLink
                 const reviewlink = interaction.fields.getTextInputValue('reviewlink')
                 cLog(['Review nr: ', interaction.customId.split('-')[1],], { guild: interaction.guild, subProcess: 'reviewLinkEmpty' })
@@ -114,28 +74,25 @@ const event: BotEvent = {
                     content: 'Updated the review link to ' + reviewlink,
                     ephemeral: true,
                 })
-            }
-            if (interaction.customId.split('-')[1] === 'reviewrating' || interaction.customId.split('-')[2] === 'reviewrating') {
-                // Handle user submitted reviews to their review
-                bot.emit('rateReview', interaction)
-            }
+            } */
+
         } catch (err) {
             console.log(
                 'Failed somewhere during interaction : ',
                 err,
                 interaction.user.username
             )
-            await interaction.reply({
+            /*  await interaction.reply({
                 content: 'Something went wrong, please contact staff',
                 ephemeral: true,
-            })
+            }) */
         }
     },
 }
 export default event
 
 async function slashCommandHandler(interaction) {
-    const command = interaction.client.commands.get(interaction.commandName)
+    const command = (interaction.client as Client).slashCommands.get(interaction.commandName)
     if (command) {
         try {
             await command.execute(interaction)
@@ -145,6 +102,99 @@ async function slashCommandHandler(interaction) {
             await interaction.reply({ content: `${error}`, ephemeral: true })
             return
         }
+    }
+}
+
+
+enum ButtonAction {
+    VERIFY = 'verify',
+    DELETE = 'delete',
+    DELETE_MESSAGE = 'deletemessage',
+    SUBMIT_REVIEW = 'submitreview',
+    CLAIM = 'claim',
+    REJECT = 'reject',
+    CLOSE_SUBMISSION = 'closesubmission',
+    COMPLETE_SUBMISSION = 'completesubmission',
+    RATE_REVIEW = 'ratereview'
+}
+
+
+async function handleButtonInteraction(interaction: ButtonInteraction, server: ServerInfo) {
+    const action = interaction.customId.split('-')[0] as ButtonAction
+    const bot: Client = interaction.client
+    switch (action) {
+        case ButtonAction.VERIFY:
+            cLog(['User clicked verify-user : ', interaction.user.username], { guild: interaction.guild, subProcess: 'buttonClick' })
+            bot.emit(CustomEvents.InitVerifyUser, interaction)
+            break
+        case ButtonAction.DELETE:
+            cLog(['User clicked delete : ', interaction.user.username], { guild: interaction.guild, subProcess: 'buttonClick' })
+            await interaction.showModal(createUserVerificationModal())
+            break
+        case ButtonAction.DELETE_MESSAGE:
+            await interaction.message.delete()
+            cLog(['Deleted refund message'], { guild: server.serverId, subProcess: 'Refund Message' })
+            break
+        case ButtonAction.SUBMIT_REVIEW:
+            if (await blockIfLacksRole(interaction, server.serverName)) 
+                return
+                
+            await createSubmissionModal( interaction, server, interaction.customId.split('-')[1] )
+            break
+        case ButtonAction.CLAIM:
+            // Begin claim handling
+            cLog(['Claiming review nr: ', interaction.customId.split('-')[1],], { guild: interaction.guild, subProcess: 'buttonClick' })
+            bot.emit('claimReview', interaction, server, interaction.customId.split('-')[1])
+            break
+
+        case ButtonAction.REJECT:
+            // Begin rejection handling
+            bot.emit('rejectReview', interaction, server, interaction.customId.split('-')[1])
+            break
+        case ButtonAction.CLOSE_SUBMISSION:
+            // Close. NOT FINAL STEP. THIS IS WHEN REVIEW STATUS IS SET TO CLOSED. COMPLETE IS LAST
+            bot.emit('closeSubmission', interaction, server, interaction.customId.split('-')[2] || null)
+            break
+
+        case ButtonAction.COMPLETE_SUBMISSION:
+            // THIS IS WHAT DELETES CHANNEL AND SO ON
+            bot.emit('completeReview', interaction, server, interaction.customId.split('-')[2] || null)
+            break
+
+        case ButtonAction.RATE_REVIEW:
+            bot.emit('rateReview', interaction)
+            break
+        default:
+    }
+}
+
+enum ModalActions {
+    VERIFY_USER = 'verify',
+    SUBMISSION = 'submission',
+    RATE_REVIEW = 'ratereview'
+}
+
+async function handleModalSubmitInteraction(interaction, server) {
+    const bot: Client = interaction.client
+    const action = interaction.customId.split('-')[0] as ModalActions
+
+    switch (action) {
+        case ModalActions.VERIFY_USER:
+            cLog(['User clicked verify-user : ', interaction.user.username], { guild: interaction.guild, subProcess: 'ModalSub' })
+            bot.emit('verifyUser', interaction, server)
+            break
+        case ModalActions.SUBMISSION:
+            // Handles response from the submitted submission through modal
+            if (validLink(interaction, server.serverName)) {
+                // Begin submission creation handling
+                bot.emit('submitReview', interaction, server, interaction.customId.split('-')[1])
+            } else 
+                await interaction.reply({ content:'This link is not valid.\n\nThink this is a mistake? Let us know', ephemeral: true })
+            break
+        case ModalActions.RATE_REVIEW:
+            bot.emit('rateReview', interaction)
+            break
+        default:
     }
 }
 
@@ -204,16 +254,5 @@ function validLink(interaction, game) {
     }
 }
 
-async function handleButtonInteraction(interaction) {
-    if (interaction.customId.startsWith('verify-user')) {
-        const serverPart = interaction.customId.split('-')[2] || null
-        cLog(['User clicked verify-user : ', interaction.user.username], { guild: interaction.guild, subProcess: 'buttonClick' })
-        await interaction.showModal(createUserVerificationModal(serverPart))
-    }
-}
-
-async function handleModalSubmitInteraction() {
-    // Placeholder
-}
 
 
