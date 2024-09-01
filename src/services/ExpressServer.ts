@@ -1,6 +1,7 @@
 import express, { Express, Request, Response } from 'express'
-import router from '../routes/TBDUser'
 import { Client } from 'discord.js'
+import userRouter from '../routes/TBDUser'
+import testRouter from '../routes/TestUser'
 //import { Logger } from '../classes/Logger'
 
 /**
@@ -26,6 +27,7 @@ class ExpressServer {
      */
     public setBotClient(bot: Client) {
         this.bot = bot
+        this.setupRoutes()
     }
     /**
      * Sets up middleware for the Express server.
@@ -41,8 +43,8 @@ class ExpressServer {
         this.app.get('/', (req: Request, res: Response) => {
             res.send('Hello, this is your Discord bot server!')
         })
-
-        this.app.use('/user', router)
+        this.app.use('/user', userRouter(this.bot))
+        this.app.use('/test', testRouter(this.bot))
     }
 
     /**
