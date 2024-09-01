@@ -6,7 +6,6 @@ type VerifiedUsersAttributes = {
     username: string;
     userId: string;
     skillCappedId: string;
-    email: string;
     server: string;
     serverPart: string;
     linkId: string;
@@ -18,7 +17,6 @@ export default class VerifiedUsers extends Model<VerifiedUsersAttributes> {
     declare id: number
     declare username: string
     declare userId: string
-    declare email: string
     declare server: string
     declare serverPart: string
     declare accessLevel: AccessLevel
@@ -28,7 +26,6 @@ export default class VerifiedUsers extends Model<VerifiedUsersAttributes> {
         return super.init({
             username: { type: DataTypes.STRING },
             userId: { type: DataTypes.STRING },
-            email: { type: DataTypes.STRING },
             server: { type: DataTypes.STRING },
             serverPart: { type: DataTypes.STRING },
             accessLevel: { type: DataTypes.STRING },
