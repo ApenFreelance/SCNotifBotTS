@@ -33,6 +33,7 @@ export default class VerifiedUsers extends Model<VerifiedUsersAttributes> {
             tableName,
             updatedAt:true,
             createdAt:true,
+            underscored: true,
             sequelize
         }) as ModelStatic<VerifiedUsers>
     }
