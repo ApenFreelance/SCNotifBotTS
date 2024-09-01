@@ -26,6 +26,7 @@ export enum CustomEvents {
     SubmitReview = 'submitReview',
     VerifyUser = 'verifyUser',
     InitVerifyUser = 'initVerifyUser',
+    RemoveVerification = 'removeVerification'
 }
 
 export interface BotEvent {
