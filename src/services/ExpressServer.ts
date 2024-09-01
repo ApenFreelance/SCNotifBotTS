@@ -1,6 +1,7 @@
 import express, { Express, Request, Response } from 'express'
 import router from '../routes/TBDUser'
-import { Logger } from '../classes/Logger'
+import { Client } from 'discord.js'
+//import { Logger } from '../classes/Logger'
 
 /**
  * Class representing an Express server.
@@ -8,6 +9,7 @@ import { Logger } from '../classes/Logger'
 class ExpressServer {
     private app: Express
     private port: number | string
+    private bot: Client
 
     /**
      * Creates an instance of ExpressServer.
@@ -18,7 +20,13 @@ class ExpressServer {
         this.setupMiddleware()
         this.setupRoutes()
     }
-
+    /**
+     * Attaches the bot to server. As function in case of restart of just server or bot seperatly
+     * @param bot 
+     */
+    public setBotClient(bot: Client) {
+        this.bot = bot
+    }
     /**
      * Sets up middleware for the Express server.
      */
@@ -39,10 +47,16 @@ class ExpressServer {
 
     /**
      * Starts the Express server.
+     * 
+     * @param {Client} [bot] - Optional bot client to set.
      */
-    public start(): void {
+    public start(bot: Client | null = null): void {
+        if (bot) 
+            this.setBotClient(bot)
+        
+
         this.app.listen(this.port, () => {
-            Logger.log(`Server is running on port ${this.port}`)
+            console.log(`Server is running on port ${this.port}`)
         })
     }
 }

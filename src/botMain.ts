@@ -6,8 +6,8 @@ import { join } from 'path'
 import BotConfig from '../config/bot.config.json'
 import dotenv from 'dotenv'
 import { SlashCommand } from './types'
-import express from 'express'
-
+import ExpressServer from './services/ExpressServer'
+import dbInstance from './db'
 dotenv.config()
 
 /**
@@ -48,10 +48,16 @@ function initializeBotClient(): Client {
 async function loadHandlers(bot: Client): Promise<void> {
     const handlersDir = join(__dirname, './handlers')
     const handlerFiles = readdirSync(handlersDir).filter(file => file.endsWith('.js') || file.endsWith('.ts'))
+    
     for (const file of handlerFiles) {
-        const { default: handler } = await import(`${handlersDir}/${file}`)
         console.log(`Loading handler: ${file}`)
-        await handler(bot)
+        try {
+            const { default: handler } = await import(`${handlersDir}/${file}`)
+            await handler(bot)
+            console.log(`Successfully loaded handler: ${file}`)
+        } catch (err) {
+            console.error(`Error loading handler: ${file}`, err)
+        }
     }
 }
 
@@ -80,39 +86,13 @@ function setupEventListeners(bot: Client): void {
         console.log('[ RATE LIMIT ]')
     })
 
-    /* process.on('unhandledRejection', (error) => {
+    process.on('unhandledRejection', (error) => {
         console.error('Unhandled promise rejection:', error)
     })
     process.on('uncaughtException', (error) => {
         console.error('Uncaught Exception : ', error)
-    }) */
-}
-
-
-/**
- * Initializes an Express server to handle incoming requests.
- */
-function initializeExpressServer() {
-    const app = express()
-    const port = process.env.PORT || 3000
-
-    app.use(express.json())
-
-    app.get('/', (req, res) => {
-        res.send('Hello, this is your Discord bot server!')
-    })
-
-    app.post('/webhook', (req, res) => {
-        // Handle the incoming request
-        console.log('Received webhook:', req.body)
-        res.status(200).send('Webhook received')
-    })
-
-    app.listen(port, () => {
-        console.log(`Server is running on port ${port}`)
     })
 }
-
 
 
 /**
@@ -123,19 +103,25 @@ function initializeExpressServer() {
 async function start(): Promise<void> {
     validateEnvVariables()
 
+    try {
+        await dbInstance.testConnection()
+    } catch (err) {
+        console.error('Error initializing database : ', err)
+    }
+
     const bot = initializeBotClient()
     bot.slashCommands = new Collection<string, SlashCommand>()
 
     await loadHandlers(bot)
     setupEventListeners(bot)
-
     try {
         await bot.login(process.env.BOT_TOKEN)
     } catch (err) {
         console.error('Error starting bot : ', err)
     }
     try {
-        initializeExpressServer()
+        const expressServer = new ExpressServer()
+        expressServer.start(bot)
     } catch (err) {
         console.error('Error starting express server : ', err)
     }
