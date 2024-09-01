@@ -1,24 +1,26 @@
 import { Client, SlashCommandBuilder, REST, Routes } from 'discord.js'
 import { readdirSync } from 'fs'
 import { join } from 'path'
-import { GuildIds, SlashCommand } from '../types'
+import { DiscordAPIErrorEnum, GuildIds, SlashCommand } from '../types'
 import { cLog } from '../components/functions/cLog'
 
 export default async (client : Client) => {
     
     const loadedCommands = await loadCommands(client)
-    loadedCommands.forEach((slashCommands, guild: GuildIds | 'Global') => {
-        
+    for (const [guild, slashCommands] of loadedCommands.entries()) {
         console.log(`Registering commands for ${guild}`)
         try {
-            registerSlashCommands(slashCommands, guild)
+            await registerSlashCommands(slashCommands, guild as GuildIds | 'Global')
+            console.log(`Successfully registered commands for ${guild}`)
         } catch (e) {
+            console.log('Error registering commands')
+            if (e.code === DiscordAPIErrorEnum.MISSING_ACCESS) 
+                console.error('Missing access to register commands. Set the correct CLIENT_ID in the .env file')
+            else 
+                console.error(`Failed to register commands for ${guild}\n${e}`)
             
-            console.error(`Failed to register commands for ${guild}\n${e}`)
-            return
         }
-        //consola.success(`Registered commands for ${guild}\n`)
-    })
+    }
 }
 
 
@@ -52,7 +54,8 @@ const registerSlashCommands = async (slashCommands: SlashCommandBuilder[], guild
     const registrationType = guild === 'Global' ? Routes.applicationCommands : Routes.applicationGuildCommands
     // Dont forget global can take a while to update. Could hours
     const rest = new REST({ version: '10' }).setToken(process.env.BOT_TOKEN)
-    rest.put(registrationType(process.env.APPLICATION_ID, guild), {
+
+    await rest.put(registrationType(process.env.CLIENT_ID, guild), {
         body: slashCommands.map(command => command.toJSON())
     })
 }
