@@ -4,8 +4,13 @@ import VerificationLogs from './models/VerificationLogs'
 import WoWCharacters from './models/WoWCharacters'
 import VerifiedUsers from './models/VerifiedUsers'
 import config from '../config/bot.config.json'
+import GlobalCounters from './models/GlobalCounters'
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 const { serverInfo } = config
+
 
 /**
  * Interface representing a model.
@@ -74,8 +79,7 @@ class Database {
                 logging: console.log,
             }
         )
-        this.initializeModels()
-        this.initializeTableMapping()
+        this.authenticateAndInitialize()
     }
 
     /**
@@ -88,21 +92,38 @@ class Database {
         
         return Database.instance
     }
+    /**
+     * Authenticate the database connection and initialize models and table mapping.
+     */
+    private async authenticateAndInitialize(): Promise<void> {
+        try {
+            await this.testConnection()
+            this.initializeModels()
+            this.initializeTableMapping()
+        } catch (error) {
+            console.error('Unable to connect to the database:', error)
+        }
+    }
 
     /**
      * Initialize the models and store them in the model mapping.
      */
     private initializeModels(): void {
         const models = [
-            //{ model: WoWReviewHistory, tableName: 'WoWReviewHistory_PVPTEST' },
-            { model: WoWReviewHistory, tableName: 'WoWReviewHistory_PVETEST' },
+            { model: GlobalCounters, tableName: 'GlobalCountersTEST' },
+            { model: WoWReviewHistory, tableName: 'WoWReviewHistoryTEST' },
             { model: VerificationLogs, tableName: 'VerificationLogsTEST' },
             { model: WoWCharacters, tableName: 'WoWCharactersTEST' },
             { model: VerifiedUsers, tableName: 'VerifiedUsersTEST' }
         ]
         models.forEach(({ model, tableName }) => {
             model.initModel(this.sequelize, tableName)
-            model.sync({ alter: true })
+            model.sync({ }).catch(err => {
+                if (err.message === 'Cannot delete property \'meta\' of [object Array]' ) 
+                    console.error('\n\nYou likely got this error because you set `model.sync({ alter: true })`. I would look more into it, but you shouldnt be altering these tables all willie nillie anyway right?\n', err, '\n\n')
+                else 
+                    console.error(err)
+            })
             this.modelMapping[tableName] = model
         })
     }
@@ -169,6 +190,7 @@ class Database {
         }
     }
 }
+
 
 // Export an instance of the Database class
 export default Database.getInstance()
