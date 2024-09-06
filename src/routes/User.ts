@@ -59,6 +59,7 @@ userRouter.post('/unverify', async (req: Request, res: Response) => {
             
         if (!skillCappedId) 
             return res.status(400).json({ error: 'skillCappedId is required' })
+        
         // Logic to remove the user's subscription perks
         // This might involve updating the database, calling other services, etc.
         const user = await VerifiedUsers.findOne({
@@ -66,9 +67,11 @@ userRouter.post('/unverify', async (req: Request, res: Response) => {
                 skillCappedId, // Since we lack a way to connect the accounts beside this and skill capped id...
             }
         })
+        if (!user) 
+            return res.status(400).json({ error: 'No account with this User ID exists' })
         
         user.accessLevel = AccessLevel.NO_ACCESS
-        await removeUserPerks(user.userId, req.bot)
+        //await removeUserPerks(user.userId, req.bot)
         
         res.status(200).json({ message: 'User subscription perks removed successfully' })
     } catch (error) {

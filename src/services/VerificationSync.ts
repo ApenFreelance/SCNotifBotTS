@@ -1,6 +1,8 @@
 import { Client } from 'discord.js'
 import VerifiedUsers from '../models/VerifiedUsers'
 import { Op } from 'sequelize'
+import axios from 'axios'
+import { AccessLevel } from '../types'
 //import { Logger } from '../classes/Logger'
 
 /**
@@ -27,9 +29,25 @@ class VerificationSync {
         })
         return expiringSubscriptions
     }
+    private async checkIfStillVerified(expiringSubscriptions: VerifiedUsers[]) {
+        // TODO : Add logging   
+        for (const user of expiringSubscriptions) {
+            const response = await axios.get(`https://api.skill-capped.com/api/v1/verify/${user.skillCappedId}`)
+            
+            // TODO: Handle response. Need to check if i failed reaching server because of server issues or not so i know if i should continue trying
+            if (response.status !== 200) return
+        
+            const { accessLevel, skillCappedCheckDate } = response
 
-    
-
+            if (accessLevel === AccessLevel.NO_ACCESS) {
+                //removeUserAccess(user)
+                //await user.save()
+            }
+            user.accessLevel = accessLevel
+            user.skillCappedCheckDate = skillCappedCheckDate
+            await user.save()
+        }
+    }
 }
 
 export default VerificationSync

@@ -121,6 +121,7 @@ enum ButtonAction {
 
 async function handleButtonInteraction(interaction: ButtonInteraction, server: ServerInfo) {
     const action = interaction.customId.split('-')[0] as ButtonAction
+    const serverPart = interaction.customId.split('-')
     const bot: Client = interaction.client
     switch (action) {
         case ButtonAction.VERIFY:
