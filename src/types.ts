@@ -103,3 +103,10 @@ export enum AccessLevel {
 export enum DiscordAPIErrorEnum {
     MISSING_ACCESS = 50001,
 }
+
+export enum MillieTimeEnum {
+    ONE_MINUTE = 60000,
+    ONE_HOUR = 3600000,
+    ONE_DAY = 86400000,
+    ONE_WEEK = 604800000
+}
