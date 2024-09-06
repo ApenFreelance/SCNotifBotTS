@@ -1,82 +1,39 @@
 import axios from 'axios'
 import { cLog } from '../components/functions/cLog'
 //import { updateGoogleSheet, createVerifSheetBody } from '../components/functions/googleApi'
-import VerificationLogs from '../models/VerificationLogs'
+// import VerificationLogs from '../models/VerificationLogs'
 import VerifiedUsers from '../models/VerifiedUsers'
-import { BotEvent, CustomEvents, EventType } from '../types'
-import { Op } from 'sequelize'
-
+import { BotEvent, CustomEvents, EventType, GuildIds } from '../types'
+import { selectServer } from '../components/functions/selectServer'
+import { Client } from 'discord.js'
 const event: BotEvent = {
     name: CustomEvents.VerifyUser,
     type: EventType.ON,
-    async execute(interaction, server) {
-        const serverPart = interaction.customId.split('-')[2] || null
-
-        const email = interaction.fields.getTextInputValue('email')
-        const logEntry = await VerificationLogs.create({
-            username: interaction.user.username,
-            userId: interaction.user.id,
-            email,
-            server: interaction.guild.id,
-            serverPart
-        })
-        if (interaction.member.roles.cache.has(server.premiumRoleId || server[serverPart].premiumRoleId)) {
-            cLog(['User already has role : ', interaction.user.username], { guild: interaction.guild, subProcess: 'VerifyUser' })
-            await interaction.reply({ content:`You already have <@&${server.premiumRoleId || server[serverPart].premiumRoleId}>`, ephemeral:true })
+    async execute(bot: Client, userId:string, mode:string) {
+        let discordServerId: GuildIds
+        switch (mode) {
+            case 'wowpvp':
+            case 'wowpve':
+                discordServerId = GuildIds.SKILLCAPPED_WOW
+                break
+            case 'valorant':
+                break
+            case 'dev':
+                discordServerId = GuildIds.DEV
+                break
+            default:
+                
         }
-
-        cLog(['Attempting to verify  : ', interaction.user.username, email], { guild: interaction.guild, subProcess: 'VerifyUser' })
-        const [userExists, error] = await verifyUserOnWebsite(email)
-        if (error) {
-            cLog(['Website did not respond  : ', interaction.user.name ], { guild: interaction.guild, subProcess: 'VerifyUser' })
-            await interaction.reply({ content: 'Something went wrong handling your request. Please let Staff know about this error!', ephemeral: true }).catch(ignoreIfAlreadyReplied)
-            logEntry.update({
-                wasSuccessful: false,
-                rejectionReason: 'Error connecting to website'
-            })
-            return
-        }
-
-        cLog(['Attempting to verify  : ', userExists], { guild: interaction.guild, subProcess: 'VerifyUser' })
-        if (!userExists) {
-            await interaction.reply({ content:`We could not find this account. Please make sure you have entered the correct email.\n\n# Believe this is a mistake?\n- [Submit Verification Request Here](${server.verifForm})\n\nPlease be aware that it may take a few days to confirm your member status on Discord and we apologize for any delays and inconvenience.\n\nAdditionally, confirmations will not be accepted for YouTube screenshots. Screenshots will need to be unedited from your account page and include your email.\n\nPlease make sure your **DISCORD USERNAME IS CORRECT**, otherwise we will be unable to give you access or respond to your form.\n\n*Example screenshot, email hidden for privacy purposes. Screenshots **will need** to include your email to be verified.*`, files: ['./extra/images/verify_example.png'], ephemeral:true })
-                .catch(ignoreIfAlreadyReplied)
-            logEntry.update({
-                wasSuccessful: false,
-                rejectionReason: 'User not found'
-            })
-            return
-        }
-        const [otherConnectedAccount] = await checkIfAccountAlreadyLinked(interaction)
-        if (otherConnectedAccount) {
-            cLog(['Account already linked : ', interaction.user.username], { guild: interaction.guild, subProcess: 'VerifyUser' })
-            await interaction.reply({ content:'This account is already linked.\n\n# Believe this is a mistake?\nContact staff to resolve this issue', ephemeral:true })
-                .catch(ignoreIfAlreadyReplied)
-            logEntry.update({
-                wasSuccessful: false,
-                rejectionReason: 'Account already linked'
-            })
-            return
-        }
-
-        cLog(['Attempting to give user premium  : ', interaction.user.username], { guild: interaction.guild, subProcess: 'VerifyUser' })
-  
-        await grantUserPremium(interaction, server, serverPart)
-        logEntry.update({ wasSuccessful: true })
-        const [verifEntry, _] = await VerifiedUsers.findOrCreate({ where: {
-            username:interaction.user.username,
-            userId: interaction.user.id,
-        }, defaults: {
-            server: interaction.guild.id,
-        } })
-        if (server.serverName === 'WoW' || server.specialPass) {
-            try {
-                cLog(['Attempting to update sheet  : ', interaction.user.username], { guild: interaction.guild, subProcess: 'VerifyUserSheet' })
-                console.log(verifEntry)
-                //await updateGoogleSheet(createVerifSheetBody(verifEntry.id, { username:verifEntry.username, userId:verifEntry.userId, email:verifEntry.email, createdAt:verifEntry.createdAt }))
-            } catch (err) {
-                cLog([': ', err], { guild: interaction.guild, subProcess: 'VerifyUserSheet' })
-            }
+        if (!discordServerId) return
+        const discordServer = await bot.guilds.fetch(discordServerId)
+        const discordUser = await discordServer.members.fetch(userId)
+        if (!discordUser) return
+        const serverConfig = selectServer(discordServerId)
+        const premiumRoleId = serverConfig?.[mode]?.premiumRoleId || serverConfig?.premiumRoleId
+        try {
+            discordUser.roles.add(premiumRoleId)
+        } catch (err) {
+            console.error('Error adding role to user', err, premiumRoleId)
         }
     },
 }
@@ -85,14 +42,7 @@ export default event
 async function checkIfAccountAlreadyLinked(interaction) {
     const linkedAccounts = await VerifiedUsers.findOne({
         where: {
-            [Op.and]: [
-                //{ server:interaction.guild.id },
-                {
-                    [Op.or]: [
-                        { userId: interaction.user.id }, 
-                    ]
-                }
-            ]
+            userId: interaction.user.id 
         }
     })
     if (!linkedAccounts) return [false, true]
