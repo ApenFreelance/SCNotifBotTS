@@ -1,20 +1,22 @@
-import { Client } from 'discord.js'
+
 import { Router, Request, Response } from 'express'
 import VerifiedUsers from '../models/VerifiedUsers'
-import { CustomEvents } from '../types'
+import { grantUserPremium } from '../components/functions/userVerificationUtil'
+import { AccessLevel } from '../types'
 
 
 const userRouter = Router()
 
 userRouter.post('/verify', async (req: Request, res: Response) => {
     try {
-        const { skillCappedId, linkId, skillCappedCheckDate, mode } = req.body
+        const { skillCappedId, linkId, skillCappedCheckDate, mode, accessLevel } = req.body
 
         if (!skillCappedId) 
             return res.status(400).json({ error: 'skillCappedId is required' })
         if (!linkId) 
             return res.status(400).json({ error: 'linkId is required' })
-        
+        if (!Object.values(AccessLevel).includes(accessLevel)) 
+            return res.status(400).json({ error: 'Invalid accessLevel' })
         // Logic to remove the user's subscription perks
         // This might involve updating the database, calling other services, etc.
         const user = await VerifiedUsers.findOne({
@@ -29,20 +31,18 @@ userRouter.post('/verify', async (req: Request, res: Response) => {
         if (user.linkExpirationTime < new Date()) 
             return res.status(400).json({ error: 'Link expired' })
             
-            
-        /**
-             * ! REQUIREMENTS FOR FINDING THE CORRECT ACC
-             * * ASSUME THAT USER AUTHENTICATES THROUGH BOT FIRST
-             * 
-             * If SkillCapped ID is connected somewhere already  
-             * 
-             */
+        
+        user.skillCappedId = skillCappedId
+        user.skillCappedCheckDate = skillCappedCheckDate
+        user.accessLevel = accessLevel
+        // This can potentially fail if that skillcapped account is already connected to someone
+        await user.save()
 
         try {
-            await emitVerificationToBot(user.userId, req.bot, mode)
-            res.status(200).json({ message: 'Verification request passed on to bot' })
+            await grantUserPremium({ bot: req.bot, userId: user.userId, mode })
+            res.status(200).json({ message: 'User has been verified and granted role' })
         } catch (err) {
-            res.status(200).json({ error: 'Failed when passing verification request to bot: ' + err })
+            res.status(200).json({ error: 'Failed when attempting to provide role: ' + err })
         }
         
     } catch (error) {
@@ -52,23 +52,23 @@ userRouter.post('/verify', async (req: Request, res: Response) => {
 })
 
 
-
-
-
-
 userRouter.post('/unverify', async (req: Request, res: Response) => {
     try {
-        const { userId, code } = req.body
+        const { skillCappedId } = req.body
 
             
-        if (!userId) 
-            return res.status(400).json({ error: 'User ID is required' })
-        if (!code) 
-            return res.status(400).json({ error: 'Code is required' })
-        
+        if (!skillCappedId) 
+            return res.status(400).json({ error: 'skillCappedId is required' })
         // Logic to remove the user's subscription perks
         // This might involve updating the database, calling other services, etc.
-        await removeUserPerks(userId, req.bot)
+        const user = await VerifiedUsers.findOne({
+            where: {
+                skillCappedId, // Since we lack a way to connect the accounts beside this and skill capped id...
+            }
+        })
+        
+        user.accessLevel = AccessLevel.NO_ACCESS
+        await removeUserPerks(user.userId, req.bot)
         
         res.status(200).json({ message: 'User subscription perks removed successfully' })
     } catch (error) {
@@ -85,11 +85,6 @@ async function removeUserPerks(userId: string, bot): Promise<void> {
     console.log(`Removing perks for user with ID: ${userId}`)
     bot.emit()
     // Example: await database.removeUserPerks(userId);
-}
-
-async function emitVerificationToBot(userId:string, bot: Client, mode:string): Promise<void> {
-    
-    bot.emit(CustomEvents.VerifyUser, bot, userId, mode)
 }
 
 
