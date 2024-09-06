@@ -28,6 +28,7 @@ export default class VerifiedUsers extends Model<VerifiedUsersAttributes> {
     declare id: number
     declare username: string
     declare userId: string
+    declare skillCappedId: string
     declare server: string
     declare linkId: string
     declare linkExpirationTime: Date
@@ -39,6 +40,7 @@ export default class VerifiedUsers extends Model<VerifiedUsersAttributes> {
         return super.init({
             username: { type: DataTypes.STRING },
             userId: { type: DataTypes.STRING },
+            skillCappedId: { type: DataTypes.STRING, unique: true },
             server: { type: DataTypes.STRING },
             accessLevel: { type: DataTypes.STRING },
             linkId: { type: DataTypes.STRING },
