@@ -1,4 +1,4 @@
-import express, { Express, Request, Response } from 'express'
+import express, { Express, Request, Response, NextFunction } from 'express'
 import { Client } from 'discord.js'
 import userRouter from '../routes/User'
 import testRouter from '../routes/TestUser'
@@ -33,7 +33,19 @@ class ExpressServer {
      */
     private setupMiddleware(): void {
         this.app.use(express.json())
+        this.app.use(this.ensureBotClient.bind(this))
     }
+    /**
+     * Middleware to ensure bot client is available.
+     */
+    private ensureBotClient(req: Request, res: Response, next: NextFunction): void {
+        if (!this.bot) 
+            return res.status(503).json({ error: 'Bot client is not available' })
+        
+        req.bot = this.bot // Attach the bot instance to the request object
+        next()
+    }
+
 
     /**
      * Sets up routes for the Express server.
@@ -42,8 +54,7 @@ class ExpressServer {
         this.app.get('/', (req: Request, res: Response) => {
             res.send('Hello, this is your Discord bot server!')
         })
-        console.log('Setting up routes', this.bot)
-        this.app.use('/user', userRouter(this.bot))
+        this.app.use('/user', userRouter)
         this.app.use('/test', testRouter(this.bot))
     }
 
@@ -56,7 +67,6 @@ class ExpressServer {
         if (bot) 
             this.setBotClient(bot)
         
-        //console.log(bot)
         this.app.listen(this.port, () => {
             console.log(`Server is running on port ${this.port}`)
         })
