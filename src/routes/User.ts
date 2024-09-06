@@ -4,14 +4,15 @@ import VerifiedUsers from '../models/VerifiedUsers'
 import { CustomEvents } from '../types'
 
 const userRouter = (bot: Client) => {
+    console.log('This is the bot', bot)
     const router = Router()
 
     router.post('/verify', async (req: Request, res: Response) => {
         try {
-            const { skillCappedId, linkId, skillCappedCheckDate } = req.body
-            
+            const { skillCappedId, linkId, skillCappedCheckDate, mode } = req.body
+            console.log('req.body', req.body)
             if (!skillCappedId) 
-                return res.status(400).json({ error: 'User ID is required' })
+                return res.status(400).json({ error: 'skillCappedId is required' })
             if (!linkId) 
                 return res.status(400).json({ error: 'linkId is required' })
         
@@ -26,6 +27,10 @@ const userRouter = (bot: Client) => {
                 return res.status(400).json({ error: 'No account with this User ID exists' })
            
 
+            if (user.linkExpirationTime < new Date()) 
+                return res.status(400).json({ error: 'Link expired' })
+            
+            
             /**
              * ! REQUIREMENTS FOR FINDING THE CORRECT ACC
              * * ASSUME THAT USER AUTHENTICATES THROUGH BOT FIRST
@@ -34,16 +39,24 @@ const userRouter = (bot: Client) => {
              * 
              */
 
-
-
-            await emitVerificationToBot(skillCappedId, bot)
+            try {
+                await emitVerificationToBot(user.userId, bot, mode)
+                res.status(200).json({ message: 'Verification request passed on to bot' })
+            } catch (err) {
+                res.status(200).json({ error: 'Failed when passing verification request to bot: ' + err })
+            }
         
-            res.status(200).json({ message: 'User subscription perks removed successfully' })
         } catch (error) {
             console.error('Error removing user subscription perks:', error)
             res.status(500).json({ error: 'Internal Server Error' })
         }
     })
+
+
+
+
+
+
     router.post('/unverify', async (req: Request, res: Response) => {
         try {
             const { userId, code } = req.body
@@ -74,9 +87,9 @@ async function removeUserPerks(userId: string, bot): Promise<void> {
     // Example: await database.removeUserPerks(userId);
 }
 
-async function emitVerificationToBot(userId:string, bot): Promise<void> {
+async function emitVerificationToBot(userId:string, bot: Client, mode:string): Promise<void> {
     console.log(`Adding for user with ID: ${userId}`)
-    bot.emit(CustomEvents.VerifyUser, userId, )
+    bot.emit(CustomEvents.VerifyUser, bot, userId, mode)
 }
 
 
