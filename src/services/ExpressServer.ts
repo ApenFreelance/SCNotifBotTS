@@ -1,6 +1,6 @@
 import express, { Express, Request, Response } from 'express'
 import { Client } from 'discord.js'
-import userRouter from '../routes/TBDUser'
+import userRouter from '../routes/User'
 import testRouter from '../routes/TestUser'
 //import { Logger } from '../classes/Logger'
 
@@ -19,7 +19,6 @@ class ExpressServer {
         this.app = express()
         this.port = process.env.PORT || 3000
         this.setupMiddleware()
-        this.setupRoutes()
     }
     /**
      * Attaches the bot to server. As function in case of restart of just server or bot seperatly
@@ -43,6 +42,7 @@ class ExpressServer {
         this.app.get('/', (req: Request, res: Response) => {
             res.send('Hello, this is your Discord bot server!')
         })
+        console.log('Setting up routes', this.bot)
         this.app.use('/user', userRouter(this.bot))
         this.app.use('/test', testRouter(this.bot))
     }
@@ -56,10 +56,11 @@ class ExpressServer {
         if (bot) 
             this.setBotClient(bot)
         
-
+        //console.log(bot)
         this.app.listen(this.port, () => {
             console.log(`Server is running on port ${this.port}`)
         })
+        
     }
 }
 
