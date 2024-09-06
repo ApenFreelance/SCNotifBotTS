@@ -4,12 +4,24 @@ import { AccessLevel } from '../types'
 
 type VerifiedUsersAttributes = {
     username: string;
+    /**
+     * Discord user id
+     */
     userId: string;
     skillCappedId: string;
+    /**
+     * Discord server id
+     */
     server: string;
     linkId: string;
+    /**
+     * Date when the link used to connect SC with bot will expire.
+     */
     linkExpirationTime: Date;
     accessLevel: AccessLevel;
+    /**
+     * Date this users verification status will be checked again.
+     */
     skillCappedCheckDate: Date;
 }
 export default class VerifiedUsers extends Model<VerifiedUsersAttributes> {
@@ -17,6 +29,8 @@ export default class VerifiedUsers extends Model<VerifiedUsersAttributes> {
     declare username: string
     declare userId: string
     declare server: string
+    declare linkId: string
+    declare linkExpirationTime: Date
     declare accessLevel: AccessLevel
     declare createdAt: Date
     declare skillCappedCheckDate: Date
@@ -27,6 +41,8 @@ export default class VerifiedUsers extends Model<VerifiedUsersAttributes> {
             userId: { type: DataTypes.STRING },
             server: { type: DataTypes.STRING },
             accessLevel: { type: DataTypes.STRING },
+            linkId: { type: DataTypes.STRING },
+            linkExpirationTime: { type: DataTypes.DATE },
             skillCappedCheckDate: { type: DataTypes.DATE }
         }, {
             tableName,
