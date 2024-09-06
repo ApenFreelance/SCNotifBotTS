@@ -3,7 +3,8 @@
         "required": [
             "BOT_TOKEN",
             "CLIENT_ID"
-        ]
+        ],
+        "validLinkTimeInMinutes": 20
     },
     "serverInfo": {
         "Valorant": {
