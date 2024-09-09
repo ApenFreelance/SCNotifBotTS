@@ -19,6 +19,7 @@ type WoWReviewHistoryAttributes = {
     reviewRating: number;
     reviewRatingComment: string;
     transcript: string;
+    createdAt: Date;
 };
 
 export default class WoWReviewHistory extends Model<WoWReviewHistoryAttributes> {
@@ -39,6 +40,7 @@ export default class WoWReviewHistory extends Model<WoWReviewHistoryAttributes> 
     declare reviewRating: number
     declare reviewRatingComment: string
     declare transcript: string
+    declare createdAt: Date
 
     static initModel(sequelize: Sequelize, tableName: string): ModelStatic<WoWReviewHistory> {
         return super.init({
