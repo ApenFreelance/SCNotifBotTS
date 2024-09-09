@@ -18,6 +18,7 @@ const event: BotEvent = {
                 await slashCommandHandler(interaction)
                 return
             }
+            console.log('Interactio received')
             // End of slash command handler
             //await interaction.reply({content:"Processing...", ephemeral:true}) // This is to show something is happening and to prevent timeout. EDIT IT ALONG THE WAY
             // Line above causes issues with modals
@@ -121,7 +122,7 @@ enum ButtonAction {
 
 async function handleButtonInteraction(interaction: ButtonInteraction, server: ServerInfo) {
     const action = interaction.customId.split('-')[0] as ButtonAction
-    const serverPart = interaction.customId.split('-')
+    const serverPart = interaction.customId.split('-')[1]
     const bot: Client = interaction.client
     switch (action) {
         case ButtonAction.VERIFY:
@@ -139,18 +140,17 @@ async function handleButtonInteraction(interaction: ButtonInteraction, server: S
         case ButtonAction.SUBMIT_REVIEW:
             if (await blockIfLacksRole(interaction, server.serverName)) 
                 return
-                
-            await createSubmissionModal( interaction, server, interaction.customId.split('-')[1] )
+            await createSubmissionModal( interaction, server, serverPart )
             break
         case ButtonAction.CLAIM:
             // Begin claim handling
-            cLog(['Claiming review nr: ', interaction.customId.split('-')[1],], { guild: interaction.guild, subProcess: 'buttonClick' })
-            bot.emit('claimReview', interaction, server, interaction.customId.split('-')[1])
+            cLog(['Claiming review nr: ', serverPart,], { guild: interaction.guild, subProcess: 'buttonClick' })
+            bot.emit('claimReview', interaction, server, serverPart)
             break
 
         case ButtonAction.REJECT:
             // Begin rejection handling
-            bot.emit('rejectReview', interaction, server, interaction.customId.split('-')[1])
+            bot.emit('rejectReview', interaction, server, serverPart)
             break
         case ButtonAction.CLOSE_SUBMISSION:
             // Close. NOT FINAL STEP. THIS IS WHEN REVIEW STATUS IS SET TO CLOSED. COMPLETE IS LAST
@@ -170,7 +170,7 @@ async function handleButtonInteraction(interaction: ButtonInteraction, server: S
 }
 
 enum ModalActions {
-    VERIFY_USER = 'verify',
+    VERIFY_USER = 'verify', // deprecated
     SUBMISSION = 'submission',
     RATE_REVIEW = 'ratereview'
 }
@@ -178,17 +178,18 @@ enum ModalActions {
 async function handleModalSubmitInteraction(interaction, server) {
     const bot: Client = interaction.client
     const action = interaction.customId.split('-')[0] as ModalActions
-
+    const serverPart = interaction.customId.split('-')[1]
+    console.log('Modal action : ', action, interaction.customId)
     switch (action) {
-        case ModalActions.VERIFY_USER:
+        case ModalActions.VERIFY_USER: // deprecated
             cLog(['User clicked verify-user : ', interaction.user.username], { guild: interaction.guild, subProcess: 'ModalSub' })
             bot.emit('verifyUser', interaction, server)
             break
-        case ModalActions.SUBMISSION:
+        case ModalActions.SUBMISSION: 
             // Handles response from the submitted submission through modal
             if (validLink(interaction, server.serverName)) {
                 // Begin submission creation handling
-                bot.emit('submitReview', interaction, server, interaction.customId.split('-')[1])
+                bot.emit('submitReview', interaction, server, serverPart)
             } else 
                 await interaction.reply({ content:'This link is not valid.\n\nThink this is a mistake? Let us know', ephemeral: true })
             break
