@@ -14,7 +14,7 @@ async function createWaitingForReviewMessage(interaction, charInfo,
     mode = null
 ) {
     const member = await interaction.guild.members.fetch(interaction.user.id)
-    const submissionChannel = await interaction.client.channels.fetch(server[mode].submissionChannelId)
+    const submissionChannel = await interaction.client.channels.fetch(server[mode]?.submissionChannelId || server.submissionChannelId)
     let description = null
     if (server.serverName === 'WoW') {
         if (charInfo === null) 
@@ -29,12 +29,6 @@ async function createWaitingForReviewMessage(interaction, charInfo,
             }
         }
         description += `\n\nI consent to my review being used by Skill-Capped: **${consentInput}**  `
-    } else if (server.serverName === 'Valorant') {
-        if (charInfo === null) 
-            description = `Tracker.gg:\u00A0\u00A0\u00A0\u00A0**[${inputName}](${linkToUserPage})**\n\n**Failed to get data from API**`
-        else 
-            description = `Tracker.gg:\u00A0\u00A0\u00A0\u00A0**[${charInfo.accountData.data.data.name}](${linkToUserPage})**\nCurrent Rank:\u00A0**${charInfo.MMRdata.data.data.current_data.currenttierpatched}**\nAll-time Rank:\u00A0**${charInfo.MMRdata.data.data.highest_rank.patched_tier}**\nElo:\u00A0\u00A0\u00A0\u00A0**${charInfo.MMRdata.data.data.current_data.elo}**\n\nI consent to my review being used by Skill-Capped: **${consentInput}**  `
-    
     }
 
     description += `\n\nClip to review: **${reviewHistory.clipLink}**`
