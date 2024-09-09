@@ -1,7 +1,7 @@
 import { Client, GuildMember } from 'discord.js'
 import { GuildIds } from '../../types'
 import { selectServer } from './selectServer'
-
+import { serverInfo } from '../../../config/bot.config.json'
 
 /**
  * Grants a user premium access by adding a premium role to their Discord account.
@@ -52,7 +52,7 @@ async function grantUserPremium({ bot, userId, mode, discordServerId, member  }:
     }
 }
 
-async function removeAllAccess() {
+async function removeAllAccess({ bot, userId }) {
     /**
      * TODO : Implement the logic to remove all access from a user
      * Couple requirements:
@@ -60,10 +60,45 @@ async function removeAllAccess() {
      * 2. Parse the roles all servers have ( that are premium )
      * 3. Remove those roles from the user
      */
+
+    for (const serverName in serverInfo) {
+        const serverConfig = serverInfo[serverName]
+        let userInServer
+        let discordServer
+        try {
+            discordServer = await bot.guilds.fetch(serverConfig.serverId)
+
+        } catch ( err ) {
+            console.log(`Server not found ${serverName}`, err)
+            continue
+        }
+        try {
+            userInServer = await discordServer.members.fetch(userId)
+        } catch (err) {
+            console.log(`User not found in server ${serverName}`, err)
+            continue
+        }
+        // Temp        
+        if (serverName !== 'WoW') {
+            userInServer.roles.remove(serverConfig['premiumRoleId'])
+            continue
+        }
+        const premiumRoleId = [serverConfig['wowpve'].premiumRoleId, serverConfig['wowpvp'].premiumRoleId]
+        for (const roleId of premiumRoleId) {
+            try {
+                userInServer.roles.remove(roleId)
+            } catch (err) {
+                console.error(`Error removing role ${roleId} from user ${userId} in server ${serverName}`, err)
+            }
+        }
+
+    }
+    return
 }
 
 
 
 
 
-export { grantUserPremium }
+
+export { grantUserPremium, removeAllAccess }
