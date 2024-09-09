@@ -6,6 +6,7 @@ import VerifiedUsers from './models/VerifiedUsers'
 import config from '../config/bot.config.json'
 import GlobalCounters from './models/GlobalCounters'
 import dotenv from 'dotenv'
+import ReviewTimerOverwrite from './models/ReviewTimerOverwrite'
 
 dotenv.config()
 
@@ -114,7 +115,8 @@ class Database {
             { model: VerificationLogs, tableName: 'VerificationLogsTEST' },
             { model: WoWReviewHistory, tableName: 'WoWReviewHistoryTEST' },
             { model: WoWCharacters, tableName: 'WoWCharactersTEST' },
-            { model: VerifiedUsers, tableName: 'VerifiedUsersTEST' }
+            { model: VerifiedUsers, tableName: 'VerifiedUsersTEST' },
+            { model: ReviewTimerOverwrite, tableName: 'ReviewTimerOverwriteTEST' }
         ]
         
         for (const { model, tableName } of models) {
@@ -139,6 +141,7 @@ class Database {
 
     /**
      * Initialize the table mapping.
+     * @deprecated This method is deprecated and will be removed in a future release beacuse it is not useful for just 1 servers review system 
      */
     private initializeTableMapping(): void {
         this.tableMapping = {
