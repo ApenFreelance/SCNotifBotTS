@@ -11,7 +11,6 @@ const event: BotEvent = {
     name: CustomEvents.InitVerifyUser,
     type: EventType.ON,
     async execute(interaction, server, serverPart = '') { 
-        console.log(server)
         /*
         * Regarding the server param:
         * Do i actually care if they are connected to something???? 
@@ -43,7 +42,7 @@ const event: BotEvent = {
 
         if (userAccount.accessLevel !== AccessLevel.NO_ACCESS) {
             // Sorta temporary. 
-            grantUserPremium({ bot: interaction.client, userId: interaction.user.id, mode: serverPart, member: interaction.member })
+            grantUserPremium({ bot: interaction.client, userId: interaction.user.id, mode: serverPart, member: interaction.member, discordServerId: interaction.guild.id })
             return
         }
 
