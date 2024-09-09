@@ -4,6 +4,7 @@ import VerifiedUsers from '../models/VerifiedUsers'
 import { cLog } from '../components/functions/cLog'
 import { envvariables } from '../../config/bot.config.json'
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
+import { grantUserPremium } from '../components/functions/userVerificationUtil'
 
 
 const event: BotEvent = {
@@ -40,8 +41,12 @@ const event: BotEvent = {
         // Respond with already linked
         // For now lets just give them the role and whatnot. Already linked anyway right?
 
-        const shouldContinue = giveAccessByAccessLevel(userAccount.accessLevel, interaction, server, serverPart) 
-        if (!shouldContinue) return
+        if (userAccount.accessLevel !== AccessLevel.NO_ACCESS) {
+            // Sorta temporary. 
+            grantUserPremium({ bot: interaction.client, userId: interaction.user.id, mode: serverPart, member: interaction.member })
+            return
+        }
+
         
         if (userAccount.linkExpirationTime < new Date()) {
             cLog(['Link expired  : ', userAccount.linkId], { guild: interaction.guild, subProcess: 'VerifyUser' })
@@ -113,39 +118,3 @@ async function requestUserVerification(SCEndpoint: string) {
     return await axios.post(SCEndpoint)
 }
 
-
-async function giveUserPremium(interaction, server, serverPart) {
-    // Get the role from either config or server object TBD
-    const role = await interaction.guild.roles.fetch(server.premiumRoleId || server[serverPart].premiumRoleId)
-    cLog(['Found role  : ', role.name], { guild: interaction.guild, subProcess: 'VerifyUser' })
-    
-    await interaction.member.roles.add(role)
-    await interaction.reply({ content:'Your account has been succesfully linked!', ephemeral: true })
-        .catch(ignoreIfAlreadyReplied)
-    cLog(['User granted premium  : ', interaction.user.username], { guild: interaction.guild, subProcess: 'VerifyUser' })
-}
-
-function ignoreIfAlreadyReplied(err) {
-    if (err.message === 'The reply to this interaction has already been sent or deferred.') 
-        return true
-    
-    throw err
-}
-function giveAccessByAccessLevel(accessLevel: AccessLevel, interaction, server, serverPart) {
-    let continueVerification = true
-    switch (accessLevel) {
-        case AccessLevel.ACCESS:
-            giveUserPremium(interaction, server, serverPart)
-            continueVerification = false
-            break
-        case AccessLevel.NO_ACCESS:
-            removeAllAccess() 
-            break
-        default:
-    }
-    return continueVerification
-}
-
-function removeAllAccess() {
-    // placeholder for removing all roles
-}
