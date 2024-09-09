@@ -21,6 +21,7 @@ type WoWCharactersAttributes = {
   soloShuffleSpec4Rating: number;
   specialization: string;
   mythicPlusScore: number;
+    createdAt: Date;
 };
 
 export default class WoWCharacters extends Model<WoWCharactersAttributes> {
@@ -43,6 +44,7 @@ export default class WoWCharacters extends Model<WoWCharactersAttributes> {
     declare soloShuffleSpec4Rating: number
     declare specialization: string
     declare mythicPlusScore: number
+    declare createdAt: Date
 
     static initModel(sequelize:Sequelize, tableName: string): ModelStatic<WoWCharacters> {
         return super.init(
