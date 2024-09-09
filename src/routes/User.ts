@@ -1,7 +1,7 @@
 
 import { Router, Request, Response } from 'express'
 import VerifiedUsers from '../models/VerifiedUsers'
-import { grantUserPremium } from '../components/functions/userVerificationUtil'
+import { grantUserPremium, removeAllAccess } from '../components/functions/userVerificationUtil'
 import { AccessLevel } from '../types'
 
 
@@ -10,6 +10,9 @@ const userRouter = Router()
 userRouter.post('/verify', async (req: Request, res: Response) => {
     try {
         const { skillCappedId, linkId, skillCappedCheckDate, mode, accessLevel } = req.body
+
+        // Feel like maybe i should do a check back towards the server here so you cant just give your own data in here.
+
 
         if (!skillCappedId) 
             return res.status(400).json({ error: 'skillCappedId is required' })
@@ -71,7 +74,8 @@ userRouter.post('/unverify', async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'No account with this User ID exists' })
         
         user.accessLevel = AccessLevel.NO_ACCESS
-        //await removeUserPerks(user.userId, req.bot)
+        user.save()
+        await removeAllAccess({ bot: req.bot, userId: user.userId })
         
         res.status(200).json({ message: 'User subscription perks removed successfully' })
     } catch (error) {
@@ -79,16 +83,6 @@ userRouter.post('/unverify', async (req: Request, res: Response) => {
         res.status(500).json({ error: 'Internal Server Error' })
     }
 })
-
-
-
-async function removeUserPerks(userId: string, bot): Promise<void> {
-    // Implement the logic to remove the user's perks here
-    // For example, update the database to remove the user's perks
-    console.log(`Removing perks for user with ID: ${userId}`)
-    bot.emit()
-    // Example: await database.removeUserPerks(userId);
-}
 
 
 export default userRouter
