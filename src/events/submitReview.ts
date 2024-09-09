@@ -1,4 +1,4 @@
-import blizzard from 'blizzard.js'
+import { wow } from 'blizzard.js'
 import classes from '../../config/classes.json'
 import { createWaitingForReviewMessage } from '../components/actionRowComponents/createWaitingForReview'
 import { cLog } from '../components/functions/cLog'
@@ -6,6 +6,7 @@ import dbInstance from '../db'
 import { reduceTimeBetweenUses, getOverwrites, getShortestOverwrite } from '../components/functions/timerOverwrite'
 import { BotEvent, CustomEvents, EventType } from '../types'
 import WoWReviewHistory from '../models/WoWReviewHistory'
+import WoWCharacters from '../models/WoWCharacters'
 
 const event: BotEvent = {
     name: CustomEvents.SubmitReview,
@@ -66,9 +67,8 @@ async function handleWoWServer(interaction, server) {
             .replace('/character/', '/')
             .split('/')
             .slice(1)
-        console.log(accountRegion, accountSlug, accountName)
+
         wowClient = await connectToWoW(interaction, accountRegion)
-        console.log(wowClient)
         if (!wowClient) {
             await interaction.editReply({ content: 'Failed to connect to Blizzard API.', ephemeral: true })
             return { improvement: null, consentInput: null, linkToUserPage, accountName, accountRegion, accountSlug, wowClient, characterData }
@@ -137,7 +137,7 @@ async function createNewReviewEntry(interaction, characterData, lastReview, impr
 
 async function connectToWoW(interaction, accountRegion) {
     try {
-        return await blizzard.wow.createInstance({
+        return await wow.createInstance({
             key: process.env.BCID,
             secret: process.env.BCS,
             origin: accountRegion,
@@ -154,8 +154,7 @@ async function getCharacterInfo(region, slug, characterName, wowClient, armoryLi
     const pvpData = await getPVPData(slug, characterName, Cprofile.character_class.name, wowClient, guildId)
     const mythicPlusScore = await getMythicPlusScore(slug, characterName, wowClient, guildId)
 
-    let characterData = await dbInstance.getTable(guildId, 'WoWCharacter')
-    characterData = await characterData.create({
+    const characterData = await WoWCharacters.create({
         armoryLink,
         characterName: Cprofile.name,
         characterRegion: region,
