@@ -1,23 +1,10 @@
 import { ButtonBuilder, PermissionsBitField, ActionRowBuilder, ButtonStyle, TextChannel, OverwriteResolvable } from 'discord.js'
-import { updateGoogleSheet, createSheetBody } from '../components/functions/googleApi'
-import dbInstance from '../db'
 import { cLog } from '../components/functions/cLog'
 import { BotEvent, EventType, ServerInfo } from '../types'
 import { CustomEvents } from '../types'
+import WoWReviewHistory from '../models/WoWReviewHistory'
 
 
-interface ReviewHistory {
-    id: string;
-    status: string;
-    claimedByID: string;
-    claimedByTag: string;
-    claimedAt: number;
-    userID: string;
-    dataValues: {
-        id: string;
-    };
-    update: (data: Partial<ReviewHistory>) => Promise<void>;
-}
 
 const event: BotEvent = {
     name: CustomEvents.ClaimReview,
@@ -26,10 +13,8 @@ const event: BotEvent = {
         try {
             const submissionNumber = interaction.message?.embeds[0]?.title?.replace('Submission ', '')
             if (!submissionNumber) throw new Error('Submission number not found')
-            const reviewHistory = await getReviewHistory(interaction.guildId, submissionNumber, mode)
-            if (!reviewHistory) throw new Error('Review history not found')
         
-            await reviewHistory.update({
+            const reviewHistory = await WoWReviewHistory.update({
                 status: 'Claimed',
                 claimedByID: interaction.user.id,
                 claimedByTag: interaction.user.username,
@@ -44,15 +29,6 @@ const event: BotEvent = {
                         .setCustomId(`closesubmission-${submissionNumber}${mode ? '-' + mode : ''}`)
                 )
 
-            const submissionPos = reviewHistory.dataValues.id
-            if (server.serverName === 'WoW') { // update google sheet
-                await updateGoogleSheet(createSheetBody(mode, submissionPos, { 
-                    status:reviewHistory.status, 
-                    claimedDate:reviewHistory.claimedAt, 
-                    claimedByID:reviewHistory.claimedByID, 
-                    claimedByUsername:reviewHistory.claimedByTag 
-                }))
-            }
 
             const parentCategory = server[mode]?.reviewCategoryId
             const newChannel = await createChannel(interaction, parentCategory, `review-${submissionNumber}`, [
@@ -90,15 +66,7 @@ const event: BotEvent = {
     },
 }
 export default event
-async function getReviewHistory(guildId: string, submissionNumber: string, mode: string | null): Promise<ReviewHistory | null> {
-    try {
-        const table = await dbInstance.getTable(guildId, 'reviewHistory', mode)
-        return await table.findOne({ where: { id: submissionNumber } })
-    } catch (err) {
-        console.log(err)
-        return null
-    }
-}
+
 
 async function createChannel(interaction, parentCategory: string, name: string, permissionOverwrites: OverwriteResolvable[]): Promise<TextChannel> {
     try {
