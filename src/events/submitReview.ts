@@ -1,197 +1,159 @@
-import { updateGoogleSheet, createSheetBody } from '../components/functions/googleApi'
 import blizzard from 'blizzard.js'
 import classes from '../../config/classes.json'
 import { createWaitingForReviewMessage } from '../components/actionRowComponents/createWaitingForReview'
 import { cLog } from '../components/functions/cLog'
 import dbInstance from '../db'
 import { reduceTimeBetweenUses, getOverwrites, getShortestOverwrite } from '../components/functions/timerOverwrite'
-import { BotEvent, CustomEvents, EventType, SheetBodyData } from '../types'
+import { BotEvent, CustomEvents, EventType } from '../types'
+import WoWReviewHistory from '../models/WoWReviewHistory'
 
 const event: BotEvent = {
     name: CustomEvents.SubmitReview,
     type: EventType.ON,
     async execute(interaction, server, mode = null) {
         try {
-            let sheetBody = null
-            let characterData = null
-            let linkToUserPage = null
-            let wowClient = null
-            let accountName = null
-            let accountRegion = null
-            let accountSlug = null
-            const improvement = interaction.fields.getTextInputValue('improvementinput')
-            const consentInput = interaction.fields.getTextInputValue('consentinput')
-            // get correct link to user page
             await interaction.reply({ content: 'Attempting to submit review...', ephemeral: true })
 
-            const reviewHistory = await dbInstance.getTable(server.serverId, 'reviewHistory', mode)
+            const { improvement, consentInput, linkToUserPage, accountName, accountRegion, accountSlug, wowClient, characterData } = await handleWoWServer(interaction, server)
 
-            if (server.serverName === 'WoW') {
-                linkToUserPage = interaction.fields.getTextInputValue('armory');
-                [accountRegion, accountSlug, accountName] = decodeURI(linkToUserPage)
-                    .toLowerCase()
-                    .replace('https://worldofwarcraft.com/', '')
-                    .replace('https://worldofwarcraft.blizzard.com/', '')
-                    .replace('/character/', '/')
-                    .split('/')
-                    .slice(1)
-                // Create a WoW Client connection
-                wowClient = await connectToWoW(interaction, accountRegion)
-                try {
-                    characterData = await getCharacterInfo(
-                        accountRegion,
-                        accountSlug,
-                        accountName,
-                        wowClient,
-                        linkToUserPage,
-                        interaction.guildId
-                    )
-                } catch (err) {
-                    console.log(err)
-                    characterData = null
-                    console.log('Failed to get char, because char doesnt exist or couldnt be found')
-                }
-            } else {
-                await interaction.editReply({ content: 'This server is unknown', ephemeral: true })
+            if (!characterData) {
+                await interaction.editReply({ content: 'Failed to get character data. Please check your input.', ephemeral: true })
                 return
             }
 
-            //console.log(verifiedAccount, created)
-            let [verifiedAccount, created] = await reviewHistory.findOrCreate({
-                where: { userID: interaction.user.id },
-                defaults: {
-                    status: 'Available',
-                    userEmail: interaction.fields.getTextInputValue('email'),
-                    userTag: interaction.user.username,
-                    clipLink: interaction.fields.getTextInputValue('ytlink'),
-                },
-                order: [['CreatedAt', 'DESC']],
-            })
+            const [lastReview, created] = await findOrCreateLastReview(interaction)
 
             if (created) {
-                // if a new entry is created there is no reason to check the rest
-                try {
-                    await createWaitingForReviewMessage(
-                        interaction,
-                        characterData,
-                        verifiedAccount,
-                        improvement,
-                        consentInput,
-                        linkToUserPage,
-                        accountName,
-                        server,
-                        mode
-                    )
-                } catch (err) {
-                    console.log('Failed when responding or creating message for review for NEW user', err)
-                    await interaction.editReply({ content: 'Something went wrong registering new user.', ephemeral: true })
-                }
-                const submissionPos = verifiedAccount.id
-                if (server.serverName === 'WoW') {
-                    sheetBody = firstSheetBody(mode, submissionPos, verifiedAccount, characterData, linkToUserPage)
-                    await updateGoogleSheet(sheetBody)
-                } else if (server.serverName === 'Valorant') {
-                    if (characterData !== null) {
-                        await verifiedAccount.update({
-                            CurrentTier: characterData.MMRdata.data.data.current_data.currenttierpatched,
-                            AllTimeTier: characterData.MMRdata.data.data.highest_rank.patched_tier,
-                        })
-                    }
-                }
-                await interaction.editReply({
-                    content: 'Thank you for requesting a free Skill Capped VoD Review.\n\nIf your submission is accepted, you will be tagged in a private channel where your review will be uploaded.',
-                    ephemeral: true,
-                })
+                await handleNewUser(interaction, characterData, lastReview, improvement, consentInput, linkToUserPage, accountName, server, mode)
                 return
             }
-            // Reduction decided on in DB
-            const { userTimeBetween, timeBetweenRoles } = await getOverwrites(
-                await interaction.user.id,
-                await interaction.member.roles.cache,
-                server
-            )
-            const shortest = await getShortestOverwrite(
-                userTimeBetween,
-                timeBetweenRoles,
-                interaction.guildId
-            )
-            if (Date.now() - shortest.timeBetween * 1000 <= verifiedAccount.createdAt ) {
-                await interaction.editReply({ content: `You can send a new submission in <t:${verifiedAccount.createdAt / 1000 + parseInt(shortest.timeBetween) }:R> ( <t:${verifiedAccount.createdAt / 1000 + parseInt(shortest.timeBetween)}> )`, ephemeral: true })
+
+            const shortest = await getShortestOverwriteForUser(interaction, server)
+
+            if (Date.now() - shortest.timeBetween * 1000 <= lastReview.createdAt.getTime()) {
+                await interaction.editReply({ content: `You can send a new submission in <t:${lastReview.createdAt.getTime() / 1000 + parseInt(shortest.timeBetween)}:R> ( <t:${lastReview.createdAt.getTime() / 1000 + parseInt(shortest.timeBetween)}> )`, ephemeral: true })
                 return
             }
+
             if (shortest.uses !== 'unlimited') 
                 await reduceTimeBetweenUses(shortest.userId, interaction.guildId)
             
 
-            // if none of the ones apply, create new entry
-            verifiedAccount = await reviewHistory.create({
-                userEmail: interaction.fields.getTextInputValue('email'),
-                userID: interaction.user.id,
-                status: 'Available',
-                userTag: interaction.user.username,
-                clipLink: interaction.fields.getTextInputValue('ytlink'),
-            })
-
-            await createWaitingForReviewMessage(
-                interaction,
-                characterData,
-                verifiedAccount,
-                improvement,
-                consentInput,
-                linkToUserPage,
-                accountName,
-                server,
-                mode
-            )
-            const submissionPos = verifiedAccount.id
-            if (server.serverName === 'WoW') {
-                sheetBody = firstSheetBody(mode, submissionPos, verifiedAccount, characterData, linkToUserPage)
-                await updateGoogleSheet(sheetBody)
-                await verifiedAccount.update({ charIdOnSubmission: characterData.id }).catch((_) => {
-                    console.log('No charId found')
-                })
-            } else if (server.serverName === 'Valorant') {
-                if (characterData !== null) {
-                    await verifiedAccount.update({
-                        CurrentTier: characterData.MMRdata.data.data.current_data.currenttierpatched,
-                        AllTimeTier: characterData.MMRdata.data.data.highest_rank.patched_tier,
-                    })
-                }
-            }
-            await interaction.editReply({
-                content: 'Thank you for requesting a free Skill Capped VoD Review.\n\nIf your submission is accepted, you will be tagged in a private channel where your review will be uploaded.\n\n**Videos above 15 minutes from unverified YouTube accounts will be removed by YouTube. Verify here:** https://www.youtube.com/verify',
-                ephemeral: true,
-            })
+            await createNewReviewEntry(interaction, characterData, lastReview, improvement, consentInput, linkToUserPage, accountName, server, mode)
         } catch (e) {
-            console.log(e)
-            await interaction.editReply({ content:'Something went wrong when submitting. Please contact staff', ephemeral: true })
+            console.error(e)
+            await interaction.editReply({ content: 'Something went wrong when submitting. Please contact staff', ephemeral: true })
         }
     }
 }
+
 export default event
 
-async function connectToWoW(interaction, accountRegion) {
-    const con = await blizzard.wow
-        .createInstance({
-            key: process.env.BCID,
-            secret: process.env.BCS,
-            origin: accountRegion, // optional
-            //locale: "en_US", // optional
-            token: '', // optional
-        })
-        .catch((err) => {
-            cLog([err], { guild: interaction.guild, subProcess: 'CreateWoWInstance' })
-        })
-    return con
+async function handleWoWServer(interaction, server) {
+    let linkToUserPage = null
+    let wowClient = null
+    let accountName = null
+    let accountRegion = null
+    let accountSlug = null
+    let characterData = null
+
+    if (server.serverName === 'WoW') {
+        linkToUserPage = interaction.fields.getTextInputValue('armory');
+        [accountRegion, accountSlug, accountName] = decodeURI(linkToUserPage)
+            .toLowerCase()
+            .replace('https://worldofwarcraft.com/', '')
+            .replace('https://worldofwarcraft.blizzard.com/', '')
+            .replace('/character/', '/')
+            .split('/')
+            .slice(1)
+        console.log(accountRegion, accountSlug, accountName)
+        wowClient = await connectToWoW(interaction, accountRegion)
+        console.log(wowClient)
+        if (!wowClient) {
+            await interaction.editReply({ content: 'Failed to connect to Blizzard API.', ephemeral: true })
+            return { improvement: null, consentInput: null, linkToUserPage, accountName, accountRegion, accountSlug, wowClient, characterData }
+        }
+        try {
+            characterData = await getCharacterInfo(accountRegion, accountSlug, accountName, wowClient, linkToUserPage, interaction.guildId)
+        } catch (err) {
+            console.error('Failed to get character data:', err)
+            characterData = null
+        }
+    } else 
+        await interaction.editReply({ content: 'This server is unknown', ephemeral: true })
+    
+
+    return { improvement: interaction.fields.getTextInputValue('improvementinput'), consentInput: interaction.fields.getTextInputValue('consentinput'), linkToUserPage, accountName, accountRegion, accountSlug, wowClient, characterData }
 }
 
+async function findOrCreateLastReview(interaction) {
+    return await WoWReviewHistory.findOrCreate({
+        where: { userID: interaction.user.id },
+        defaults: {
+            status: 'Available',
+            userEmail: interaction.fields.getTextInputValue('email'),
+            userTag: interaction.user.username,
+            clipLink: interaction.fields.getTextInputValue('ytlink'),
+        },
+        order: [['CreatedAt', 'DESC']],
+    })
+}
+
+async function handleNewUser(interaction, characterData, verifiedAccount, improvement, consentInput, linkToUserPage, accountName, server, mode) {
+    try {
+        await createWaitingForReviewMessage(interaction, characterData, verifiedAccount, improvement, consentInput, linkToUserPage, accountName, server, mode)
+    } catch (err) {
+        console.error('Failed to create message for new user:', err)
+        await interaction.editReply({ content: 'Something went wrong registering new user.', ephemeral: true })
+    }
+
+    await interaction.editReply({
+        content: 'Thank you for requesting a free Skill Capped VoD Review.\n\nIf your submission is accepted, you will be tagged in a private channel where your review will be uploaded.',
+        ephemeral: true,
+    })
+}
+
+async function getShortestOverwriteForUser(interaction, server) {
+    const { userTimeBetween, timeBetweenRoles } = await getOverwrites(interaction.user.id, interaction.member.roles.cache, server)
+    return await getShortestOverwrite(userTimeBetween, timeBetweenRoles, interaction.guildId)
+}
+
+async function createNewReviewEntry(interaction, characterData, lastReview, improvement, consentInput, linkToUserPage, accountName, server, mode) {
+    lastReview = await WoWReviewHistory.create({
+        userEmail: interaction.fields.getTextInputValue('email'),
+        userID: interaction.user.id,
+        status: 'Available',
+        userTag: interaction.user.username,
+        clipLink: interaction.fields.getTextInputValue('ytlink'),
+    })
+
+    await createWaitingForReviewMessage(interaction, characterData, lastReview, improvement, consentInput, linkToUserPage, accountName, server, mode)
+
+    await interaction.editReply({
+        content: 'Thank you for requesting a free Skill Capped VoD Review.\n\nIf your submission is accepted, you will be tagged in a private channel where your review will be uploaded.\n\n**Videos above 15 minutes from unverified YouTube accounts will be removed by YouTube. Verify here:** https://www.youtube.com/verify',
+        ephemeral: true,
+    })
+}
+
+async function connectToWoW(interaction, accountRegion) {
+    try {
+        return await blizzard.wow.createInstance({
+            key: process.env.BCID,
+            secret: process.env.BCS,
+            origin: accountRegion,
+            token: '',
+        })
+    } catch (err) {
+        cLog([err], { guild: interaction.guild, subProcess: 'CreateWoWInstance' })
+        return null
+    }
+}
 
 async function getCharacterInfo(region, slug, characterName, wowClient, armoryLink, guildId) {
     const Cprofile = await getCharacterProfile(slug, characterName, wowClient, guildId)
     const pvpData = await getPVPData(slug, characterName, Cprofile.character_class.name, wowClient, guildId)
     const mythicPlusScore = await getMythicPlusScore(slug, characterName, wowClient, guildId)
-    
-    
+
     let characterData = await dbInstance.getTable(guildId, 'WoWCharacter')
     characterData = await characterData.create({
         armoryLink,
@@ -214,47 +176,56 @@ async function getMythicPlusScore(realm, name, wowClient, guildId) {
 }
 
 async function findRatings(realm, name, brackets, characterClass, wowClient) {
-    let twoVtwoRating = null
-    let threeVthreeRating = null
-    let soloShuffleSpec1Rating = null
-    let soloShuffleSpec2Rating = null
-    let soloShuffleSpec3Rating = null
-    let soloShuffleSpec4Rating = null
+    const ratings = {
+        twoVtwoRating: null,
+        threeVthreeRating: null,
+        soloShuffleSpec1Rating: null,
+        soloShuffleSpec2Rating: null,
+        soloShuffleSpec3Rating: null,
+        soloShuffleSpec4Rating: null,
+    }
+
     for (const bracket of brackets) {
         try {
-            const bracketType = bracket.href.includes('2v2') ? '2v2'
-                : bracket.href.includes('3v3') ? '3v3'
-                    : bracket.href.includes(`shuffle-${characterClass.toLowerCase().replace(' ', '')}-${classes[characterClass][0].toLowerCase().replace(' ', '')}`) ? `shuffle-${characterClass.toLowerCase().replace(' ', '')}-${classes[characterClass][0].toLowerCase().replace(' ', '')}`
-                        : bracket.href.includes(`shuffle-${characterClass.toLowerCase().replace(' ', '')}-${classes[characterClass][1].toLowerCase().replace(' ', '')}`) ? `shuffle-${characterClass.toLowerCase().replace(' ', '')}-${classes[characterClass][1].toLowerCase().replace(' ', '')}`
-                            : bracket.href.includes(`shuffle-${characterClass.toLowerCase().replace(' ', '')}-${classes[characterClass][2].toLowerCase().replace(' ', '')}`) ? `shuffle-${characterClass.toLowerCase().replace(' ', '')}-${classes[characterClass][2].toLowerCase().replace(' ', '')}`
-                                : bracket.href.includes(`shuffle-${characterClass.toLowerCase().replace(' ', '')}-${classes[characterClass][3].toLowerCase().replace(' ', '')}`) ? `shuffle-${characterClass.toLowerCase().replace(' ', '')}-${classes[characterClass][3].toLowerCase().replace(' ', '')}`
-                                    : null
+            const bracketType = getBracketType(bracket.href, characterClass)
             if (bracketType) {
                 const bracketInfo = await wowClient.characterPVP({ realm, name, bracket: bracketType })
                 cLog([`getBracketData: ${bracketInfo.status}. [ ${bracketInfo.statusText} ]`], { subProcess: 'findRatings' })
-                if (bracketType === '2v2') 
-                    twoVtwoRating = bracketInfo.data.rating
-                else if (bracketType === '3v3') 
-                    threeVthreeRating = bracketInfo.data.rating
-                else if (bracketType.includes('shuffle')) {
-                    if (bracketType.endsWith(classes[characterClass][0].toLowerCase().replace(' ', ''))) 
-                        soloShuffleSpec1Rating = bracketInfo.data.rating
-                    else if (bracketType.endsWith(classes[characterClass][1].toLowerCase().replace(' ', ''))) 
-                        soloShuffleSpec2Rating = bracketInfo.data.rating
-                    else if (bracketType.endsWith(classes[characterClass][2].toLowerCase().replace(' ', ''))) 
-                        soloShuffleSpec3Rating = bracketInfo.data.rating
-                    else if (bracketType.endsWith(classes[characterClass][3].toLowerCase().replace(' ', ''))) 
-                        soloShuffleSpec4Rating = bracketInfo.data.rating
-                
-                }
+                updateRatings(ratings, bracketType, bracketInfo.data.rating, characterClass)
             }
         } catch (err) {
             if (!err.toString().includes('TypeError: Cannot read properties of undefined (reading \'toLowerCase\')')) 
-                console.log(err, 'Error when checking characterClasses')
+                console.error('Error when checking characterClasses:', err)
             
         }
     }
-    return { twoVtwoRating, threeVthreeRating, soloShuffleSpec1Rating, soloShuffleSpec2Rating, soloShuffleSpec3Rating, soloShuffleSpec4Rating }
+
+    return ratings
+}
+
+function getBracketType(href, characterClass) {
+    const classSlug = characterClass.toLowerCase().replace(' ', '')
+    const specs = classes[characterClass].map(spec => spec.toLowerCase().replace(' ', ''))
+    if (href.includes('2v2')) return '2v2'
+    if (href.includes('3v3')) return '3v3'
+    for (let i = 0; i < specs.length; i++) 
+        if (href.includes(`shuffle-${classSlug}-${specs[i]}`)) return `shuffle-${classSlug}-${specs[i]}`
+    
+    return null
+}
+
+function updateRatings(ratings, bracketType, rating, characterClass) {
+    const specs = classes[characterClass].map(spec => spec.toLowerCase().replace(' ', ''))
+    if (bracketType === '2v2') ratings.twoVtwoRating = rating
+    else if (bracketType === '3v3') ratings.threeVthreeRating = rating
+    else if (bracketType.includes('shuffle')) {
+        for (let i = 0; i < specs.length; i++) {
+            if (bracketType.endsWith(specs[i])) {
+                ratings[`soloShuffleSpec${i + 1}Rating`] = rating
+                break
+            }
+        }
+    }
 }
 
 async function getPVPData(realm, name, characterClass, wowClient, guildId) {
@@ -265,38 +236,16 @@ async function getPVPData(realm, name, characterClass, wowClient, guildId) {
             return await findRatings(realm, name, Cpvp.data.brackets, characterClass, wowClient)
         
     } catch (e) {
-        console.log(e)
-        console.log('User most likely has no rank history')
+        console.error('User most likely has no rank history:', e)
     }
+    return {}
 }
 
-
 async function getCharacterProfile(realm, name, wowClient, guildId) {
+    console.log(realm, name)
+    console.log(wowClient)
     const Cprofile = await wowClient.characterProfile({ realm, name })
     cLog([`Cprofile: ${Cprofile.status}. [ ${Cprofile.statusText} ]`], { guild: guildId, subProcess: 'characterData' })
     return Cprofile.data
 }
 
-function firstSheetBody(mode, submissionPos, verifiedAccount, characterData, armoryLink) {
-    const sheetBodyData: SheetBodyData = {
-        status: verifiedAccount.status,
-        createdAt: verifiedAccount.createdAt,
-        id: verifiedAccount.id,
-        userID: verifiedAccount.userID,
-        userEmail: verifiedAccount.userEmail,
-        clipLink: verifiedAccount.clipLink,
-        armoryLink,
-    }
-    if (characterData !== null) {
-        sheetBodyData.charClass = characterData.characterClass
-        sheetBodyData.twovtwo = characterData.twoVtwoRating
-        sheetBodyData.threevthree = characterData.threeVthreeRating
-        sheetBodyData.solo1 = characterData.soloShuffleSpec1Rating
-        sheetBodyData.solo2 = characterData.soloShuffleSpec2Rating
-        sheetBodyData.solo3 = characterData.soloShuffleSpec3Rating
-        sheetBodyData.solo4 = characterData.soloShuffleSpec4Rating
-        sheetBodyData.mythicPlusScore = characterData.mythicPlusScore
-        sheetBodyData.specialization = characterData.specialization
-    }
-    return createSheetBody(mode, submissionPos, sheetBodyData)
-}
