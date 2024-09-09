@@ -1,9 +1,9 @@
-const {
+import {
     ModalBuilder,
     TextInputBuilder,
     ActionRowBuilder,
     TextInputStyle,
-} = require('discord.js')
+} from 'discord.js'
 import { cLog } from './functions/cLog'
 
 async function completeSubmissionEmbed(interaction, submissionModal, mode = null) {
@@ -14,7 +14,7 @@ async function completeSubmissionEmbed(interaction, submissionModal, mode = null
         .setCustomId('reviewlink')
         .setLabel('REVIEW LINK:')
         .setStyle(TextInputStyle.Short)
-    const closeRow = new ActionRowBuilder().addComponents(closeInput)
+    const closeRow = new ActionRowBuilder<TextInputBuilder>().addComponents(closeInput)
 
     modal.addComponents(closeRow)
     await interaction.showModal(modal)
@@ -59,27 +59,15 @@ async function createSubmissionModal(interaction, game, mode = '') {
         )
         .setStyle(TextInputStyle.Short)
 
-    // Val fields
-    const trackerInput = new TextInputBuilder()
-        .setCustomId('tracker')
-        .setLabel('TRACKER.GG LINK:')
-        .setPlaceholder(
-            'https://tracker.gg/valorant/profile/riot/ApenJulius1%23EUW/overview'
-        )
-        .setStyle(TextInputStyle.Short)
-
     // The rows
-    const ytRow = new ActionRowBuilder().addComponents(ytInput)
-    const emailRow = new ActionRowBuilder().addComponents(emailInput)
-    const improvementRow = new ActionRowBuilder().addComponents(
+    const ytRow = new ActionRowBuilder<TextInputBuilder>().addComponents(ytInput)
+    const emailRow = new ActionRowBuilder<TextInputBuilder>().addComponents(emailInput)
+    const improvementRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
         improvementInput
     )
-    const consentRow = new ActionRowBuilder().addComponents(consentInput)
+    const consentRow = new ActionRowBuilder<TextInputBuilder>().addComponents(consentInput)
     // WoW rows
-    const armoryRow = new ActionRowBuilder().addComponents(armoryInput)
-
-    // Val rows
-    const trackerRow = new ActionRowBuilder().addComponents(trackerInput)
+    const armoryRow = new ActionRowBuilder<TextInputBuilder>().addComponents(armoryInput)
 
     if (game.serverName === 'WoW') {
         modal.addComponents(
@@ -89,15 +77,7 @@ async function createSubmissionModal(interaction, game, mode = '') {
             improvementRow,
             consentRow
         )
-    } else if (game.serverName === 'Valorant') {
-        modal.addComponents(
-            ytRow,
-            trackerRow,
-            emailRow,
-            improvementRow,
-            consentRow
-        )
-    } else {
+    }  else {
         cLog(
             ['This server was NOT NULL but unknown!', interaction.guild.name],
             { guild: interaction.guildId, subProcess: 'CreateSubmissionModal' }
@@ -118,7 +98,7 @@ function createRatingModal(submissionNumber, game, mode) {
         .setStyle(TextInputStyle.Paragraph)
         .setRequired(false)
 
-    const ratingRow = new ActionRowBuilder().addComponents(commentInput)
+    const ratingRow = new ActionRowBuilder<TextInputBuilder>().addComponents(commentInput)
     feedbackmodal.addComponents(ratingRow)
     return feedbackmodal
 }
@@ -134,7 +114,7 @@ function createUserVerificationModal(serverPart = null) {
         .setStyle(TextInputStyle.Short)
         .setRequired(true)
 
-    const verifyRow = new ActionRowBuilder().addComponents(emailInput)
+    const verifyRow = new ActionRowBuilder<TextInputBuilder>().addComponents(emailInput)
     verifModal.addComponents(verifyRow)
     return verifModal
 }
