@@ -112,8 +112,8 @@ enum ButtonAction {
     DELETE = 'delete',
     DELETE_MESSAGE = 'deletemessage',
     SUBMIT_REVIEW = 'submitreview',
-    CLAIM = 'claim',
-    REJECT = 'reject',
+    CLAIM = 'claimsubmission',
+    REJECT = 'rejectsubmission',
     CLOSE_SUBMISSION = 'closesubmission',
     COMPLETE_SUBMISSION = 'completesubmission',
     RATE_REVIEW = 'ratereview'
@@ -127,7 +127,7 @@ async function handleButtonInteraction(interaction: ButtonInteraction, server: S
     switch (action) {
         case ButtonAction.VERIFY:
             cLog(['User clicked verify-user : ', interaction.user.username], { guild: interaction.guild, subProcess: 'buttonClick' })
-            bot.emit(CustomEvents.InitVerifyUser, interaction, server)
+            bot.emit(CustomEvents.InitVerifyUser, interaction, server, serverPart)
             break
         case ButtonAction.DELETE:
             cLog(['User clicked delete : ', interaction.user.username], { guild: interaction.guild, subProcess: 'buttonClick' })
