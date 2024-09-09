@@ -44,7 +44,8 @@ declare module 'discord.js' {
 
 export enum GuildIds {
     SKILLCAPPED_WOW = '294958471953252353',
-    DEV = '1024961321768329246'
+    DEV = '1024961321768329246',
+    VALORANT = '123'
 }
 
 export interface ServerInfo {
@@ -109,4 +110,54 @@ export enum MillieTimeEnum {
     ONE_HOUR = 3600000,
     ONE_DAY = 86400000,
     ONE_WEEK = 604800000
+}
+
+
+export interface BlizzardCharacterProfile {
+    name: string;
+    character_class: { name: string };
+    equipped_item_level: number;
+    active_spec: { name: string };
+}
+
+export interface BlizzardPVPData {
+    status: number;
+    statusText: string;
+    data: {
+        brackets: { href: string }[];
+    };
+}
+
+export interface BlizzardMythicPlusScore {
+    status: number;
+    statusText: string;
+    data: {
+        current_mythic_rating: { rating: number };
+    };
+}
+
+export interface CharacterData {
+    armoryLink: string;
+    characterName: string;
+    characterRegion: string;
+    slug: string;
+    armorLevel: number;
+    characterClass: string;
+    specialization: string;
+    mythicPlusScore: number | null;
+    twoVtwoRating: number | null;
+    threeVthreeRating: number | null;
+    soloShuffleSpec1Rating: number | null;
+    soloShuffleSpec2Rating: number | null;
+    soloShuffleSpec3Rating: number | null;
+    soloShuffleSpec4Rating: number | null;
+}
+
+export interface Ratings {
+    twoVtwoRating: number | null;
+    threeVthreeRating: number | null;
+    soloShuffleSpec1Rating: number | null;
+    soloShuffleSpec2Rating: number | null;
+    soloShuffleSpec3Rating: number | null;
+    soloShuffleSpec4Rating: number | null;
 }
