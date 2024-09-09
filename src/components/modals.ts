@@ -30,7 +30,7 @@ async function createSubmissionModal(interaction, game, mode = '') {
     }
     // The modal
     const modal = new ModalBuilder()
-        .setCustomId(`submissionmodal${mode === '' ? '' : '-' + mode}`)
+        .setCustomId(`submission${mode === '' ? '' : '-' + mode}`)
         .setTitle('Submission Modal')
 
     // The common fields in modal
