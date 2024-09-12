@@ -30,6 +30,7 @@ async function grantUserPremium({ bot, userId, mode, discordServerId, member  }:
                 discordServerId = GuildIds.SKILLCAPPED_WOW
                 break
             case 'valorant':
+                discordServerId = GuildIds.VALORANT
                 break
             case 'dev':
                 discordServerId = GuildIds.DEV

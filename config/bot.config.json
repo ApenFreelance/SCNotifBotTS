@@ -37,9 +37,10 @@
             "specialPass": true
         },
         "Dev": {
+            
             "serverId": "1024961321768329246",
             "reviewCategoryId": "1085409586997108746",
-            "submissionChannelId": "1084873371797434438",
+            "submissionChannelId": "1124046482337714256",
             "serverName": "WoW",
             "transcriptChannelId": "1124046482337714256",
             "ratingChannelId": "1124046482337714256",

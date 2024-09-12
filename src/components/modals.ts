@@ -5,6 +5,7 @@ import {
     TextInputStyle,
 } from 'discord.js'
 import { cLog } from './functions/cLog'
+import { GuildIds } from '../types'
 
 async function completeSubmissionEmbed(interaction, submissionModal, mode = null) {
     const modal = new ModalBuilder()
@@ -21,7 +22,7 @@ async function completeSubmissionEmbed(interaction, submissionModal, mode = null
 }
 
 async function createSubmissionModal(interaction, game, mode = '') {
-    if (game === null) {
+    if (game === null && interaction.guildId !== GuildIds.DEV) {
         cLog(['This server was NULL!'], {
             guild: interaction.guildId,
             subProcess: 'CreateSubmissionModal',

@@ -2,9 +2,8 @@ import { wow } from 'blizzard.js'
 import classes from '../../config/classes.json'
 import { createWaitingForReviewMessage } from '../components/actionRowComponents/createWaitingForReview'
 import { cLog } from '../components/functions/cLog'
-import dbInstance from '../db'
 import { reduceTimeBetweenUses, getOverwrites, getShortestOverwrite } from '../components/functions/timerOverwrite'
-import { BotEvent, CustomEvents, EventType } from '../types'
+import { BotEvent, CharacterData, CustomEvents, EventType } from '../types'
 import WoWReviewHistory from '../models/WoWReviewHistory'
 import WoWCharacters from '../models/WoWCharacters'
 
@@ -23,7 +22,7 @@ const event: BotEvent = {
             }
 
             const [lastReview, created] = await findOrCreateLastReview(interaction)
-
+            console.log(mode)
             if (created) {
                 await handleNewUser(interaction, characterData, lastReview, improvement, consentInput, linkToUserPage, accountName, server, mode)
                 return
@@ -56,7 +55,7 @@ async function handleWoWServer(interaction, server) {
     let accountName = null
     let accountRegion = null
     let accountSlug = null
-    let characterData = null
+    let characterData: CharacterData | null = null
 
     if (server.serverName === 'WoW') {
         linkToUserPage = interaction.fields.getTextInputValue('armory');
@@ -95,7 +94,7 @@ async function findOrCreateLastReview(interaction) {
             userTag: interaction.user.username,
             clipLink: interaction.fields.getTextInputValue('ytlink'),
         },
-        order: [['CreatedAt', 'DESC']],
+        order: [['created_at', 'DESC']],
     })
 }
 
